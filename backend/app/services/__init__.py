@@ -3,6 +3,7 @@ from .ml_predictor import ml_predictor
 from .xai_engine import xai_engine
 from .decision_engine import decision_engine
 from .llm_service import llm_service
+from .sms_service import sms_service, SMSService
 
 __all__ = [
     "calculate_flood_simulation",
@@ -10,4 +11,6 @@ __all__ = [
     "xai_engine",
     "decision_engine",
     "llm_service",
+    "sms_service",
+    "SMSService",
 ]

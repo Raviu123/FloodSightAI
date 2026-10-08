@@ -5,11 +5,16 @@ import time
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.core.logging_config import logger
+from app.core.database import init_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup tasks
+    # Startup tasks - ensure tables exist
+    try:
+        init_db()
+    except Exception as e:
+        print(f"[WARN] Database auto-init warning: {e}")
     print(f"\n\033[1;36m======================================================================\033[0m")
     print(f"\033[1;32m  {settings.PROJECT_NAME} v{settings.VERSION} READY\033[0m")
     print(f"\033[36m  Environment:\033[0m {settings.ENVIRONMENT} | \033[36mAPI:\033[0m {settings.API_V1_STR}")
