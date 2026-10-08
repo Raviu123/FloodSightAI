@@ -48,19 +48,27 @@ export function MapLegend() {
             </div>
           </div>
 
-          {/* Dynamic Vectors */}
+          {/* Regional Floodplain & Hydrology */}
           <div>
             <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
-              Hydrology & Corridors
+              Regional Hydrology & Corridors
             </span>
-            <div className="space-y-1 text-[10px]">
+            <div className="space-y-1.5 text-[10px]">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-4 rounded-xs bg-cyan-400 border border-cyan-300" />
-                <span className="text-zinc-300">Active River Channels</span>
+                <span className="h-2.5 w-2.5 rounded-xs bg-purple-500/40 border border-purple-400" />
+                <span className="text-zinc-300">Flood Hub Regional Extent</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-4 rounded-full bg-emerald-400" />
-                <span className="text-zinc-300">Open Evacuation Corridor</span>
+                <span className="h-1.5 w-4 rounded-xs bg-cyan-400 border border-cyan-300" />
+                <span className="text-zinc-300">Active River Channels (Gurupura / Netravati)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-4 rounded-full bg-emerald-400 border border-emerald-300" />
+                <span className="text-zinc-300">NH-66 Highway Evacuation Corridor</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-rose-500 border border-rose-300 ring-2 ring-rose-500/30" />
+                <span className="text-zinc-300">Critical Medical / Incident Command Facility</span>
               </div>
             </div>
           </div>

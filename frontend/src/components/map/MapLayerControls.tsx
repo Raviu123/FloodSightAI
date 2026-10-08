@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 
 export interface MapLayerState {
   dangerZones: boolean;
+  floodCoverage: boolean;
   lowLyingAreas: boolean;
   waterBodies: boolean;
   facilities: boolean;
@@ -77,6 +78,14 @@ export function MapLayerControls({
       description: "Color-coded danger polygons",
       icon: Shield,
       color: "text-rose-400",
+    },
+    {
+      key: "floodCoverage" as const,
+      label: "Regional Floodplain Extent",
+      description: "Google Flood Hub basin network",
+      icon: Waves,
+      color: "text-purple-400",
+      highlight: true,
     },
     {
       key: "floodInundation" as const,
