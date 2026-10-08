@@ -1,0 +1,26 @@
+{
+  "model_version": "1.0.0",
+  "training_samples": 6000,
+  "metrics": {
+    "roc_auc": 0.9952,
+    "accuracy": 0.9717,
+    "precision": 0.9451,
+    "recall": 0.7478,
+    "f1_score": 0.835,
+    "depth_mae_meters": 0.024,
+    "depth_r2": 0.9369,
+    "onset_time_mae_minutes": 6.43,
+    "peak_time_mae_minutes": 10.99
+  },
+  "global_feature_importances_pct": {
+    "dist_to_coast_km": 32.78,
+    "elevation_m": 32.34,
+    "tide_level_m": 13.1,
+    "dist_to_river_km": 4.55,
+    "rainfall_accum_6h_mm": 4.34,
+    "rainfall_rate_mm_h": 4.08,
+    "cyclone_wind_kmh": 3.07,
+    "drainage_capacity_pct": 2.98,
+    "soil_saturation_idx": 2.75
+  }
+}
