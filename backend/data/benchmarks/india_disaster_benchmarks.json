@@ -1,0 +1,118 @@
+[
+  {
+    "event_id": "CHENNAI-2015",
+    "event_name": "Chennai 2015 Historic Flood",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "peak_date": "2015-12-01",
+    "recorded_24h_rainfall_mm": 494.0,
+    "high_flood_level_m": 3.8,
+    "estimated_inundation_area_sq_km": 160.0,
+    "breach_points": [
+      "Adyar River Chembarambakkam outflow",
+      "Cooum River Delta"
+    ],
+    "critical_hospitals_affected": [
+      "MIOT Hospital (power failure)",
+      "Tambaram Taluk Hospital"
+    ],
+    "primary_cause": "Pluvial cloudburst + Chembarambakkam reservoir release + High tidal backwater barrier"
+  },
+  {
+    "event_id": "KOCHI-2018",
+    "event_name": "Kerala August 2018 Monsoon Deluge",
+    "city": "Kochi",
+    "state": "Kerala",
+    "peak_date": "2018-08-16",
+    "recorded_24h_rainfall_mm": 310.0,
+    "high_flood_level_m": 3.2,
+    "estimated_inundation_area_sq_km": 85.0,
+    "breach_points": [
+      "Periyar River Aluva barrage",
+      "Vembanad Lake canal network"
+    ],
+    "critical_hospitals_affected": [
+      "Aluva District Hospital",
+      "Kochi Lakeside Health Centers"
+    ],
+    "primary_cause": "Dam discharge coinciding with Vembanad lake backwater surge and high spring tide"
+  },
+  {
+    "event_id": "MANGALORE-2018",
+    "event_name": "Mangalore May 2018 Flash Flood",
+    "city": "Mangalore",
+    "state": "Karnataka",
+    "peak_date": "2018-05-29",
+    "recorded_24h_rainfall_mm": 281.5,
+    "high_flood_level_m": 2.86,
+    "estimated_inundation_area_sq_km": 28.0,
+    "breach_points": [
+      "Netravati-Gurupura Estuary convergence",
+      "Kottara Chowki underpass"
+    ],
+    "critical_hospitals_affected": [
+      "Wenlock District Hospital ground floor",
+      "Lady Goschen Hospital approach"
+    ],
+    "primary_cause": "Torrential Western Ghats orographic cloudburst + Estuary high tide block"
+  },
+  {
+    "event_id": "MUMBAI-2005",
+    "event_name": "Mumbai July 2005 Deluge",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "peak_date": "2005-07-26",
+    "recorded_24h_rainfall_mm": 944.2,
+    "high_flood_level_m": 4.1,
+    "estimated_inundation_area_sq_km": 210.0,
+    "breach_points": [
+      "Mithi River Kurla bottleneck",
+      "Mahim Causeway estuarine mouth"
+    ],
+    "critical_hospitals_affected": [
+      "Bhabha Hospital",
+      "KEM Hospital basement wards"
+    ],
+    "primary_cause": "Extreme mesoscale cloudburst coinciding with 4.48m astronomical high tide blocking Mithi outfall"
+  },
+  {
+    "event_id": "VIZAG-2014",
+    "event_name": "Visakhapatnam Cyclone Hudhud",
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "peak_date": "2014-10-12",
+    "recorded_24h_rainfall_mm": 210.0,
+    "recorded_wind_gust_kmh": 260.0,
+    "high_flood_level_m": 2.4,
+    "estimated_inundation_area_sq_km": 42.0,
+    "breach_points": [
+      "Visakhapatnam Port channel",
+      "Beach Road sea wall breach"
+    ],
+    "critical_hospitals_affected": [
+      "King George Hospital seafront access",
+      "Care Hospital approach road"
+    ],
+    "primary_cause": "Category-4 storm surge + 215 km/h onshore cyclonic wind driving coastal seawater inland"
+  },
+  {
+    "event_id": "KOLKATA-2020",
+    "event_name": "Kolkata Cyclone Amphan",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "peak_date": "2020-05-20",
+    "recorded_24h_rainfall_mm": 236.0,
+    "recorded_wind_gust_kmh": 133.0,
+    "high_flood_level_m": 3.1,
+    "estimated_inundation_area_sq_km": 115.0,
+    "breach_points": [
+      "Hooghly River Lock Gates",
+      "Circular Canal overflow"
+    ],
+    "critical_hospitals_affected": [
+      "SSKM Hospital approach",
+      "Calcutta National Medical College"
+    ],
+    "primary_cause": "Super cyclonic storm surge pushing tidal water up Hooghly delta with pluvial deluge"
+  }
+]
