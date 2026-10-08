@@ -85,3 +85,6 @@ desktop.ini
 # Vercel & Certificates
 .vercel/
 *.pem
+
+
+skills-lock.json
