@@ -1,0 +1,1414 @@
+{
+  "historic_floods": {
+    "type": "FeatureCollection",
+    "name": "India_Historic_Flood_Zones",
+    "crs": {
+      "type": "name",
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      }
+    },
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2015-CHN",
+          "event_name": "2015 Chennai Deluge & Adyar Delta Inundation",
+          "state": "Tamil Nadu",
+          "district": "Chennai",
+          "waterbody": "Adyar & Cooum Rivers, Buckingham Canal",
+          "year": 2015,
+          "start_date": "2015-11-08",
+          "end_date": "2015-12-04",
+          "affected_area_sq_km": 420.5,
+          "peak_depth_meters": 2.85,
+          "primary_cause": "Northeast Monsoon Cloudburst & Chembarambakkam Dam Discharge",
+          "return_period_years": 100,
+          "fatalities": 289,
+          "economic_damage_usd_m": 3000,
+          "center": [
+            13.0102,
+            80.258
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                80.22,
+                12.975
+              ],
+              [
+                80.285,
+                12.975
+              ],
+              [
+                80.29,
+                13.045
+              ],
+              [
+                80.225,
+                13.045
+              ],
+              [
+                80.22,
+                12.975
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2018-KER",
+          "event_name": "2018 Kerala Monsoon Deluge & Vembanad Backwater Surge",
+          "state": "Kerala",
+          "district": "Ernakulam & Alappuzha",
+          "waterbody": "Periyar River & Vembanad Lake Backwaters",
+          "year": 2018,
+          "start_date": "2018-08-08",
+          "end_date": "2018-08-20",
+          "affected_area_sq_km": 680.0,
+          "peak_depth_meters": 3.4,
+          "primary_cause": "Severe Monsoon Rainfall (164% above normal) & Multi-Dam Gate Spillage",
+          "return_period_years": 90,
+          "fatalities": 483,
+          "economic_damage_usd_m": 4200,
+          "center": [
+            9.9674,
+            76.244
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                76.215,
+                9.93
+              ],
+              [
+                76.28,
+                9.93
+              ],
+              [
+                76.285,
+                10.01
+              ],
+              [
+                76.22,
+                10.01
+              ],
+              [
+                76.215,
+                9.93
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2019-MNG",
+          "event_name": "2019 Mangalore & Netravati Estuary Flood",
+          "state": "Karnataka",
+          "district": "Dakshina Kannada",
+          "waterbody": "Netravati & Gurupura Rivers",
+          "year": 2019,
+          "start_date": "2019-08-05",
+          "end_date": "2019-08-14",
+          "affected_area_sq_km": 145.2,
+          "peak_depth_meters": 2.1,
+          "primary_cause": "Western Ghats Torrential Runoff + Spring High Tide Estuary Backflow",
+          "return_period_years": 30,
+          "fatalities": 18,
+          "economic_damage_usd_m": 180,
+          "center": [
+            12.8615,
+            74.843
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                74.82,
+                12.84
+              ],
+              [
+                74.87,
+                12.84
+              ],
+              [
+                74.875,
+                12.885
+              ],
+              [
+                74.825,
+                12.885
+              ],
+              [
+                74.82,
+                12.84
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2020-UDP",
+          "event_name": "2020 Udupi Lowland Swamps & Malpe Inundation",
+          "state": "Karnataka",
+          "district": "Udupi",
+          "waterbody": "Swarna & Sita Rivers, Arabian Sea",
+          "year": 2020,
+          "start_date": "2020-09-18",
+          "end_date": "2020-09-23",
+          "affected_area_sq_km": 88.6,
+          "peak_depth_meters": 1.75,
+          "primary_cause": "Intense Cloudburst & River Channel Siltation Bottlenecks",
+          "return_period_years": 25,
+          "fatalities": 6,
+          "economic_damage_usd_m": 65,
+          "center": [
+            13.3512,
+            74.7042
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                74.68,
+                13.33
+              ],
+              [
+                74.73,
+                13.33
+              ],
+              [
+                74.735,
+                13.375
+              ],
+              [
+                74.685,
+                13.375
+              ],
+              [
+                74.68,
+                13.33
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2005-BOM",
+          "event_name": "2005 Mumbai Mithi River Flash Inundation",
+          "state": "Maharashtra",
+          "district": "Mumbai Suburban",
+          "waterbody": "Mithi River & Mahim Creek",
+          "year": 2005,
+          "start_date": "2005-07-26",
+          "end_date": "2005-07-28",
+          "affected_area_sq_km": 280.0,
+          "peak_depth_meters": 3.1,
+          "primary_cause": "Extreme 944mm Rain in 24 Hours + High Tide Coincidence",
+          "return_period_years": 100,
+          "fatalities": 400,
+          "economic_damage_usd_m": 1200,
+          "center": [
+            19.076,
+            72.8777
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                72.84,
+                19.04
+              ],
+              [
+                72.91,
+                19.04
+              ],
+              [
+                72.915,
+                19.11
+              ],
+              [
+                72.845,
+                19.11
+              ],
+              [
+                72.84,
+                19.04
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2014-VZG",
+          "event_name": "2014 Visakhapatnam Cyclone Hudhud Surge & Inundation",
+          "state": "Andhra Pradesh",
+          "district": "Visakhapatnam",
+          "waterbody": "Bay of Bengal & Meghadrigedda Reservoir",
+          "year": 2014,
+          "start_date": "2014-10-12",
+          "end_date": "2014-10-15",
+          "affected_area_sq_km": 310.0,
+          "peak_depth_meters": 2.4,
+          "primary_cause": "Category 4 Cyclone Storm Surge (2.5m) & Extreme Coastal Wind Driven Waves",
+          "return_period_years": 50,
+          "fatalities": 68,
+          "economic_damage_usd_m": 3400,
+          "center": [
+            17.698,
+            83.298
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                83.26,
+                17.66
+              ],
+              [
+                83.33,
+                17.66
+              ],
+              [
+                83.335,
+                17.73
+              ],
+              [
+                83.265,
+                17.73
+              ],
+              [
+                83.26,
+                17.66
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2020-KLK",
+          "event_name": "2020 Kolkata & Sundarbans Cyclone Amphan Surge",
+          "state": "West Bengal",
+          "district": "Kolkata & South 24 Parganas",
+          "waterbody": "Hooghly River & Sundarbans Delta",
+          "year": 2020,
+          "start_date": "2020-05-20",
+          "end_date": "2020-05-24",
+          "affected_area_sq_km": 540.0,
+          "peak_depth_meters": 2.9,
+          "primary_cause": "Super Cyclone Storm Surge + River Estuary Funneling",
+          "return_period_years": 75,
+          "fatalities": 98,
+          "economic_damage_usd_m": 13500,
+          "center": [
+            22.5726,
+            88.3639
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                88.31,
+                22.52
+              ],
+              [
+                88.41,
+                22.52
+              ],
+              [
+                88.415,
+                22.61
+              ],
+              [
+                88.315,
+                22.61
+              ],
+              [
+                88.31,
+                22.52
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "flood_id": "FLD-IND-2019-PRI",
+          "event_name": "2019 Puri & Chilika Cyclone Fani Coastal Deluge",
+          "state": "Odisha",
+          "district": "Puri",
+          "waterbody": "Chilika Lake & Bay of Bengal",
+          "year": 2019,
+          "start_date": "2019-05-03",
+          "end_date": "2019-05-07",
+          "affected_area_sq_km": 290.0,
+          "peak_depth_meters": 2.3,
+          "primary_cause": "Extremely Severe Cyclonic Storm Surge & Coastal Inundation",
+          "return_period_years": 40,
+          "fatalities": 64,
+          "economic_damage_usd_m": 1200,
+          "center": [
+            19.8135,
+            85.8312
+          ]
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                85.79,
+                19.78
+              ],
+              [
+                85.87,
+                19.78
+              ],
+              [
+                85.875,
+                19.85
+              ],
+              [
+                85.795,
+                19.85
+              ],
+              [
+                85.79,
+                19.78
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "vulnerable_infrastructure": {
+    "type": "FeatureCollection",
+    "name": "India_Vulnerable_Infrastructure",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-MNG-01",
+          "name": "Mangalore City Trauma Center",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 1.1,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 350,
+          "flood_cutoff_depth_m": 0.4,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.845,
+            12.864
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-MNG-02",
+          "name": "Bolar Riverview Clinic",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 0.8,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 80,
+          "flood_cutoff_depth_m": 0.25,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.838,
+            12.857
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-MNG-01",
+          "name": "NH-66 Netravati Bridge Lowland Approach",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 0.7,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.35,
+          "clearance_m": 1.8
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.843,
+            12.8615
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-MNG-02",
+          "name": "Bolar Old Railway Span",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 0.6,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.5,
+          "clearance_m": 2.2
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.839,
+            12.859
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "PWR-MNG-01",
+          "name": "Jeppu Power Grid 66kV Substation",
+          "category": "POWER_SUBSTATION",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 0.9,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.3,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.841,
+            12.858
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-UDP-01",
+          "name": "Malpe Harbor Maritime Dispensary",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-02",
+          "zone_name": "Udupi Lowland Swamps",
+          "state": "Karnataka",
+          "ground_elevation_m": 1.4,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 120,
+          "flood_cutoff_depth_m": 0.35,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.701,
+            13.353
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-UDP-01",
+          "name": "Malpe Port Tidal Creek Causeway",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-02",
+          "zone_name": "Udupi Lowland Swamps",
+          "state": "Karnataka",
+          "ground_elevation_m": 1.0,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.3,
+          "clearance_m": 1.2
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.7042,
+            13.3512
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-KOC-01",
+          "name": "General Hospital West Kochi",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 0.7,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 600,
+          "flood_cutoff_depth_m": 0.3,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.248,
+            9.968
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-KOC-02",
+          "name": "Mattancherry Community Health Center",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 0.5,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 150,
+          "flood_cutoff_depth_m": 0.2,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.256,
+            9.957
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-KOC-01",
+          "name": "Willingdon Island Canal Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 0.8,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.4,
+          "clearance_m": 1.5
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.252,
+            9.962
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-KOC-02",
+          "name": "Thoppumpady BOT Bridge Span",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 1.2,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.6,
+          "clearance_m": 2.8
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.262,
+            9.945
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "PWR-KOC-01",
+          "name": "Willingdon Island Transformer Substation",
+          "category": "POWER_SUBSTATION",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 0.6,
+          "risk_tier": "CRITICAL_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.25,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.25,
+            9.96
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-CHN-01",
+          "name": "Adyar Multi-Specialty Health Center",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-04",
+          "zone_name": "Chennai Marina Lowlands",
+          "state": "Tamil Nadu",
+          "ground_elevation_m": 2.3,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 400,
+          "flood_cutoff_depth_m": 0.45,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            80.252,
+            13.008
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-CHN-02",
+          "name": "Kotturpuram Urban Primary Health Post",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-04",
+          "zone_name": "Chennai Marina Lowlands",
+          "state": "Tamil Nadu",
+          "ground_elevation_m": 1.8,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 90,
+          "flood_cutoff_depth_m": 0.25,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            80.241,
+            13.018
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-CHN-01",
+          "name": "Thiru Vi Ka Adyar Estuary Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-04",
+          "zone_name": "Chennai Marina Lowlands",
+          "state": "Tamil Nadu",
+          "ground_elevation_m": 1.9,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.8,
+          "clearance_m": 3.2
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            80.257,
+            13.011
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-CHN-02",
+          "name": "Saidapet Maraimalai Adigal Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-04",
+          "zone_name": "Chennai Marina Lowlands",
+          "state": "Tamil Nadu",
+          "ground_elevation_m": 2.2,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.6,
+          "clearance_m": 2.5
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            80.222,
+            13.019
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-VZG-01",
+          "name": "Port Trust Central Hospital",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-05",
+          "zone_name": "Visakhapatnam Harbor",
+          "state": "Andhra Pradesh",
+          "ground_elevation_m": 4.1,
+          "risk_tier": "MODERATE_BUFFER",
+          "capacity": 300,
+          "flood_cutoff_depth_m": 0.6,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            83.292,
+            17.702
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-VZG-01",
+          "name": "Harbor Channel Causeway",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-05",
+          "zone_name": "Visakhapatnam Harbor",
+          "state": "Andhra Pradesh",
+          "ground_elevation_m": 2.8,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.5,
+          "clearance_m": 2.1
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            83.298,
+            17.698
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-MUM-01",
+          "name": "Kurla Bhabha Municipal Hospital",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-06",
+          "zone_name": "Mumbai Mithi Basin",
+          "state": "Maharashtra",
+          "ground_elevation_m": 2.2,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 450,
+          "flood_cutoff_depth_m": 0.35,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            72.886,
+            19.068
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-MUM-01",
+          "name": "Bandra-Kurla Mithi River Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-06",
+          "zone_name": "Mumbai Mithi Basin",
+          "state": "Maharashtra",
+          "ground_elevation_m": 1.8,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.5,
+          "clearance_m": 2.4
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            72.868,
+            19.064
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-KOL-01",
+          "name": "Garden Reach Maternity & Trauma Post",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-07",
+          "zone_name": "Kolkata Hooghly Estuary",
+          "state": "West Bengal",
+          "ground_elevation_m": 1.9,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 220,
+          "flood_cutoff_depth_m": 0.3,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            88.305,
+            22.541
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-KOL-01",
+          "name": "Kidderpore Tidal Lock Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-07",
+          "zone_name": "Kolkata Hooghly Estuary",
+          "state": "West Bengal",
+          "ground_elevation_m": 1.6,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.4,
+          "clearance_m": 1.6
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            88.324,
+            22.543
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "HOSP-PRI-01",
+          "name": "Puri Coastal District Hospital",
+          "category": "HOSPITAL",
+          "zone_id": "ZONE-08",
+          "zone_name": "Puri Coastal Plain",
+          "state": "Odisha",
+          "ground_elevation_m": 2.4,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 300,
+          "flood_cutoff_depth_m": 0.4,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            85.825,
+            19.808
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "BRG-PRI-01",
+          "name": "Musi River Coastal Culvert Bridge",
+          "category": "BRIDGE",
+          "zone_id": "ZONE-08",
+          "zone_name": "Puri Coastal Plain",
+          "state": "Odisha",
+          "ground_elevation_m": 1.9,
+          "risk_tier": "VULNERABLE_LOWLAND",
+          "capacity": 0,
+          "flood_cutoff_depth_m": 0.45,
+          "clearance_m": 1.9
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            85.835,
+            19.815
+          ]
+        }
+      }
+    ]
+  },
+  "safe_shelters": {
+    "type": "FeatureCollection",
+    "name": "India_Highland_Cyclone_Shelters",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-MNG-01",
+          "name": "Netravati Highland Emergency Shelter",
+          "category": "SHELTER",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 14.5,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 2500,
+          "flood_cutoff_depth_m": 5.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.852,
+            12.872
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-MNG-02",
+          "name": "Kankanady St. Joseph Disaster Relief Camp",
+          "category": "SHELTER",
+          "zone_id": "ZONE-01",
+          "zone_name": "Mangalore Estuary",
+          "state": "Karnataka",
+          "ground_elevation_m": 12.8,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 1800,
+          "flood_cutoff_depth_m": 5.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.862,
+            12.869
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-UDP-01",
+          "name": "Udupi Coastal Multi-Purpose Cyclone Shelter",
+          "category": "SHELTER",
+          "zone_id": "ZONE-02",
+          "zone_name": "Udupi Lowland Swamps",
+          "state": "Karnataka",
+          "ground_elevation_m": 12.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 1800,
+          "flood_cutoff_depth_m": 4.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            74.72,
+            13.361
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-KOC-01",
+          "name": "Ernakulam South High-Ground Relief Center",
+          "category": "SHELTER",
+          "zone_id": "ZONE-03",
+          "zone_name": "Kochi Backwaters",
+          "state": "Kerala",
+          "ground_elevation_m": 16.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 4500,
+          "flood_cutoff_depth_m": 6.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            76.28,
+            9.975
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-CHN-01",
+          "name": "Guindy Safe Elevation Community Shelter",
+          "category": "SHELTER",
+          "zone_id": "ZONE-04",
+          "zone_name": "Chennai Marina Lowlands",
+          "state": "Tamil Nadu",
+          "ground_elevation_m": 18.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 5000,
+          "flood_cutoff_depth_m": 6.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            80.21,
+            13.009
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-VZG-01",
+          "name": "Kailasagiri Hilltop Evacuation Station",
+          "category": "SHELTER",
+          "zone_id": "ZONE-05",
+          "zone_name": "Visakhapatnam Harbor",
+          "state": "Andhra Pradesh",
+          "ground_elevation_m": 35.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 6000,
+          "flood_cutoff_depth_m": 10.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            83.34,
+            17.745
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-MUM-01",
+          "name": "Santa Cruz Highland Cyclone Relief Camp",
+          "category": "SHELTER",
+          "zone_id": "ZONE-06",
+          "zone_name": "Mumbai Mithi Basin",
+          "state": "Maharashtra",
+          "ground_elevation_m": 15.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 7500,
+          "flood_cutoff_depth_m": 6.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            72.842,
+            19.088
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-KOL-01",
+          "name": "Alipore High Ground Emergency Camp",
+          "category": "SHELTER",
+          "zone_id": "ZONE-07",
+          "zone_name": "Kolkata Hooghly Estuary",
+          "state": "West Bengal",
+          "ground_elevation_m": 14.0,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 4000,
+          "flood_cutoff_depth_m": 5.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            88.338,
+            22.532
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "SHL-PRI-01",
+          "name": "Puri Multi-Hazard Cyclone Shelter Complex",
+          "category": "SHELTER",
+          "zone_id": "ZONE-08",
+          "zone_name": "Puri Coastal Plain",
+          "state": "Odisha",
+          "ground_elevation_m": 16.5,
+          "risk_tier": "SAFE_HIGHLAND",
+          "capacity": 5500,
+          "flood_cutoff_depth_m": 8.0,
+          "clearance_m": null
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            85.845,
+            19.822
+          ]
+        }
+      }
+    ]
+  },
+  "submersible_roads": {
+    "type": "FeatureCollection",
+    "name": "India_Submersible_Roads",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-MNG-01",
+          "name": "NH-66 Netravati Bridge Lowland Approach",
+          "road_type": "HIGHWAY",
+          "zone_id": "ZONE-01",
+          "flood_cutoff_depth_m": 0.35
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              74.838,
+              12.855
+            ],
+            [
+              74.843,
+              12.861
+            ],
+            [
+              74.85,
+              12.868
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-MNG-02",
+          "name": "Bolar Estuary River Road",
+          "road_type": "ARTERIAL",
+          "zone_id": "ZONE-01",
+          "flood_cutoff_depth_m": 0.25
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              74.832,
+              12.85
+            ],
+            [
+              74.838,
+              12.857
+            ],
+            [
+              74.842,
+              12.863
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-MNG-03",
+          "name": "Jeppu Higher Ground Bypass",
+          "road_type": "HIGHWAY",
+          "zone_id": "ZONE-01",
+          "flood_cutoff_depth_m": 1.5
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              74.845,
+              12.858
+            ],
+            [
+              74.852,
+              12.868
+            ],
+            [
+              74.86,
+              12.875
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-UDP-01",
+          "name": "Malpe Port Access Causeway",
+          "road_type": "ARTERIAL",
+          "zone_id": "ZONE-02",
+          "flood_cutoff_depth_m": 0.3
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              74.698,
+              13.345
+            ],
+            [
+              74.704,
+              13.351
+            ],
+            [
+              74.712,
+              13.358
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-KOC-01",
+          "name": "Mattancherry Low Canal Ring Road",
+          "road_type": "ARTERIAL",
+          "zone_id": "ZONE-03",
+          "flood_cutoff_depth_m": 0.2
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              76.248,
+              9.952
+            ],
+            [
+              76.256,
+              9.957
+            ],
+            [
+              76.262,
+              9.964
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-KOC-02",
+          "name": "MG Road Elevated Transit Flyover",
+          "road_type": "HIGHWAY",
+          "zone_id": "ZONE-03",
+          "flood_cutoff_depth_m": 2.0
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              76.27,
+              9.965
+            ],
+            [
+              76.28,
+              9.975
+            ],
+            [
+              76.29,
+              9.985
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-CHN-01",
+          "name": "Marina Coastal Road (Kamarajar Salai)",
+          "road_type": "ARTERIAL",
+          "zone_id": "ZONE-04",
+          "flood_cutoff_depth_m": 0.4
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              80.252,
+              13.002
+            ],
+            [
+              80.258,
+              13.01
+            ],
+            [
+              80.265,
+              13.022
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "ROAD-CHN-02",
+          "name": "Adyar Bridge Overpass Link",
+          "road_type": "HIGHWAY",
+          "zone_id": "ZONE-04",
+          "flood_cutoff_depth_m": 1.2
+        },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              80.245,
+              13.005
+            ],
+            [
+              80.255,
+              13.012
+            ],
+            [
+              80.262,
+              13.02
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "summary": {
+    "total_historic_events": 8,
+    "total_critical_infrastructure": 24,
+    "total_safe_shelters": 9,
+    "total_submersible_roads": 8,
+    "elevation_source": "Copernicus DEM 30m / 90m Global Model via Open-Meteo"
+  }
+}

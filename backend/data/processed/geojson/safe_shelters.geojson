@@ -1,0 +1,213 @@
+{
+  "type": "FeatureCollection",
+  "name": "India_Highland_Cyclone_Shelters",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-MNG-01",
+        "name": "Netravati Highland Emergency Shelter",
+        "category": "SHELTER",
+        "zone_id": "ZONE-01",
+        "zone_name": "Mangalore Estuary",
+        "state": "Karnataka",
+        "ground_elevation_m": 14.5,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 2500,
+        "flood_cutoff_depth_m": 5.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.852,
+          12.872
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-MNG-02",
+        "name": "Kankanady St. Joseph Disaster Relief Camp",
+        "category": "SHELTER",
+        "zone_id": "ZONE-01",
+        "zone_name": "Mangalore Estuary",
+        "state": "Karnataka",
+        "ground_elevation_m": 12.8,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 1800,
+        "flood_cutoff_depth_m": 5.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.862,
+          12.869
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-UDP-01",
+        "name": "Udupi Coastal Multi-Purpose Cyclone Shelter",
+        "category": "SHELTER",
+        "zone_id": "ZONE-02",
+        "zone_name": "Udupi Lowland Swamps",
+        "state": "Karnataka",
+        "ground_elevation_m": 12.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 1800,
+        "flood_cutoff_depth_m": 4.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.72,
+          13.361
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-KOC-01",
+        "name": "Ernakulam South High-Ground Relief Center",
+        "category": "SHELTER",
+        "zone_id": "ZONE-03",
+        "zone_name": "Kochi Backwaters",
+        "state": "Kerala",
+        "ground_elevation_m": 16.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 4500,
+        "flood_cutoff_depth_m": 6.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.28,
+          9.975
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-CHN-01",
+        "name": "Guindy Safe Elevation Community Shelter",
+        "category": "SHELTER",
+        "zone_id": "ZONE-04",
+        "zone_name": "Chennai Marina Lowlands",
+        "state": "Tamil Nadu",
+        "ground_elevation_m": 18.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 5000,
+        "flood_cutoff_depth_m": 6.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.21,
+          13.009
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-VZG-01",
+        "name": "Kailasagiri Hilltop Evacuation Station",
+        "category": "SHELTER",
+        "zone_id": "ZONE-05",
+        "zone_name": "Visakhapatnam Harbor",
+        "state": "Andhra Pradesh",
+        "ground_elevation_m": 35.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 6000,
+        "flood_cutoff_depth_m": 10.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          83.34,
+          17.745
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-MUM-01",
+        "name": "Santa Cruz Highland Cyclone Relief Camp",
+        "category": "SHELTER",
+        "zone_id": "ZONE-06",
+        "zone_name": "Mumbai Mithi Basin",
+        "state": "Maharashtra",
+        "ground_elevation_m": 15.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 7500,
+        "flood_cutoff_depth_m": 6.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.842,
+          19.088
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-KOL-01",
+        "name": "Alipore High Ground Emergency Camp",
+        "category": "SHELTER",
+        "zone_id": "ZONE-07",
+        "zone_name": "Kolkata Hooghly Estuary",
+        "state": "West Bengal",
+        "ground_elevation_m": 14.0,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 4000,
+        "flood_cutoff_depth_m": 5.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.338,
+          22.532
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "SHL-PRI-01",
+        "name": "Puri Multi-Hazard Cyclone Shelter Complex",
+        "category": "SHELTER",
+        "zone_id": "ZONE-08",
+        "zone_name": "Puri Coastal Plain",
+        "state": "Odisha",
+        "ground_elevation_m": 16.5,
+        "risk_tier": "SAFE_HIGHLAND",
+        "capacity": 5500,
+        "flood_cutoff_depth_m": 8.0,
+        "clearance_m": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.845,
+          19.822
+        ]
+      }
+    }
+  ]
+}

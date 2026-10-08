@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+import os
+import json
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 from app.core.database import get_db
@@ -14,6 +16,100 @@ from app.schemas.sms import (
 from app.services.sms_service import sms_service
 
 router = APIRouter()
+
+GEOJSON_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "data", "processed", "geojson")
+)
+
+
+def load_geojson_file(filename: str) -> Dict[str, Any]:
+    file_path = os.path.join(GEOJSON_DIR, filename)
+    if not os.path.exists(file_path):
+        # Fallback to generating on the fly if needed
+        from scripts.extract_infrastructure_dem import build_and_save_geojson_layers
+        build_and_save_geojson_layers()
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@router.get("/geojson/all", summary="Get All Flood Mapping Layers Bundle (GeoJSON)")
+def get_all_map_layers():
+    """
+    Returns the complete set of GeoJSON layers:
+    - Historic Floods (Polygons)
+    - Vulnerable Infrastructure (Hospitals, Bridges, Substations)
+    - Safe Highland Shelters
+    - Submersible Roads
+    """
+    return load_geojson_file("all_flood_layers.json")
+
+
+@router.get("/geojson/historic-floods", summary="Get Historic Indian Flood Boundaries (GeoJSON)")
+def get_historic_floods():
+    """
+    Returns historic flood inundation boundaries and benchmark damage telemetry across India.
+    """
+    return load_geojson_file("historic_floods.geojson")
+
+
+@router.get("/geojson/infrastructure", summary="Get Vulnerable Infrastructure with DEM Elevations (GeoJSON)")
+def get_vulnerable_infrastructure(
+    category: Optional[str] = Query(None, description="Filter by category: HOSPITAL, BRIDGE, POWER_SUBSTATION"),
+    zone_id: Optional[str] = Query(None, description="Filter by zone ID e.g. ZONE-01"),
+    max_elevation: Optional[float] = Query(None, description="Filter features below a certain elevation in meters"),
+):
+    """
+    Returns critical facilities and bridges tagged with Copernicus DEM ground elevations and Relative Lowland Index tiers.
+    """
+    data = load_geojson_file("vulnerable_infrastructure.geojson")
+    features = data.get("features", [])
+
+    if category:
+        features = [f for f in features if f["properties"].get("category", "").upper() == category.upper()]
+    if zone_id:
+        features = [f for f in features if f["properties"].get("zone_id", "").upper() == zone_id.upper()]
+    if max_elevation is not None:
+        features = [f for f in features if f["properties"].get("ground_elevation_m", 999.0) <= max_elevation]
+
+    return {
+        "type": "FeatureCollection",
+        "name": "Filtered_Vulnerable_Infrastructure",
+        "features": features,
+    }
+
+
+@router.get("/geojson/shelters", summary="Get High-Ground Cyclone Relief Shelters (GeoJSON)")
+def get_safe_shelters(zone_id: Optional[str] = Query(None)):
+    """
+    Returns designated high-elevation multi-purpose cyclone shelters and evacuation destinations.
+    """
+    data = load_geojson_file("safe_shelters.geojson")
+    features = data.get("features", [])
+    if zone_id:
+        features = [f for f in features if f["properties"].get("zone_id", "").upper() == zone_id.upper()]
+
+    return {
+        "type": "FeatureCollection",
+        "name": "Highland_Shelters",
+        "features": features,
+    }
+
+
+@router.get("/geojson/roads", summary="Get Submersible Coastal Roadways (GeoJSON)")
+def get_submersible_roads(zone_id: Optional[str] = Query(None)):
+    """
+    Returns submersible road networks and cutoff thresholds.
+    """
+    data = load_geojson_file("submersible_roads.geojson")
+    features = data.get("features", [])
+    if zone_id:
+        features = [f for f in features if f["properties"].get("zone_id", "").upper() == zone_id.upper()]
+
+    return {
+        "type": "FeatureCollection",
+        "name": "Submersible_Roads",
+        "features": features,
+    }
 
 
 def resolve_zone_target(db: Session, zone_id: Optional[str] = None, zone_name: Optional[str] = None) -> tuple[str, str]:
@@ -254,7 +350,6 @@ def test_critical_sms_for_zone(zone_id: str, db: Session = Depends(get_db)):
         "message": f"Dispatched critical SMS alert to {result['recipients_count']} subscriber(s) connected to {target_id}.",
         "data": result,
     }
-
 
 @router.get("/{zone_id}/sms-logs", response_model=SMSLogListResponse, summary="Get SMS Dispatch Logs for this Zone")
 def get_zone_sms_logs(zone_id: str, limit: int = 100, db: Session = Depends(get_db)):

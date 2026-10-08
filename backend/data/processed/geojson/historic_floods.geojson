@@ -1,0 +1,412 @@
+{
+  "type": "FeatureCollection",
+  "name": "India_Historic_Flood_Zones",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2015-CHN",
+        "event_name": "2015 Chennai Deluge & Adyar Delta Inundation",
+        "state": "Tamil Nadu",
+        "district": "Chennai",
+        "waterbody": "Adyar & Cooum Rivers, Buckingham Canal",
+        "year": 2015,
+        "start_date": "2015-11-08",
+        "end_date": "2015-12-04",
+        "affected_area_sq_km": 420.5,
+        "peak_depth_meters": 2.85,
+        "primary_cause": "Northeast Monsoon Cloudburst & Chembarambakkam Dam Discharge",
+        "return_period_years": 100,
+        "fatalities": 289,
+        "economic_damage_usd_m": 3000,
+        "center": [
+          13.0102,
+          80.258
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              80.22,
+              12.975
+            ],
+            [
+              80.285,
+              12.975
+            ],
+            [
+              80.29,
+              13.045
+            ],
+            [
+              80.225,
+              13.045
+            ],
+            [
+              80.22,
+              12.975
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2018-KER",
+        "event_name": "2018 Kerala Monsoon Deluge & Vembanad Backwater Surge",
+        "state": "Kerala",
+        "district": "Ernakulam & Alappuzha",
+        "waterbody": "Periyar River & Vembanad Lake Backwaters",
+        "year": 2018,
+        "start_date": "2018-08-08",
+        "end_date": "2018-08-20",
+        "affected_area_sq_km": 680.0,
+        "peak_depth_meters": 3.4,
+        "primary_cause": "Severe Monsoon Rainfall (164% above normal) & Multi-Dam Gate Spillage",
+        "return_period_years": 90,
+        "fatalities": 483,
+        "economic_damage_usd_m": 4200,
+        "center": [
+          9.9674,
+          76.244
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.215,
+              9.93
+            ],
+            [
+              76.28,
+              9.93
+            ],
+            [
+              76.285,
+              10.01
+            ],
+            [
+              76.22,
+              10.01
+            ],
+            [
+              76.215,
+              9.93
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2019-MNG",
+        "event_name": "2019 Mangalore & Netravati Estuary Flood",
+        "state": "Karnataka",
+        "district": "Dakshina Kannada",
+        "waterbody": "Netravati & Gurupura Rivers",
+        "year": 2019,
+        "start_date": "2019-08-05",
+        "end_date": "2019-08-14",
+        "affected_area_sq_km": 145.2,
+        "peak_depth_meters": 2.1,
+        "primary_cause": "Western Ghats Torrential Runoff + Spring High Tide Estuary Backflow",
+        "return_period_years": 30,
+        "fatalities": 18,
+        "economic_damage_usd_m": 180,
+        "center": [
+          12.8615,
+          74.843
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.82,
+              12.84
+            ],
+            [
+              74.87,
+              12.84
+            ],
+            [
+              74.875,
+              12.885
+            ],
+            [
+              74.825,
+              12.885
+            ],
+            [
+              74.82,
+              12.84
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2020-UDP",
+        "event_name": "2020 Udupi Lowland Swamps & Malpe Inundation",
+        "state": "Karnataka",
+        "district": "Udupi",
+        "waterbody": "Swarna & Sita Rivers, Arabian Sea",
+        "year": 2020,
+        "start_date": "2020-09-18",
+        "end_date": "2020-09-23",
+        "affected_area_sq_km": 88.6,
+        "peak_depth_meters": 1.75,
+        "primary_cause": "Intense Cloudburst & River Channel Siltation Bottlenecks",
+        "return_period_years": 25,
+        "fatalities": 6,
+        "economic_damage_usd_m": 65,
+        "center": [
+          13.3512,
+          74.7042
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.68,
+              13.33
+            ],
+            [
+              74.73,
+              13.33
+            ],
+            [
+              74.735,
+              13.375
+            ],
+            [
+              74.685,
+              13.375
+            ],
+            [
+              74.68,
+              13.33
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2005-BOM",
+        "event_name": "2005 Mumbai Mithi River Flash Inundation",
+        "state": "Maharashtra",
+        "district": "Mumbai Suburban",
+        "waterbody": "Mithi River & Mahim Creek",
+        "year": 2005,
+        "start_date": "2005-07-26",
+        "end_date": "2005-07-28",
+        "affected_area_sq_km": 280.0,
+        "peak_depth_meters": 3.1,
+        "primary_cause": "Extreme 944mm Rain in 24 Hours + High Tide Coincidence",
+        "return_period_years": 100,
+        "fatalities": 400,
+        "economic_damage_usd_m": 1200,
+        "center": [
+          19.076,
+          72.8777
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.84,
+              19.04
+            ],
+            [
+              72.91,
+              19.04
+            ],
+            [
+              72.915,
+              19.11
+            ],
+            [
+              72.845,
+              19.11
+            ],
+            [
+              72.84,
+              19.04
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2014-VZG",
+        "event_name": "2014 Visakhapatnam Cyclone Hudhud Surge & Inundation",
+        "state": "Andhra Pradesh",
+        "district": "Visakhapatnam",
+        "waterbody": "Bay of Bengal & Meghadrigedda Reservoir",
+        "year": 2014,
+        "start_date": "2014-10-12",
+        "end_date": "2014-10-15",
+        "affected_area_sq_km": 310.0,
+        "peak_depth_meters": 2.4,
+        "primary_cause": "Category 4 Cyclone Storm Surge (2.5m) & Extreme Coastal Wind Driven Waves",
+        "return_period_years": 50,
+        "fatalities": 68,
+        "economic_damage_usd_m": 3400,
+        "center": [
+          17.698,
+          83.298
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              83.26,
+              17.66
+            ],
+            [
+              83.33,
+              17.66
+            ],
+            [
+              83.335,
+              17.73
+            ],
+            [
+              83.265,
+              17.73
+            ],
+            [
+              83.26,
+              17.66
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2020-KLK",
+        "event_name": "2020 Kolkata & Sundarbans Cyclone Amphan Surge",
+        "state": "West Bengal",
+        "district": "Kolkata & South 24 Parganas",
+        "waterbody": "Hooghly River & Sundarbans Delta",
+        "year": 2020,
+        "start_date": "2020-05-20",
+        "end_date": "2020-05-24",
+        "affected_area_sq_km": 540.0,
+        "peak_depth_meters": 2.9,
+        "primary_cause": "Super Cyclone Storm Surge + River Estuary Funneling",
+        "return_period_years": 75,
+        "fatalities": 98,
+        "economic_damage_usd_m": 13500,
+        "center": [
+          22.5726,
+          88.3639
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              88.31,
+              22.52
+            ],
+            [
+              88.41,
+              22.52
+            ],
+            [
+              88.415,
+              22.61
+            ],
+            [
+              88.315,
+              22.61
+            ],
+            [
+              88.31,
+              22.52
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "flood_id": "FLD-IND-2019-PRI",
+        "event_name": "2019 Puri & Chilika Cyclone Fani Coastal Deluge",
+        "state": "Odisha",
+        "district": "Puri",
+        "waterbody": "Chilika Lake & Bay of Bengal",
+        "year": 2019,
+        "start_date": "2019-05-03",
+        "end_date": "2019-05-07",
+        "affected_area_sq_km": 290.0,
+        "peak_depth_meters": 2.3,
+        "primary_cause": "Extremely Severe Cyclonic Storm Surge & Coastal Inundation",
+        "return_period_years": 40,
+        "fatalities": 64,
+        "economic_damage_usd_m": 1200,
+        "center": [
+          19.8135,
+          85.8312
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              85.79,
+              19.78
+            ],
+            [
+              85.87,
+              19.78
+            ],
+            [
+              85.875,
+              19.85
+            ],
+            [
+              85.795,
+              19.85
+            ],
+            [
+              85.79,
+              19.78
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
