@@ -1,69 +1,223 @@
-import Image from "next/image";
+import Link from "next/link";
+import {
+  ShieldAlert,
+  Sliders,
+  Bell,
+  BarChart3,
+  Waves,
+  Map,
+  ArrowRight,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Cpu,
+  Layers,
+} from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const quickStats = [
+  {
+    title: "Monitored Coastal Zones",
+    value: "14",
+    change: "Across 4 Indian coastal states",
+    icon: Map,
+    badgeVariant: "default" as const,
+  },
+  {
+    title: "High Risk Danger Zones",
+    value: "2",
+    change: "Critical alert in low-lying estuaries",
+    icon: AlertTriangle,
+    badgeVariant: "destructive" as const,
+  },
+  {
+    title: "Avg. Predicted Peak Tide",
+    value: "+3.8m",
+    change: "Peak expected in 3h 40m",
+    icon: Waves,
+    badgeVariant: "warning" as const,
+  },
+  {
+    title: "AI Response Readiness",
+    value: "98.4%",
+    change: "Automated alert dispatch active",
+    icon: CheckCircle2,
+    badgeVariant: "success" as const,
+  },
+];
+
+const featureModules = [
+  {
+    title: "Interactive Simulation Engine",
+    description:
+      "Adjust tide levels, rainfall intensity, tsunami/storm surges, and inspect flood propagation in real time.",
+    href: "/simulation",
+    icon: Sliders,
+    cta: "Launch Simulator",
+    color: "text-blue-500 bg-blue-50 dark:bg-blue-950/40",
+  },
+  {
+    title: "Early Warning & Evacuation",
+    description:
+      "Priority-ranked evacuation plans, critical infrastructure risk detection (hospitals, shelters), and automated alerts.",
+    href: "/alerts",
+    icon: Bell,
+    cta: "View Evacuation Board",
+    color: "text-amber-500 bg-amber-50 dark:bg-amber-950/40",
+  },
+  {
+    title: "AI Flood Intelligence & Decision Model",
+    description:
+      "Machine learning risk categorization (Juve / Laya decision models), anomaly detection, and conversational AI assistant.",
+    href: "/analytics",
+    icon: Cpu,
+    cta: "Explore AI Models",
+    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-10">
+      {/* Hero Banner */}
+      <section className="relative overflow-hidden rounded-2xl border border-blue-200/70 dark:border-blue-900/50 bg-gradient-to-br from-blue-900/10 via-sky-500/5 to-transparent p-6 sm:p-10">
+        <div className="max-w-3xl space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
+            <Layers className="h-3.5 w-3.5" />
+            AI-Powered Coastal Flood Intelligence Platform
+          </div>
+
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-zinc-950 dark:text-white">
+            Predict, Simulate, and Protect{" "}
+            <span className="text-blue-600 dark:text-blue-400">
+              Vulnerable Coastal Regions
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
+            A comprehensive simulation-first dashboard for coastal flood forecasting,
+            terrain and elevation risk mapping, early warning notifications, and AI-driven
+            emergency evacuation prioritization.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link
+              href="/simulation"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <Sliders className="h-4 w-4" />
+              Open Simulation Dashboard
+            </Link>
+            <Link
+              href="/alerts"
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
-              Learning
-            </a>{" "}
-            center.
+              <ShieldAlert className="h-4 w-4 text-red-500" />
+              Risk Zone Alerts
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Metrics */}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {quickStats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="hover:border-blue-500/50 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  {stat.title}
+                </CardTitle>
+                <div className="rounded-lg p-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                  <Icon className="h-4 w-4" />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                <div className="text-2xl font-bold text-zinc-950 dark:text-white">
+                  {stat.value}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={stat.badgeVariant}>Live</Badge>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {stat.change}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
+
+      {/* Feature Modules Grid */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+            Core System Modules
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Access simulations, alert feeds, and decision intelligence tools.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {featureModules.map((module) => {
+            const Icon = module.icon;
+            return (
+              <Card
+                key={module.title}
+                className="flex flex-col justify-between hover:shadow-md transition-all duration-200"
+              >
+                <CardHeader>
+                  <div
+                    className={`h-11 w-11 rounded-lg flex items-center justify-center mb-3 ${module.color}`}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg">{module.title}</CardTitle>
+                  <CardDescription className="pt-2 leading-relaxed">
+                    {module.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Link
+                    href={module.href}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 group"
+                  >
+                    {module.cta}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
-      </main>
+      </section>
+
+      {/* Boilerplate Status Banner */}
+      <section className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/40 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">Ready to Build</Badge>
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+              Next.js + TypeScript + Tailwind CSS
+            </span>
+          </div>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Frontend boilerplate initialized with reusable UI components, clean navigation,
+            and structure configured for maps, simulation controls, and API endpoints.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/simulation"
+            className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-xs font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
+          >
+            Get Started
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
