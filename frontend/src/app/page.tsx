@@ -12,9 +12,11 @@ import {
   CheckCircle2,
   Cpu,
   Layers,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FloodMap } from "@/components/map/FloodMap";
 
 const quickStats = [
   {
@@ -85,7 +87,7 @@ export default function Home() {
         <div className="max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
             <Layers className="h-3.5 w-3.5" />
-            AI-Powered Coastal Flood Intelligence Platform
+            MapLibre GL JS + AI Coastal Intelligence Platform
           </div>
 
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-zinc-950 dark:text-white">
@@ -96,9 +98,8 @@ export default function Home() {
           </h1>
 
           <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
-            A comprehensive simulation-first dashboard for coastal flood forecasting,
-            terrain and elevation risk mapping, early warning notifications, and AI-driven
-            emergency evacuation prioritization.
+            Multi-layer interactive map with satellite, terrain, risk classifications, water bodies,
+            and real-time flood simulation overlays for coastal India.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -150,6 +151,31 @@ export default function Home() {
         })}
       </section>
 
+      {/* Live Map Preview Section */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Layers className="h-5 w-5 text-blue-600" />
+              Live Interactive Coastal Intelligence Map
+            </h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Switch base styles (Satellite, 3D Topo, Tactical Dark) and toggle vector layers on the fly.
+            </p>
+          </div>
+
+          <Link
+            href="/simulation"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+          >
+            Full Simulation Controls
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <FloodMap tideLevel={2.4} rainfall={60} heightClassName="h-[550px]" />
+      </section>
+
       {/* Feature Modules Grid */}
       <section className="space-y-4">
         <div>
@@ -192,30 +218,6 @@ export default function Home() {
               </Card>
             );
           })}
-        </div>
-      </section>
-
-      {/* Boilerplate Status Banner */}
-      <section className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/40 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">Ready to Build</Badge>
-            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-              Next.js + TypeScript + Tailwind CSS
-            </span>
-          </div>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Frontend boilerplate initialized with reusable UI components, clean navigation,
-            and structure configured for maps, simulation controls, and API endpoints.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/simulation"
-            className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-xs font-semibold text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
-          >
-            Get Started
-          </Link>
         </div>
       </section>
     </div>
