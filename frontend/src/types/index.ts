@@ -1,11 +1,191 @@
-export type RiskLevel = "NO_DANGER" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type ThreatLevel = "NO_DANGER" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+export type RiskLevel = ThreatLevel;
+
+export interface SimulationInput {
+  tide_level_meters: number;
+  rainfall_mm_per_hour: number;
+  forecast_hours: number;
+  wind_speed_kmh?: number;
+  cyclone_active?: boolean;
+  soil_saturation?: number;
+}
+
+export interface DriverItem {
+  factor_key: string;
+  factor_name: string;
+  contribution_pct: number;
+  raw_value?: number;
+}
+
+export interface FacilityItem {
+  name: string;
+  type: string;
+  elevation_meters: number;
+  capacity: number;
+  status: string;
+}
+
+export interface RoadItem {
+  name: string;
+  elevation_meters: number;
+  status: string;
+  depth_over_road_m?: number;
+}
+
+export interface EnhancedZoneResult {
+  zone_id: string;
+  zone_name: string;
+  state: string;
+  region: string;
+  elevation_meters: number;
+  population: number;
+  dist_to_coast_km: floatNumber;
+  dist_to_river_km: floatNumber;
+  drainage_capacity_pct: number;
+  latitude: number;
+  longitude: number;
+
+  // ML Predictions
+  flood_probability: number;
+  is_flooded: boolean;
+  projected_depth_meters: number;
+  onset_time_minutes: number;
+  peak_time_minutes: number;
+  threat_level: ThreatLevel;
+
+  // Explainable AI (XAI)
+  primary_drivers: DriverItem[];
+  plain_language_explanation: string;
+
+  // Decision & Infrastructure Impact
+  priority_score: number;
+  evacuation_priority_rank: number;
+  threatened_facilities: FacilityItem[];
+  safe_shelters: FacilityItem[];
+  submerged_roads: RoadItem[];
+  passable_roads: RoadItem[];
+  recommended_action: string;
+
+  // Alert SMS Text
+  alert_headline: string;
+  sms_text: string;
+}
+
+type floatNumber = number;
+
+export interface AIValidationMetrics {
+  roc_auc: number;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1_score: number;
+  depth_mae_meters: number;
+  depth_r2: number;
+  onset_time_mae_minutes: number;
+  peak_time_mae_minutes: number;
+}
+
+export interface SimulationResponse {
+  threat_index: number;
+  overall_risk: ThreatLevel;
+  simulation_params: SimulationInput;
+  estimated_inundated_area_sq_km: number;
+  total_population_at_risk: number;
+  critical_zones_count: number;
+  zones: EnhancedZoneResult[];
+  recommendation: string;
+  ai_validation_metrics?: AIValidationMetrics | Record<string, any>;
+}
+
+export interface SITREPRankedZone {
+  rank: number;
+  zone_name: string;
+  threat_level: ThreatLevel | string;
+  depth_m: number;
+  onset_min: number;
+  action: string;
+}
+
+export interface SITREPReport {
+  incident_name: string;
+  report_type: string;
+  timestamp: string;
+  weather_condition: string;
+  telemetry: {
+    astronomical_tide_surge_m: number;
+    peak_rainfall_intensity_mm_h: number;
+    cyclonic_surge_active: boolean;
+  };
+  impact_assessment: {
+    total_zones_evaluated: number;
+    critical_zones_count: number;
+    total_population_at_risk: number;
+    estimated_inundation_area_sq_km: number;
+  };
+  executive_summary: string;
+  tactical_directives: string[];
+  ranked_zone_overview: SITREPRankedZone[];
+}
+
+export interface PriorityQueueItem {
+  rank: number;
+  zone_id: string;
+  zone_name: string;
+  state: string;
+  threat_level: ThreatLevel;
+  priority_score: number;
+  projected_depth_meters: number;
+  onset_time_minutes: number;
+  peak_time_minutes: number;
+  affected_population: number;
+  threatened_facilities: FacilityItem[];
+  safe_shelters: FacilityItem[];
+  submerged_roads: RoadItem[];
+  recommended_action: string;
+  sms_alert: string;
+}
+
+export interface PriorityQueueResponse {
+  total_zones: number;
+  overall_threat: ThreatLevel;
+  priority_queue: PriorityQueueItem[];
+}
+
+export interface EmergencyAlert {
+  id: string;
+  zone_id: string;
+  zone_name: string;
+  severity: "info" | "warning" | "danger" | "critical" | string;
+  title: string;
+  message: string;
+  timestamp: string;
+  evacuation_recommended: boolean;
+  recommended_shelter_ids?: string[];
+}
+
+export interface BroadcastRequest {
+  zone_ids: string[];
+  alert_title: string;
+  alert_message: string;
+  target_channels?: string[];
+}
+
+export interface BroadcastResponse {
+  status: string;
+  broadcast_id: string;
+  sent_timestamp: string;
+  recipient_count: number;
+  zones_notified: string[];
+}
+
+// Backwards compatibility aliases
 export interface FloodZone {
   id: string;
   name: string;
   location: string;
   elevationMeters: number;
-  riskLevel: RiskLevel;
+  riskLevel: ThreatLevel;
   predictedPeakTime: string;
   affectedPopulation: number;
   waterLevelMeters: number;
