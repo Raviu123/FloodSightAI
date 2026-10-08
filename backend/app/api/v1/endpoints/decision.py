@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas.simulation import SimulationInput
 from app.services.flood_engine import calculate_flood_simulation
 from app.core.database import get_db
+from app.core.logging_config import logger
 
 router = APIRouter()
 
@@ -34,9 +35,14 @@ def get_priority_queue(params: SimulationInput, db: Session = Depends(get_db)):
             "recommended_action": z.recommended_action,
             "sms_alert": z.sms_text,
         })
-    
+
+    top_zone = queue[0]["zone_name"] if queue else "None"
+    top_action = queue[0]["recommended_action"] if queue else "None"
+    logger.log_decision_queue(len(queue), top_zone, top_action)
+
     return {
         "total_zones": len(queue),
         "overall_threat": sim_res.overall_risk,
         "priority_queue": queue,
     }
+

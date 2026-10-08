@@ -38,10 +38,14 @@ def get_active_alerts():
 
 @router.post("/broadcast", response_model=BroadcastResponse, summary="Broadcast Emergency Alert")
 def broadcast_alert(req: BroadcastRequest):
+    recipient_count = len(req.zone_ids) * 4500
+    broadcast_id = f"BC-{uuid.uuid4().hex[:8].upper()}"
+    print(f"\033[1;33m[ALERT BROADCAST]\033[0m Dispatched SMS alert {broadcast_id} to {recipient_count:,} residents across zones {req.zone_ids}")
     return BroadcastResponse(
         status="broadcast_dispatched",
-        broadcast_id=f"BC-{uuid.uuid4().hex[:8].upper()}",
+        broadcast_id=broadcast_id,
         sent_timestamp=datetime.utcnow().isoformat() + "Z",
-        recipient_count=len(req.zone_ids) * 4500,
+        recipient_count=recipient_count,
         zones_notified=req.zone_ids,
     )
+
