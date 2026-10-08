@@ -1,63 +1,42 @@
-# FloodShield AI — Frontend Boilerplate
+# FloodShield AI
 
 AI-Powered Coastal Flood Intelligence, Simulation, and Early Warning System for India.
 
-## 🚀 Tech Stack
-
-- **Framework:** Next.js (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Icons:** Lucide React
-- **UI Components:** Reusable accessible component library (`Button`, `Card`, `Badge`) with `cva`, `clsx`, and `tailwind-merge`
-
----
-
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```text
-src/
-├── app/
-│   ├── layout.tsx         # Root layout with top navigation bar and footer
-│   ├── page.tsx           # Main Overview dashboard
-│   ├── globals.css        # Tailwind styling and custom themes
-│   ├── simulation/
-│   │   └── page.tsx       # Real-time simulation engine controls & map canvas
-│   ├── alerts/
-│   │   └── page.tsx       # Risk zone prioritization table & emergency alerts
-│   └── analytics/
-│       └── page.tsx       # AI Decision Models (Juve & Laya) & Conversational Assistant
-├── components/
-│   ├── layout/
-│   │   ├── Navbar.tsx     # Responsive sticky navigation bar
-│   │   └── Footer.tsx     # Standardized footer
-│   └── ui/
-│       ├── button.tsx     # Reusable button with variants
-│       ├── card.tsx       # Reusable card suite
-│       └── badge.tsx      # Risk-level and status badges
-├── lib/
-│   └── utils.ts           # ClassName merger utility (cn)
-└── types/
-    └── index.ts           # Domain TypeScript definitions (FloodZone, SimulationParams, etc.)
+FloodShieldAi/
+├── context/               # Project specification, problem statement, and ideas
+├── frontend/              # Next.js frontend application
+│   ├── src/
+│   │   ├── app/           # App router pages (overview, simulation, alerts, analytics)
+│   │   ├── components/    # Reusable UI and Layout components
+│   │   ├── lib/           # Utility helpers (cn)
+│   │   └── types/         # Domain TypeScript types
+│   ├── public/            # Static assets
+│   ├── package.json       # Dependencies & scripts
+│   └── tsconfig.json      # TypeScript configuration
+└── README.md
 ```
 
----
+## 🚀 Quick Start (Frontend)
 
-## 🛠️ Getting Started
+1. **Navigate to the frontend folder:**
+   ```bash
+   cd frontend
+   ```
 
-1. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. **Run the development server:**
+3. **Start the development server:**
    ```bash
    npm run dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
 4. **Build for production:**
    ```bash
    npm run build
-   npm run start
    ```
