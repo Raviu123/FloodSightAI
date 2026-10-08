@@ -45,6 +45,11 @@ wheels/
 !.env.example
 !.env*.example
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Testing & Coverage
 coverage/
 .coverage

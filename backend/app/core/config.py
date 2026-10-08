@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from typing import List, Union
-from pydantic import AnyHttpUrl, field_validator
+from pydantic import field_validator
+import os
 
 
 class Settings(BaseSettings):
@@ -11,10 +12,15 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
+    # Database Configuration (PostgreSQL with SQLite fallback for offline dev)
+    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/floodshield"
+    SQLITE_FALLBACK_URL: str = "sqlite:///./floodshield.db"
+
     # CORS Origins
     CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:3001",
     ]
 
     @field_validator("CORS_ORIGINS", mode="before")
@@ -26,9 +32,11 @@ class Settings(BaseSettings):
             return v
         return ["*"]
 
-    # External APIs / Simulation keys
+    # External APIs / LLM keys
     OPENWEATHER_API_KEY: str = ""
     INDIA_MET_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
     AI_MODEL_PROVIDER: str = "simulation"
 
     class Config:
