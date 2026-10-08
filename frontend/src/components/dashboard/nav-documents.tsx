@@ -41,19 +41,6 @@ export function NavDocuments({
                                     <item.icon className="size-3.5 text-muted-foreground group-hover:text-foreground" />
                                     <span className="truncate text-xs font-mono">{item.name}</span>
                                 </div>
-                                {item.status && (
-                                    <span
-                                        className={`ml-auto text-[9px] font-mono px-1.5 py-0.2 rounded border ${
-                                            item.statusVariant === "destructive"
-                                                ? "border-red-800/80 bg-red-950/40 text-red-400"
-                                                : item.statusVariant === "default"
-                                                  ? "border-amber-700/80 bg-amber-950/40 text-amber-300"
-                                                  : "border-border bg-secondary text-muted-foreground"
-                                        }`}
-                                    >
-                                        {item.status}
-                                    </span>
-                                )}
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
