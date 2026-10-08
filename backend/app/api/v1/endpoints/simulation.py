@@ -1,8 +1,19 @@
 import time
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
-from app.schemas.simulation import SimulationInput, SimulationResponse
-from app.services.flood_engine import calculate_flood_simulation
+from app.schemas.simulation import (
+    SimulationInput,
+    SimulationResponse,
+    Timeline24hResponse,
+    WhatIfInput,
+    WhatIfResponse,
+)
+from app.services.flood_engine import (
+    calculate_flood_simulation,
+    calculate_24h_timeline,
+    calculate_what_if,
+)
+from app.services.ml_predictor import ml_predictor
 from app.core.database import get_db
 from app.core.logging_config import logger
 
@@ -49,6 +60,40 @@ def run_simulation(params: SimulationInput, db: Session = Depends(get_db)):
     return result
 
 
+@router.post("/zone-override", response_model=SimulationResponse, summary="Simulation with Localized Zone Overrides")
+def simulation_with_overrides(params: SimulationInput, db: Session = Depends(get_db)):
+    """
+    Allows localized cloudburst and drainage block parameter injection per zone.
+    """
+    return run_simulation(params, db=db)
+
+
+@router.post("/forecast-timeline-24h", response_model=Timeline24hResponse, summary="24-Hour Flood Propagation Timeline")
+def get_24h_timeline(params: SimulationInput, db: Session = Depends(get_db)):
+    """
+    Generates an hourly 24-hour flood propagation timeline modeling semi-diurnal tidal cycles
+    and precipitation hyetographs.
+    """
+    return calculate_24h_timeline(params, db=db)
+
+
+@router.post("/what-if", response_model=WhatIfResponse, summary="What-If Sensitivity Analysis")
+def what_if_analysis(input_data: WhatIfInput, db: Session = Depends(get_db)):
+    """
+    Computes comparative sensitivity deltas (avoided/added inundation sq km and population at risk)
+    between a baseline scenario and counterfactual intervention.
+    """
+    return calculate_what_if(input_data, db=db)
+
+
+@router.get("/metrics", summary="Get Trained ML Model Verification Metrics")
+def get_model_metrics():
+    """
+    Returns full validation scorecard (AUC-ROC, MAE, R², Feature Importances) from real data training.
+    """
+    return ml_predictor.metrics
+
+
 @router.get("/quick-estimate", response_model=SimulationResponse, summary="Quick Estimate via Query Params")
 def quick_estimate(
     tide: float = Query(2.4, ge=0.0, le=10.0, description="Tide level in meters"),
@@ -64,4 +109,3 @@ def quick_estimate(
         cyclone_active=cyclone,
     )
     return run_simulation(params, db=db)
-

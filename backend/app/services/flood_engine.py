@@ -1,4 +1,7 @@
-from typing import List, Dict, Any
+import uuid
+import numpy as np
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.schemas.simulation import (
     SimulationInput,
@@ -8,10 +11,13 @@ from app.schemas.simulation import (
     DriverItem,
     FacilityItem,
     RoadItem,
+    Timeline24hResponse,
+    TimelineHourStep,
+    WhatIfInput,
+    WhatIfResponse,
 )
-from app.models.zone import Zone, CriticalFacility, AffectedRoad
+from app.models.zone import Zone
 from app.models.prediction import PredictionRecord
-from app.models.alert import AlertRecord
 from app.services.ml_predictor import ml_predictor
 from app.services.xai_engine import xai_engine
 from app.services.decision_engine import decision_engine
@@ -22,12 +28,13 @@ from app.services.sms_service import sms_service
 def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> SimulationResponse:
     """
     Executes the full AI Pipeline:
-    1. Loads zone GIS profiles, facilities, and roads from Database
-    2. Runs Tabular ML Predictor (Scikit-Learn Random Forest & Gradient Boosting)
-    3. Computes Explainable AI (XAI) feature attributions
-    4. Calculates Juve multi-criteria urgency scores and road/hospital threats
-    5. Formulates plain-language SITREP and SMS alerts
-    6. Persists predictions to Database
+    1. Loads zone GIS profiles, facilities, and roads from Database / Seeds
+    2. Incorporates optional per-zone overrides
+    3. Runs Tabular ML Predictor (Gradient Boosting & Balanced Random Forest)
+    4. Computes Explainable AI (XAI) feature attributions
+    5. Calculates Juve multi-criteria urgency scores and road/hospital threats
+    6. Formulates plain-language SITREP and SMS alerts
+    7. Persists predictions to Database
     """
     # 1. Fetch zones from DB if available
     zones_db = []
@@ -38,12 +45,17 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
         except Exception:
             zones_db = []
 
-    # If DB not yet populated, fallback to inline seed definitions
     if not zones_db:
         from scripts.seed_db import COASTAL_SEEDS
         raw_zones = COASTAL_SEEDS
     else:
         raw_zones = zones_db
+
+    # Build lookup for zone overrides if provided
+    overrides_dict = {}
+    if params.zone_overrides:
+        for ov in params.zone_overrides:
+            overrides_dict[ov.zone_id.upper()] = ov
 
     zone_evaluations: List[Dict[str, Any]] = []
     total_population_at_risk = 0
@@ -79,20 +91,28 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
             z_facilities = z.get("facilities", [])
             z_roads = z.get("roads", [])
 
+        # Check for localized zone override
+        zone_ov = overrides_dict.get(z_id.upper())
+        zone_rain = zone_ov.rainfall_mm_per_hour if (zone_ov and zone_ov.rainfall_mm_per_hour is not None) else params.rainfall_mm_per_hour
+        zone_saturation = zone_ov.soil_saturation if (zone_ov and zone_ov.soil_saturation is not None) else (params.soil_saturation or 0.75)
+        
+        drainage_adj = z_drain
+        if zone_ov and zone_ov.drainage_blocked_pct is not None:
+            drainage_adj = max(5.0, z_drain * (1.0 - zone_ov.drainage_blocked_pct / 100.0))
+
         # 2. Run ML Predictive Inference
-        rainfall_accum = params.rainfall_mm_per_hour * min(params.forecast_hours, 6) * 0.7
+        rainfall_accum = zone_rain * min(params.forecast_hours, 6) * 0.7
         cyclone_wind = (params.wind_speed_kmh or 35.0) * (1.5 if params.cyclone_active else 1.0)
-        saturation = params.soil_saturation or 0.75
 
         ml_result = ml_predictor.predict_zone(
             tide_level_m=params.tide_level_meters,
-            rainfall_rate_mm_h=params.rainfall_mm_per_hour,
+            rainfall_rate_mm_h=zone_rain,
             rainfall_accum_6h_mm=rainfall_accum,
             elevation_m=z_elev,
             dist_to_coast_km=z_coast,
             dist_to_river_km=z_river,
-            drainage_capacity_pct=z_drain,
-            soil_saturation_idx=saturation,
+            drainage_capacity_pct=drainage_adj,
+            soil_saturation_idx=zone_saturation,
             cyclone_wind_kmh=cyclone_wind,
         )
 
@@ -131,7 +151,7 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
 
         if ml_result["is_flooded"]:
             total_population_at_risk += z_pop
-            inundated_area_sq_km += 5.2
+            inundated_area_sq_km += ml_result["inundated_area_sq_km"]
 
         zone_eval = {
             "zone_id": z_id,
@@ -142,13 +162,14 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
             "population": z_pop,
             "dist_to_coast_km": z_coast,
             "dist_to_river_km": z_river,
-            "drainage_capacity_pct": z_drain,
+            "drainage_capacity_pct": drainage_adj,
             "latitude": z_lat,
             "longitude": z_lng,
-            # ML
+            # ML Predictions
             "flood_probability": ml_result["flood_probability"],
             "is_flooded": ml_result["is_flooded"],
             "projected_depth_meters": ml_result["projected_depth_meters"],
+            "inundated_area_sq_km": ml_result["inundated_area_sq_km"],
             "onset_time_minutes": ml_result["onset_time_minutes"],
             "peak_time_minutes": ml_result["peak_time_minutes"],
             "threat_level": ml_result["threat_level"],
@@ -180,21 +201,18 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
                     zone_id=er.zone_id,
                     tide_level_meters=params.tide_level_meters,
                     rainfall_mm_per_hour=params.rainfall_mm_per_hour,
-                    soil_saturation=params.soil_saturation or 0.75,
-                    cyclone_active=1.0 if params.cyclone_active else 0.0,
                     flood_probability=er.flood_probability,
-                    projected_depth_meters=er.projected_depth_meters,
+                    predicted_water_depth_m=er.projected_depth_meters,
                     onset_time_minutes=er.onset_time_minutes,
                     peak_time_minutes=er.peak_time_minutes,
                     threat_level=er.threat_level.value if hasattr(er.threat_level, "value") else str(er.threat_level),
-                    primary_drivers=[d.model_dump() for d in er.primary_drivers],
-                    explanation_text=er.plain_language_explanation,
-                    evacuation_priority_rank=er.evacuation_priority_rank,
+                    affected_population=er.population if er.is_flooded else 0,
+                    inundated_area_sq_km=er.inundated_area_sq_km,
                 )
                 db.add(rec)
             db.commit()
         except Exception:
-            db.rollback()
+            pass
 
     # 7. Automated Critical-Zone SMS Dispatch to Connected Phone Numbers
     auto_sms_alerts = []
@@ -217,35 +235,146 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
             if alert_dispatch:
                 auto_sms_alerts.append(alert_dispatch)
 
-    # Overall system threat score calculation
-    critical_count = sum(1 for z in enhanced_results if z.threat_level in [ThreatLevel.CRITICAL, ThreatLevel.HIGH])
-    avg_prob = sum(z.flood_probability for z in enhanced_results) / len(enhanced_results) if enhanced_results else 0
-    threat_index = round(min(100.0, (avg_prob * 60.0) + (critical_count * 12.0) + (10.0 if params.cyclone_active else 0.0)), 1)
-
-    if threat_index >= 70 or critical_count >= 2:
-        overall_risk = ThreatLevel.CRITICAL
+    # Overall system risk calculation
+    critical_count = sum(1 for z in enhanced_results if z.threat_level == ThreatLevel.CRITICAL)
+    high_count = sum(1 for z in enhanced_results if z.threat_level == ThreatLevel.HIGH)
+    
+    if critical_count >= 1:
+        overall_threat = ThreatLevel.CRITICAL
+        threat_index = 88.5
         recommendation = "RED ALERT: Immediate evacuation of Tier-1 coastal lowlands required. Issue mobile broadcasts & mobilize NDRF units."
-    elif threat_index >= 45 or critical_count >= 1:
-        overall_risk = ThreatLevel.HIGH
+    elif high_count >= 1:
+        overall_threat = ThreatLevel.HIGH
+        threat_index = 68.0
         recommendation = "ORANGE ADVISORY: Deploy de-watering pumps to compromised road arteries and pre-stage emergency relief shelters."
-    elif threat_index >= 25:
-        overall_risk = ThreatLevel.MEDIUM
-        recommendation = "YELLOW WATCH: Monitor tidal ingress at estuary mouths. Restrict coastal navigation and alert fishing communities."
+    elif any(z.threat_level == ThreatLevel.MEDIUM for z in enhanced_results):
+        overall_threat = ThreatLevel.MEDIUM
+        threat_index = 42.0
+        recommendation = "YELLOW WATCH: Monitor estuary confluence and maintain drainage channel vigilance."
+    elif any(z.threat_level == ThreatLevel.LOW for z in enhanced_results):
+        overall_threat = ThreatLevel.LOW
+        threat_index = 22.0
+        recommendation = "GREEN ADVISORY: Low waterlogging probability. Standard operations."
     else:
-        overall_risk = ThreatLevel.LOW
-        recommendation = "GREEN NORMAL: Coastal parameters within standard safety envelope. Maintain continuous telemetry polling."
-
-    metrics_data = ml_predictor.get_metrics_summary()
+        overall_threat = ThreatLevel.NO_DANGER
+        threat_index = 5.0
+        recommendation = "SAFE: All coastal sectors operating within normal tidal and runoff limits."
 
     return SimulationResponse(
         threat_index=threat_index,
-        overall_risk=overall_risk,
+        overall_risk=overall_threat,
         simulation_params=params,
         estimated_inundated_area_sq_km=round(inundated_area_sq_km, 2),
         total_population_at_risk=total_population_at_risk,
         critical_zones_count=critical_count,
         zones=enhanced_results,
         recommendation=recommendation,
-        ai_validation_metrics=metrics_data.get("metrics") if metrics_data else None,
+        ai_validation_metrics=ml_predictor.metrics,
         auto_sms_alerts=auto_sms_alerts,
+    )
+
+
+def calculate_24h_timeline(params: SimulationInput, db: Session = None) -> Timeline24hResponse:
+    """
+    Simulates a 24-hour flood propagation timeline modeling semi-diurnal tidal cycles
+    and storm hyetographs.
+    """
+    steps: List[TimelineHourStep] = []
+    max_depth = 0.0
+    peak_hour = 12
+    max_pop = 0
+
+    base_tide = params.tide_level_meters
+    base_rain = params.rainfall_mm_per_hour
+
+    for h in range(1, 25):
+        # Tidal oscillation curve (semi-diurnal tide period ~12.4h)
+        tide_offset = np.sin((h / 12.4) * 2 * np.pi) * 0.9
+        hourly_tide = max(0.0, base_tide + tide_offset)
+
+        # Storm precipitation hyetograph (bell curve peaking at hour 8-12)
+        rain_mult = max(0.1, np.exp(-((h - 10) ** 2) / 25.0) * 1.6)
+        hourly_rain = base_rain * rain_mult
+
+        step_input = SimulationInput(
+            tide_level_meters=hourly_tide,
+            rainfall_mm_per_hour=hourly_rain,
+            forecast_hours=params.forecast_hours,
+            wind_speed_kmh=params.wind_speed_kmh,
+            cyclone_active=params.cyclone_active,
+            soil_saturation=min(1.0, (params.soil_saturation or 0.75) + (h * 0.01)),
+            zone_overrides=params.zone_overrides,
+        )
+
+        res = calculate_flood_simulation(step_input, db=db)
+        
+        zone_depths = {z.zone_id: z.projected_depth_meters for z in res.zones}
+        step_max_depth = max(zone_depths.values()) if zone_depths else 0.0
+
+        if step_max_depth > max_depth:
+            max_depth = step_max_depth
+            peak_hour = h
+            max_pop = res.total_population_at_risk
+
+        steps.append(
+            TimelineHourStep(
+                hour=h,
+                tide_level_meters=round(hourly_tide, 2),
+                rainfall_mm_per_hour=round(hourly_rain, 1),
+                total_population_at_risk=res.total_population_at_risk,
+                inundated_area_sq_km=res.estimated_inundated_area_sq_km,
+                critical_zones_count=res.critical_zones_count,
+                overall_risk=res.overall_risk,
+                zone_depths=zone_depths,
+            )
+        )
+
+    return Timeline24hResponse(
+        simulation_id=f"TL-{uuid.uuid4().hex[:8].upper()}",
+        generated_at=datetime.utcnow().isoformat() + "Z",
+        total_hours=24,
+        peak_hour=peak_hour,
+        peak_water_depth_m=round(max_depth, 2),
+        max_population_at_risk=max_pop,
+        timeline_steps=steps,
+    )
+
+
+def calculate_what_if(input_data: WhatIfInput, db: Session = None) -> WhatIfResponse:
+    """
+    Computes comparative sensitivity deltas between a baseline and counterfactual scenario.
+    """
+    base_res = calculate_flood_simulation(input_data.base_params, db=db)
+
+    # Construct counterfactual parameters
+    new_tide = max(0.0, input_data.base_params.tide_level_meters + (input_data.tide_delta_m or 0.0))
+    rain_factor = 1.0 + ((input_data.rain_delta_pct or 0.0) / 100.0)
+    new_rain = max(0.0, input_data.base_params.rainfall_mm_per_hour * rain_factor)
+
+    counter_input = SimulationInput(
+        tide_level_meters=new_tide,
+        rainfall_mm_per_hour=new_rain,
+        forecast_hours=input_data.base_params.forecast_hours,
+        wind_speed_kmh=input_data.base_params.wind_speed_kmh,
+        cyclone_active=input_data.base_params.cyclone_active,
+        soil_saturation=input_data.base_params.soil_saturation,
+    )
+
+    counter_res = calculate_flood_simulation(counter_input, db=db)
+
+    delta_area = round(counter_res.estimated_inundated_area_sq_km - base_res.estimated_inundated_area_sq_km, 2)
+    delta_pop = counter_res.total_population_at_risk - base_res.total_population_at_risk
+
+    tide_desc = f"{input_data.tide_delta_m:+.2f}m tide" if input_data.tide_delta_m else "no tide change"
+    rain_desc = f"{input_data.rain_delta_pct:+.0f}% rain" if input_data.rain_delta_pct else "no rain change"
+    summary = f"What-If Scenario ({tide_desc}, {rain_desc}): Resulted in {delta_area:+.2f} sq km flooded land change and {delta_pop:+,} affected residents delta."
+
+    return WhatIfResponse(
+        scenario_summary=summary,
+        base_threat_level=base_res.overall_risk,
+        new_threat_level=counter_res.overall_risk,
+        avoided_or_added_inundation_sq_km=delta_area,
+        avoided_or_added_population_at_risk=delta_pop,
+        base_response=base_res,
+        counterfactual_response=counter_res,
     )

@@ -11,6 +11,13 @@ class ThreatLevel(str, Enum):
     CRITICAL = "CRITICAL"
 
 
+class ZoneOverrideItem(BaseModel):
+    zone_id: str
+    rainfall_mm_per_hour: Optional[float] = None
+    soil_saturation: Optional[float] = None
+    drainage_blocked_pct: Optional[float] = None
+
+
 class SimulationInput(BaseModel):
     tide_level_meters: float = Field(default=2.4, ge=0.0, le=10.0, description="Tide level above MSL in meters")
     rainfall_mm_per_hour: float = Field(default=65.0, ge=0.0, le=500.0, description="Precipitation rate in mm/hour")
@@ -18,6 +25,7 @@ class SimulationInput(BaseModel):
     wind_speed_kmh: Optional[float] = Field(default=35.0, ge=0.0, description="Wind speed in km/h")
     cyclone_active: Optional[bool] = Field(default=False, description="Whether a cyclonic storm surge is active")
     soil_saturation: Optional[float] = Field(default=0.75, ge=0.0, le=1.0, description="Soil saturation index (0-1)")
+    zone_overrides: Optional[List[ZoneOverrideItem]] = Field(default=None, description="Optional localized zone parameter overrides")
 
 
 class DriverItem(BaseModel):
@@ -59,6 +67,7 @@ class EnhancedZoneResult(BaseModel):
     flood_probability: float
     is_flooded: bool
     projected_depth_meters: float
+    inundated_area_sq_km: float
     onset_time_minutes: int
     peak_time_minutes: int
     threat_level: ThreatLevel
@@ -92,3 +101,41 @@ class SimulationResponse(BaseModel):
     recommendation: str
     ai_validation_metrics: Optional[Dict[str, Any]] = None
     auto_sms_alerts: List[Dict[str, Any]] = Field(default=[], description="Automated SMS dispatches triggered for zones classified as CRITICAL")
+
+
+class TimelineHourStep(BaseModel):
+    hour: int
+    tide_level_meters: float
+    rainfall_mm_per_hour: float
+    total_population_at_risk: int
+    inundated_area_sq_km: float
+    critical_zones_count: int
+    overall_risk: ThreatLevel
+    zone_depths: Dict[str, float]
+
+
+class Timeline24hResponse(BaseModel):
+    simulation_id: str
+    generated_at: str
+    total_hours: int = 24
+    peak_hour: int
+    peak_water_depth_m: float
+    max_population_at_risk: int
+    timeline_steps: List[TimelineHourStep]
+
+
+class WhatIfInput(BaseModel):
+    base_params: SimulationInput
+    tide_delta_m: Optional[float] = Field(default=0.0, description="Delta change in tide level (+/- meters)")
+    rain_delta_pct: Optional[float] = Field(default=0.0, description="Percentage change in rainfall (+/- %)")
+    drainage_clearance_pct: Optional[float] = Field(default=0.0, description="Improvement in drainage capacity (+/- %)")
+
+
+class WhatIfResponse(BaseModel):
+    scenario_summary: str
+    base_threat_level: ThreatLevel
+    new_threat_level: ThreatLevel
+    avoided_or_added_inundation_sq_km: float
+    avoided_or_added_population_at_risk: int
+    base_response: SimulationResponse
+    counterfactual_response: SimulationResponse
