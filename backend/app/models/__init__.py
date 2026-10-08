@@ -1,5 +1,18 @@
-from app.models.zone import Zone, CriticalFacility, AffectedRoad
-from app.models.prediction import PredictionRecord
-from app.models.alert import AlertRecord
+# Re-export from unified app.db.models
+from app.db.models import (
+    Zone,
+    CriticalFacility,
+    AffectedRoad,
+    PredictionRecord,
+    AlertRecord,
+    ConnectionTest,
+)
 
-__all__ = ["Zone", "CriticalFacility", "AffectedRoad", "PredictionRecord", "AlertRecord"]
+__all__ = [
+    "Zone",
+    "CriticalFacility",
+    "AffectedRoad",
+    "PredictionRecord",
+    "AlertRecord",
+    "ConnectionTest",
+]
