@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     AI_MODEL_PROVIDER: str = "simulation"
 
+    # Elevation-only terrain analysis configuration.
+    DEM_TILE_URL: str = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+    DEM_TILE_ZOOM: int = 14
+
     class Config:
         case_sensitive = True
         env_file = ".env"
