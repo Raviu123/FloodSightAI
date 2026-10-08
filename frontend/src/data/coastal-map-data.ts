@@ -181,9 +181,9 @@ export const REGION_PRESETS: RegionPreset[] = [
     name: "Mangalore Estuary",
     code: "IXE-01",
     state: "Karnataka",
-    latitude: 12.871,
-    longitude: 74.842,
-    zoom: 12.8,
+    latitude: 12.862,
+    longitude: 74.848,
+    zoom: 13.0,
     pitch: 45,
     bearing: -15,
   },
@@ -192,8 +192,8 @@ export const REGION_PRESETS: RegionPreset[] = [
     name: "Kochi Backwaters",
     code: "COK-02",
     state: "Kerala",
-    latitude: 9.965,
-    longitude: 76.285,
+    latitude: 9.955,
+    longitude: 76.275,
     zoom: 12.5,
     pitch: 40,
     bearing: 10,
@@ -214,7 +214,7 @@ export const REGION_PRESETS: RegionPreset[] = [
     name: "Mumbai Coastal Bay",
     code: "BOM-04",
     state: "Maharashtra",
-    latitude: 18.975,
+    latitude: 18.985,
     longitude: 72.825,
     zoom: 12.2,
     pitch: 45,
@@ -241,7 +241,7 @@ export interface ZoneFeatureProperties {
   region: string;
   sectorCode: string;
   elevationMeters: number; // Measured from NASA SRTM DEM
-  distanceToSeaKm: number; // Measured from high tide coastline line
+  distanceToSeaKm: number; // Measured from high tide coastline
   population: number;
   baseRiskLevel: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "SAFE";
   criticalFacilitiesCount: number;
@@ -259,8 +259,8 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Netravati Estuary & River Mouth Spit",
       region: "Mangalore",
       sectorCode: "IXE-SEC-01",
-      elevationMeters: 0.6, // Real DEM: Extremely low elevation sand spit
-      distanceToSeaKm: 0.15, // Direct open sea interface
+      elevationMeters: 0.6,
+      distanceToSeaKm: 0.15,
       population: 14200,
       baseRiskLevel: "CRITICAL",
       criticalFacilitiesCount: 2,
@@ -282,7 +282,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Ullal Coastal Lowlands & Drainage Basin",
       region: "Mangalore",
       sectorCode: "IXE-SEC-02",
-      elevationMeters: 1.2, // Real DEM: 1.2m MSL
+      elevationMeters: 1.2,
       distanceToSeaKm: 0.45,
       population: 9800,
       baseRiskLevel: "HIGH",
@@ -305,7 +305,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Bunder Port Wharf & Fishery Basin",
       region: "Mangalore",
       sectorCode: "IXE-SEC-03",
-      elevationMeters: 2.1, // Real DEM: 2.1m MSL
+      elevationMeters: 2.1,
       distanceToSeaKm: 0.85,
       population: 6100,
       baseRiskLevel: "MEDIUM",
@@ -328,7 +328,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Kadri Hills & Ridge Line",
       region: "Mangalore",
       sectorCode: "IXE-SEC-04",
-      elevationMeters: 19.5, // Real DEM: 19.5m highland ridge
+      elevationMeters: 19.5,
       distanceToSeaKm: 3.2,
       population: 34000,
       baseRiskLevel: "SAFE",
@@ -353,7 +353,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Vembanad Lowland Canal Network",
       region: "Kochi",
       sectorCode: "COK-SEC-01",
-      elevationMeters: 0.5, // Real DEM: 0.5m MSL (Extremely low lagoon depression)
+      elevationMeters: 0.5,
       distanceToSeaKm: 0.35,
       population: 28400,
       baseRiskLevel: "CRITICAL",
@@ -376,7 +376,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Fort Kochi & Coastal Spit",
       region: "Kochi",
       sectorCode: "COK-SEC-02",
-      elevationMeters: 1.6, // Real DEM: 1.6m MSL
+      elevationMeters: 1.6,
       distanceToSeaKm: 0.1,
       population: 17200,
       baseRiskLevel: "HIGH",
@@ -399,7 +399,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Ernakulam Eastern High Ground",
       region: "Kochi",
       sectorCode: "COK-SEC-03",
-      elevationMeters: 8.5, // Real DEM: 8.5m MSL
+      elevationMeters: 8.5,
       distanceToSeaKm: 4.8,
       population: 52000,
       baseRiskLevel: "SAFE",
@@ -421,10 +421,10 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
   {
     properties: {
       id: "ZONE-MAA-01",
-      name: "Adyar River Estuary & Lowland Delta",
+      name: "Adyar River Estuary & Delta Lowlands",
       region: "Chennai",
       sectorCode: "MAA-SEC-01",
-      elevationMeters: 0.8, // Real DEM: 0.8m MSL
+      elevationMeters: 0.8,
       distanceToSeaKm: 0.25,
       population: 31000,
       baseRiskLevel: "CRITICAL",
@@ -433,11 +433,11 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
     },
     coordinates: [
       [
-        [78.245, 13.005],
-        [78.275, 13.020],
-        [78.280, 12.990],
-        [78.250, 12.980],
-        [78.245, 13.005],
+        [80.245, 13.008],
+        [80.278, 13.018],
+        [80.282, 12.985],
+        [80.252, 12.978],
+        [80.245, 13.008],
       ],
     ],
   },
@@ -447,7 +447,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Marina Coastal Strip & Foreshore Lowlands",
       region: "Chennai",
       sectorCode: "MAA-SEC-02",
-      elevationMeters: 2.2, // Real DEM: 2.2m MSL
+      elevationMeters: 2.2,
       distanceToSeaKm: 0.4,
       population: 24500,
       baseRiskLevel: "MEDIUM",
@@ -470,7 +470,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "T. Nagar - Guindy Highland Plateau",
       region: "Chennai",
       sectorCode: "MAA-SEC-03",
-      elevationMeters: 11.0, // Real DEM: 11.0m MSL
+      elevationMeters: 11.0,
       distanceToSeaKm: 5.5,
       population: 85000,
       baseRiskLevel: "SAFE",
@@ -495,7 +495,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Mahim Creek & Mithi River Outfall",
       region: "Mumbai",
       sectorCode: "BOM-SEC-01",
-      elevationMeters: 0.9, // Real DEM: 0.9m MSL
+      elevationMeters: 0.9,
       distanceToSeaKm: 0.3,
       population: 48000,
       baseRiskLevel: "CRITICAL",
@@ -518,7 +518,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Marine Drive Coastal Promenade",
       region: "Mumbai",
       sectorCode: "BOM-SEC-02",
-      elevationMeters: 2.8, // Real DEM: 2.8m MSL
+      elevationMeters: 2.8,
       distanceToSeaKm: 0.15,
       population: 29000,
       baseRiskLevel: "MEDIUM",
@@ -541,7 +541,7 @@ export const REAL_DEM_ZONE_TILES_RAW: Array<{
       name: "Malabar Hill Highland Ridge",
       region: "Mumbai",
       sectorCode: "BOM-SEC-03",
-      elevationMeters: 45.0, // Real DEM: 45.0m MSL
+      elevationMeters: 45.0,
       distanceToSeaKm: 0.9,
       population: 32000,
       baseRiskLevel: "SAFE",
@@ -568,7 +568,6 @@ export function calculateDynamicZoneTilesGeoJSON(
   tideLevelMeters: number,
   rainfallMmPerHour: number
 ): FeatureCollection {
-  // Current effective storm tide water surge above MSL
   const effectiveWaterSurge = (tideLevelMeters * 0.85) + ((rainfallMmPerHour / 100) * 0.45);
 
   const features = REAL_DEM_ZONE_TILES_RAW.map((tile) => {
@@ -576,45 +575,40 @@ export function calculateDynamicZoneTilesGeoJSON(
     const elevation = p.elevationMeters;
     const distanceKm = p.distanceToSeaKm;
 
-    // Inundation depth: water surge minus ground elevation
     const inundationDepth = Math.round((effectiveWaterSurge - elevation) * 100) / 100;
-
-    // Proximity factor (closer to sea = higher vulnerability)
     const proximityMultiplier = distanceKm < 0.5 ? 1.3 : distanceKm < 1.5 ? 1.1 : 0.8;
 
-    // Dynamic Threat Score (0 - 100)
     let threatScore = 0;
     if (inundationDepth > 0) {
       threatScore = Math.min(100, Math.round((inundationDepth * 25 + 50) * proximityMultiplier));
     } else {
-      // Below flooding threshold: score based on buffer
       const bufferMeters = Math.abs(inundationDepth);
       threatScore = Math.max(0, Math.round((40 - bufferMeters * 10) * proximityMultiplier));
     }
 
     let riskLevel: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "SAFE" = "SAFE";
-    let riskColor = "#10b981"; // Safe Green
+    let riskColor = "#10b981";
     let actionProtocol = "Logistics Assembly & Shelter Base";
 
     if (threatScore >= 75 || inundationDepth >= 0.5) {
       riskLevel = "CRITICAL";
-      riskColor = "#ef4444"; // Red
+      riskColor = "#ef4444";
       actionProtocol = "Mandatory Immediate Evacuation";
     } else if (threatScore >= 50 || inundationDepth >= 0.0) {
       riskLevel = "HIGH";
-      riskColor = "#f97316"; // Orange
+      riskColor = "#f97316";
       actionProtocol = "Evacuation Standby & Barrier Deployment";
     } else if (threatScore >= 25 || elevation <= 3.0) {
       riskLevel = "MEDIUM";
-      riskColor = "#eab308"; // Amber
+      riskColor = "#eab308";
       actionProtocol = "Drainage Inflow Monitoring & Advisory";
     } else if (elevation <= 6.0) {
       riskLevel = "LOW";
-      riskColor = "#06b6d4"; // Cyan
+      riskColor = "#06b6d4";
       actionProtocol = "Normal Coastal Runoff Observed";
     } else {
       riskLevel = "SAFE";
-      riskColor = "#10b981"; // Emerald
+      riskColor = "#10b981";
       actionProtocol = "Highland Relief Assembly Operational";
     }
 
@@ -651,7 +645,7 @@ export const LOW_LYING_AREAS_GEOJSON: FeatureCollection = {
       properties: {
         elevationCategory: "Below 1.0m MSL (Critical Depression)",
         color: "#38bdf8",
-        opacity: 0.6,
+        opacity: 0.35,
       },
       geometry: {
         type: "Polygon",
@@ -662,26 +656,6 @@ export const LOW_LYING_AREAS_GEOJSON: FeatureCollection = {
             [74.858, 12.830],
             [74.822, 12.825],
             [74.820, 12.850],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: {
-        elevationCategory: "1.0m - 2.5m MSL (Moderate Vulnerability)",
-        color: "#60a5fa",
-        opacity: 0.4,
-      },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [74.810, 12.870],
-            [74.865, 12.880],
-            [74.870, 12.820],
-            [74.815, 12.810],
-            [74.810, 12.870],
           ],
         ],
       },
@@ -733,7 +707,7 @@ export const WATER_BODIES_GEOJSON: FeatureCollection = {
   ],
 };
 
-// 4. Critical Facilities (Hospitals, Shelters, Ports, Power)
+// 4. Critical Facilities
 export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
   type: "FeatureCollection",
   features: [

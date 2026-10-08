@@ -41,15 +41,16 @@ export function MapLibreMap({
   const [activeRegionId, setActiveRegionId] = useState<string>("mangalore");
   const [mapLoaded, setMapLoaded] = useState(false);
 
+  // Set dangerZones and floodInundation as primary visible layers
   const [layers, setLayers] = useState<MapLayerState>({
     dangerZones: true,
-    lowLyingAreas: true,
+    lowLyingAreas: false,
     waterBodies: true,
     facilities: true,
     evacuationRoutes: true,
     floodInundation: true,
     is3DTerrain: true,
-    layerOpacity: 0.75,
+    layerOpacity: 0.85,
   });
 
   const getStyleObject = (id: BaseMapStyleId) => {
@@ -60,25 +61,7 @@ export function MapLibreMap({
   const addAllLayers = useCallback((map: maplibregl.Map) => {
     if (!map) return;
 
-    // 1. Low-lying Areas
-    if (!map.getSource("low-lying-source")) {
-      map.addSource("low-lying-source", {
-        type: "geojson",
-        data: LOW_LYING_AREAS_GEOJSON,
-      });
-
-      map.addLayer({
-        id: "low-lying-layer-fill",
-        type: "fill",
-        source: "low-lying-source",
-        paint: {
-          "fill-color": ["get", "color"],
-          "fill-opacity": ["*", layers.layerOpacity * 0.5, ["get", "opacity"]],
-        },
-      });
-    }
-
-    // 2. Dynamic Flood Inundation Simulation
+    // 1. Dynamic Flood Inundation Simulation Layer
     if (!map.getSource("flood-inundation-source")) {
       map.addSource("flood-inundation-source", {
         type: "geojson",
@@ -91,7 +74,7 @@ export function MapLibreMap({
         source: "flood-inundation-source",
         paint: {
           "fill-color": "#38bdf8",
-          "fill-opacity": layers.layerOpacity * 0.6,
+          "fill-opacity": layers.layerOpacity * 0.45,
         },
       });
 
@@ -107,7 +90,7 @@ export function MapLibreMap({
       });
     }
 
-    // 3. Real DEM Elevation Danger Zones (Dynamic based on Tide + Rain + Altitude + Coast Proximity)
+    // 2. Real DEM Elevation Danger Zones (High visibility color-coded polygon tiles)
     if (!map.getSource("danger-zones-source")) {
       map.addSource("danger-zones-source", {
         type: "geojson",
@@ -120,7 +103,7 @@ export function MapLibreMap({
         source: "danger-zones-source",
         paint: {
           "fill-color": ["get", "riskColor"],
-          "fill-opacity": layers.layerOpacity * 0.55,
+          "fill-opacity": layers.layerOpacity * 0.70,
         },
       });
 
@@ -130,12 +113,30 @@ export function MapLibreMap({
         source: "danger-zones-source",
         paint: {
           "line-color": ["get", "riskColor"],
-          "line-width": 2.5,
+          "line-width": 3.0,
         },
       });
     }
 
-    // 4. Water Bodies
+    // 3. Low-lying Areas (Contour depression)
+    if (!map.getSource("low-lying-source")) {
+      map.addSource("low-lying-source", {
+        type: "geojson",
+        data: LOW_LYING_AREAS_GEOJSON,
+      });
+
+      map.addLayer({
+        id: "low-lying-layer-fill",
+        type: "fill",
+        source: "low-lying-source",
+        paint: {
+          "fill-color": ["get", "color"],
+          "fill-opacity": ["*", layers.layerOpacity * 0.35, ["get", "opacity"]],
+        },
+      });
+    }
+
+    // 4. Water Bodies & Ingress Channels
     if (!map.getSource("water-bodies-source")) {
       map.addSource("water-bodies-source", {
         type: "geojson",
@@ -148,8 +149,8 @@ export function MapLibreMap({
         source: "water-bodies-source",
         paint: {
           "line-color": "#06b6d4",
-          "line-width": 4,
-          "line-opacity": 0.85,
+          "line-width": 4.5,
+          "line-opacity": 0.9,
         },
       });
     }
@@ -168,7 +169,7 @@ export function MapLibreMap({
         paint: {
           "line-color": ["get", "routeColor"],
           "line-width": 4.5,
-          "line-opacity": 0.9,
+          "line-opacity": 0.95,
         },
       });
     }
@@ -185,10 +186,10 @@ export function MapLibreMap({
         type: "circle",
         source: "critical-facilities-source",
         paint: {
-          "circle-radius": 7,
-          "circle-color": "#0f172a",
+          "circle-radius": 8,
+          "circle-color": "#090d16",
           "circle-stroke-color": "#38bdf8",
-          "circle-stroke-width": 2.5,
+          "circle-stroke-width": 3,
         },
       });
     }
@@ -215,13 +216,13 @@ export function MapLibreMap({
     setVis("flood-inundation-layer-stroke", lState.floodInundation);
 
     if (map.getLayer("danger-zones-layer-fill")) {
-      map.setPaintProperty("danger-zones-layer-fill", "fill-opacity", lState.layerOpacity * 0.55);
+      map.setPaintProperty("danger-zones-layer-fill", "fill-opacity", lState.layerOpacity * 0.70);
     }
     if (map.getLayer("flood-inundation-layer-fill")) {
-      map.setPaintProperty("flood-inundation-layer-fill", "fill-opacity", lState.layerOpacity * 0.6);
+      map.setPaintProperty("flood-inundation-layer-fill", "fill-opacity", lState.layerOpacity * 0.45);
     }
     if (map.getLayer("low-lying-layer-fill")) {
-      map.setPaintProperty("low-lying-layer-fill", "fill-opacity", lState.layerOpacity * 0.4);
+      map.setPaintProperty("low-lying-layer-fill", "fill-opacity", lState.layerOpacity * 0.35);
     }
   };
 
