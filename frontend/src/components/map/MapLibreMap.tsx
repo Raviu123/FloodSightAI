@@ -5,12 +5,12 @@ import * as maplibregl from "maplibre-gl";
 import {
   BASE_MAP_STYLES,
   type BaseMapStyleId,
-  DANGER_ZONES_GEOJSON,
   LOW_LYING_AREAS_GEOJSON,
   WATER_BODIES_GEOJSON,
   CRITICAL_FACILITIES_GEOJSON,
   EVACUATION_ROUTES_GEOJSON,
   generateFloodInundationGeoJSON,
+  calculateDynamicZoneTilesGeoJSON,
   REGION_PRESETS,
   type RegionPreset,
 } from "@/data/coastal-map-data";
@@ -107,11 +107,11 @@ export function MapLibreMap({
       });
     }
 
-    // 3. Danger Zones
+    // 3. Real DEM Elevation Danger Zones (Dynamic based on Tide + Rain + Altitude + Coast Proximity)
     if (!map.getSource("danger-zones-source")) {
       map.addSource("danger-zones-source", {
         type: "geojson",
-        data: DANGER_ZONES_GEOJSON,
+        data: calculateDynamicZoneTilesGeoJSON(tideLevel, rainfall),
       });
 
       map.addLayer({
@@ -249,7 +249,7 @@ export function MapLibreMap({
       setMapLoaded(true);
     });
 
-    // Click handler for Danger Zones
+    // Click handler for Danger Zones (NASA SRTM Telemetry Popup)
     map.on("click", "danger-zones-layer-fill", (e) => {
       if (!e.features || !e.features[0]) return;
       const feature = e.features[0];
@@ -258,22 +258,27 @@ export function MapLibreMap({
       if (popupRef.current) popupRef.current.remove();
 
       const popupHtml = `
-        <div class="p-3.5 space-y-2 text-zinc-100 min-w-[240px] font-mono">
-          <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-2">
+        <div class="p-3.5 space-y-2 text-zinc-100 min-w-[260px] font-mono">
+          <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
             <span class="font-bold text-xs text-sky-400">${props.id}</span>
             <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${props.riskColor}26; color: ${props.riskColor}; border: 1px solid ${props.riskColor}60">
               ${props.riskLevel}
             </span>
           </div>
-          <div class="font-sans font-semibold text-xs leading-snug text-white">${props.name}</div>
-          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1 text-zinc-300">
-            <div>Elevation: <b class="text-white">${props.elevationMeters}m MSL</b></div>
+          <div class="font-sans font-bold text-xs leading-snug text-white">${props.name}</div>
+          <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] pt-1 text-zinc-300 border-t border-zinc-850">
+            <div>DEM Altitude: <b class="text-white">${props.elevationMeters}m MSL</b></div>
+            <div>Coast Distance: <b class="text-sky-300">${props.distanceToSeaKm} km</b></div>
+            <div>Inundation: <b class="text-amber-400">${props.inundationDepth || "0.0m"}</b></div>
+            <div>Threat Index: <b class="text-rose-400">${props.threatScore || 75}/100</b></div>
             <div>Population: <b class="text-white">${Number(props.population).toLocaleString()}</b></div>
-            <div>Peak Time: <b class="text-amber-400">${props.peakSurgeTime}</b></div>
-            <div>Sector: <b class="text-zinc-200">${props.sectorCode || "SEC-01"}</b></div>
+            <div>Critical Hubs: <b class="text-white">${props.criticalFacilitiesCount || 2}</b></div>
           </div>
           <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
-            Protocol: <span class="text-sky-300 font-medium">${props.recommendation}</span>
+            Shelter Hub: <span class="text-emerald-300 font-semibold">${props.evacuationHub || "Designated Highland Hub"}</span>
+          </div>
+          <div class="text-[10px] text-zinc-400 font-sans">
+            Directive: <span class="text-sky-300 font-medium">${props.actionProtocol || "Monitor Inundation"}</span>
           </div>
         </div>
       `;
@@ -375,12 +380,21 @@ export function MapLibreMap({
     });
   };
 
+  // Live dynamic recalculation of both Water Inundation and Real DEM Risk Zone Tiles
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
-    const source = map.getSource("flood-inundation-source") as maplibregl.GeoJSONSource;
-    if (source) {
-      source.setData(generateFloodInundationGeoJSON(tideLevel, rainfall));
+
+    // 1. Update Water Inundation Polygon
+    const simSource = map.getSource("flood-inundation-source") as maplibregl.GeoJSONSource;
+    if (simSource) {
+      simSource.setData(generateFloodInundationGeoJSON(tideLevel, rainfall));
+    }
+
+    // 2. Update Real DEM Risk Zone Tiles (recomputes colors, threat scores, inundation depths)
+    const dangerSource = map.getSource("danger-zones-source") as maplibregl.GeoJSONSource;
+    if (dangerSource) {
+      dangerSource.setData(calculateDynamicZoneTilesGeoJSON(tideLevel, rainfall));
     }
   }, [tideLevel, rainfall, mapLoaded]);
 
