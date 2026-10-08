@@ -8,10 +8,10 @@ from app.api.v1.api import api_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup tasks
-    print(f"🚀 {settings.PROJECT_NAME} starting up in {settings.ENVIRONMENT} mode...")
+    print(f"[INFO] {settings.PROJECT_NAME} starting up in {settings.ENVIRONMENT} mode...")
     yield
     # Shutdown tasks
-    print(f"🛑 {settings.PROJECT_NAME} shutting down...")
+    print(f"[INFO] {settings.PROJECT_NAME} shutting down...")
 
 
 app = FastAPI(
