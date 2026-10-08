@@ -89,44 +89,59 @@ const FEATURE_IMPORTANCES = [
   { name: "Cyclonic Gale Wind Multiplier (cyclone_wind_kmh)", pct: 3.15, key: "cyclone_wind_kmh" },
 ];
 
+import { chatWithCopilot } from "@/lib/api";
+
 export default function AnalyticsPage() {
-  const [messages, setMessages] = useState([
+  const [userRole, setUserRole] = useState<"civilian" | "commander" | "engineer">("commander");
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant" | "system"; content: string }>>([
     {
       role: "assistant",
       content:
-        "FloodShield AI Intelligence Core online. Inquire about multi-criteria zone risk indices, peak astronomical tide projections, model validation benchmarks, or optimal route clearances.",
+        "FloodShield AI Intelligence Copilot online. Inquire about multi-criteria zone risk indices, peak astronomical tide projections, model validation benchmarks, or optimal route clearances.",
     },
   ]);
   const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isLoading) return;
 
-    const userText = inputMessage;
-    setMessages((prev) => [...prev, { role: "user", content: userText }]);
+    const userText = inputMessage.trim();
+    const updatedHistory = [...messages, { role: "user" as const, content: userText }];
+    setMessages(updatedHistory);
     setInputMessage("");
+    setIsLoading(true);
 
-    setTimeout(() => {
-      let response = "";
-      const lower = userText.toLowerCase();
-      if (lower.includes("auc") || lower.includes("metric") || lower.includes("validation") || lower.includes("accuracy")) {
-        response = `Model Validation Benchmark: FloodShield ML models achieve 0.9934 ROC-AUC on 12,500 validation samples. Depth prediction MAE is 0.062m (R2 = 0.987), and flood onset timing is precise within 3.45 minutes.`;
-      } else if (lower.includes("feature") || lower.includes("elevation") || lower.includes("driver")) {
-        response = `Explainable AI Insights: Digital Elevation Model (DEM) terrain height is the dominant global driver (45.56%), followed by distance to coast (15.59%) and river proximity (9.89%). Dynamic factors (tide surge & rainfall) trigger critical threshold crossings.`;
-      } else {
-        response = `AI Analysis for [${userText}]: Juve Multi-Criteria Framework calculates Mangalore Netravati Sector threat index at 86/100 based on +2.8m tidal elevation. Laya Pathfinding confirms Corridor Alpha remains unobstructed with zero submerged bridge crossings.`;
-      }
+    try {
+      const res = await chatWithCopilot({
+        message: userText,
+        zone_id: "ZONE-01",
+        user_role: userRole,
+        conversation_history: updatedHistory,
+      });
 
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: response,
+          content: res.reply || "Telemetry analysis completed. Conditions within modeled thresholds.",
         },
       ]);
-    }, 450);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Warning: Unable to reach FastAPI backend. Ensure the backend server is running at http://127.0.0.1:8000.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -261,9 +276,22 @@ export default function AnalyticsPage() {
                   <Bot className="h-3.5 w-3.5 text-sky-400" />
                   Disaster Intelligence Copilot
                 </CardTitle>
-                <Badge variant="outline" className="text-[9px] font-mono">
-                  Real-time Grounded
-                </Badge>
+                <div className="flex items-center gap-1">
+                  {(["commander", "civilian", "engineer"] as const).map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => setUserRole(role)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider transition-colors ${
+                        userRole === role
+                          ? "bg-sky-500/20 text-sky-400 border border-sky-500/40"
+                          : "text-zinc-500 hover:text-zinc-300 border border-transparent"
+                      }`}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
               </div>
             </CardHeader>
 
@@ -276,7 +304,7 @@ export default function AnalyticsPage() {
                   }`}
                 >
                   <div
-                    className={`max-w-[88%] rounded-lg p-2.5 text-xs leading-relaxed ${
+                    className={`max-w-[88%] rounded-lg p-2.5 text-xs leading-relaxed whitespace-pre-wrap ${
                       m.role === "user"
                         ? "bg-blue-600 text-white border border-blue-400/40"
                         : "bg-zinc-850 text-zinc-200 border border-zinc-750"
@@ -286,6 +314,14 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-zinc-850 text-zinc-400 border border-zinc-750 rounded-lg p-2.5 text-xs flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-sky-400 animate-spin" />
+                    <span>Analyzing live telemetry & querying OpenRouter Copilot...</span>
+                  </div>
+                </div>
+              )}
             </CardContent>
 
             <form
@@ -296,10 +332,11 @@ export default function AnalyticsPage() {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
+                disabled={isLoading}
                 placeholder="Inquire about ROC-AUC, DEM features, or Zone 1..."
-                className="flex-1 rounded-md border border-zinc-750 bg-zinc-900 px-3 py-1.5 text-xs font-mono text-white placeholder:text-zinc-500 focus:outline-none focus:border-sky-500"
+                className="flex-1 rounded-md border border-zinc-750 bg-zinc-900 px-3 py-1.5 text-xs font-mono text-white placeholder:text-zinc-500 focus:outline-none focus:border-sky-500 disabled:opacity-50"
               />
-              <Button type="submit" size="sm" className="h-8 px-3 font-mono">
+              <Button type="submit" size="sm" disabled={isLoading || !inputMessage.trim()} className="h-8 px-3 font-mono">
                 <Send className="h-3 w-3" />
               </Button>
             </form>
