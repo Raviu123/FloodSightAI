@@ -16,6 +16,7 @@ from app.services.ml_predictor import ml_predictor
 from app.services.xai_engine import xai_engine
 from app.services.decision_engine import decision_engine
 from app.services.llm_service import llm_service
+from app.services.sms_service import sms_service
 
 
 def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> SimulationResponse:
@@ -195,6 +196,27 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
         except Exception:
             db.rollback()
 
+    # 7. Automated Critical-Zone SMS Dispatch to Connected Phone Numbers
+    auto_sms_alerts = []
+    for er in enhanced_results:
+        is_critical = (
+            er.threat_level == ThreatLevel.CRITICAL
+            or (hasattr(er.threat_level, "value") and er.threat_level.value == "CRITICAL")
+            or str(er.threat_level).upper() == "CRITICAL"
+        )
+        if is_critical:
+            alert_dispatch = sms_service.dispatch_critical_zone_alert(
+                zone_id=er.zone_id,
+                zone_name=er.zone_name,
+                projected_depth_m=er.projected_depth_meters,
+                onset_min=er.onset_time_minutes,
+                peak_min=er.peak_time_minutes,
+                sms_text=er.sms_text,
+                db=db if is_valid_db else None,
+            )
+            if alert_dispatch:
+                auto_sms_alerts.append(alert_dispatch)
+
     # Overall system threat score calculation
     critical_count = sum(1 for z in enhanced_results if z.threat_level in [ThreatLevel.CRITICAL, ThreatLevel.HIGH])
     avg_prob = sum(z.flood_probability for z in enhanced_results) / len(enhanced_results) if enhanced_results else 0
@@ -225,4 +247,5 @@ def calculate_flood_simulation(params: SimulationInput, db: Session = None) -> S
         zones=enhanced_results,
         recommendation=recommendation,
         ai_validation_metrics=metrics_data.get("metrics") if metrics_data else None,
+        auto_sms_alerts=auto_sms_alerts,
     )

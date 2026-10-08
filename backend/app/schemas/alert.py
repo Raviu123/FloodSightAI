@@ -27,6 +27,7 @@ class BroadcastRequest(BaseModel):
     alert_title: str
     alert_message: str
     target_channels: List[str] = ["sms", "push_notification", "siren"]
+    recipient_phone_numbers: Optional[List[str]] = Field(default=None, description="Optional phone numbers for direct SMS delivery")
 
 
 class BroadcastResponse(BaseModel):
@@ -35,3 +36,4 @@ class BroadcastResponse(BaseModel):
     sent_timestamp: str
     recipient_count: int
     zones_notified: List[str]
+    sms_dispatch_status: Optional[str] = None

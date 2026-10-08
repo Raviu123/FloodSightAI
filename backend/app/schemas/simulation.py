@@ -91,3 +91,4 @@ class SimulationResponse(BaseModel):
     zones: List[EnhancedZoneResult]
     recommendation: str
     ai_validation_metrics: Optional[Dict[str, Any]] = None
+    auto_sms_alerts: List[Dict[str, Any]] = Field(default=[], description="Automated SMS dispatches triggered for zones classified as CRITICAL")

@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     AI_MODEL_PROVIDER: str = "simulation"
 
+    # SMS Gateway (TextBee API)
+    TEXTBEE_API_KEY: str = ""
+    TEXTBEE_DEVICE_ID: str = "6ac7d5062597187c9cfc5f46"
+    TEXTBEE_BASE_URL: str = "https://api.textbee.dev/api/v1/gateway/send-bulk-sms"
+
     class Config:
         case_sensitive = True
         env_file = ".env"
