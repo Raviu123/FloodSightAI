@@ -1,66 +1,122 @@
 # Automated DEM Flood Polygon Generation from Historical Event Points
 
 ## Executive Summary
-This technical document specifies the automated engineering pipeline to ingest historical flood event anchor points from CSV/Excel spreadsheets, query surrounding 30-meter NASA SRTM / Copernicus Digital Elevation Models (DEM), apply hydrologically-connected flood-fill algorithms, and extract exact GeoJSON boundary coordinate rings for frontend mapping and geospatial database persistence.
+This technical document specifies the end-to-end engineering pipeline to collect historical Indian flood event records and digital elevation models, ingest anchor points from CSV/Excel registries, query 30-meter NASA SRTM / Copernicus Digital Elevation Models (DEM), apply hydrologically-connected flood-fill algorithms, and extract exact GeoJSON boundary coordinate rings for frontend mapping and geospatial database persistence.
 
 ---
 
-## 1. Problem Statement & Method Evaluation
+## 1. Data Collection Strategy & Sources
 
-### Objective
-Given a list of historical flood occurrences (containing location names, GPS center coordinates, recorded water levels above Mean Sea Level, and affected areas), automatically determine the surrounding low-lying terrain footprint and extract the exact exterior boundary polygon coordinates for map rendering.
-
-### Method Comparison
-
-| Method | Mechanism | Accuracy & Failure Modes | Recommendation |
-| :--- | :--- | :--- | :--- |
-| **1. Radial Distance Buffer** | Draws a circular radius around the center point. | **Critical Failure:** Floods elevated hills and ignores natural river valleys. | Rejected |
-| **2. Global Elevation Thresholding** | Selects all pixels below recorded flood height in a bounding box. | **Sub-optimal:** Floods isolated inland sinks with no physical water connection. | Rejected |
-| **3. Hydrologically-Connected DEM Flood-Fill + Contour Vectorization** | Samples 30m DEM grid, executes connected-component flood-fill from water source, and vectorizes outer perimeter. | **High Precision:** Accurately conforms to natural riverbeds, estuaries, and low-lying coastal contours. | **Selected (Optimal)** |
-
----
-
-## 2. End-to-End Pipeline Architecture
+To ensure physical precision across all coastal zones and river deltas, data collection is split into two primary streams: **(1) Historical Flood Event Data** and **(2) High-Resolution Topographic DEM Elevation Data**.
 
 ```
 +─────────────────────────────────────────────────────────────────────────────────────────────────+
-|                         HISTORICAL FLOOD DEM POLYGON GENERATION PIPELINE                        |
-+─────────────────────────────────────────────────────────────────────────────────────────────────+
-|                                                                                                 |
-|  [ 1. Input Historical CSV / Excel ]                                                            |
-|  ├── Event ID, Location Name, District, State                                                   |
-|  └── Center Coordinates [Lat, Lng], Recorded Water Level (m MSL), Historical Area (km²)         |
-|                           │                                                                     |
-|                           ▼                                                                     |
-|  [ 2. 30m Digital Elevation Model (DEM) Grid Ingestion ]                                        |
-|  ├── Generate Region of Interest (ROI) Bounding Box (e.g., 8 km x 8 km)                         |
-|  └── Query NASA SRTM 30m / Copernicus GLO-30 Ground Altitude Matrix [z(x, y)]                  |
-|                           │                                                                     |
-|                           ▼                                                                     |
-|  [ 3. Hydrodynamic Connectivity & Inundation Matrix ]                                           |
-|  ├── Calculate Depth Matrix: d(x, y) = max(0, Water Surface Elevation - z(x, y))               |
-|  └── Run Morphological 8-Neighbor Flood-Fill from primary water body ingress                    |
-|                           │                                                                     |
-|                           ▼                                                                     |
-|  [ 4. Polygon Boundary Extraction & Vectorization ]                                             |
-|  ├── Extract Exterior Coordinate Rings via Marching Squares / Shapely                           |
-|  ├── Simplify vertices using Douglas-Peucker Algorithm (0.0001° tolerance)                      |
-|  └── Calculate Geodesic Area (km²) and assign Google Flood Hub Severity Colors                  |
-|                           │                                                                     |
-|                           ▼                                                                     |
-|  [ 5. Storage & Delivery ]                                                                      |
-|  ├── Save to `backend/data/historical_flood_zones.geojson`                                      |
-|  ├── Insert into PostGIS `coastal_zones` database table                                         |
-|  └── Stream to Frontend MapLibre GL JS Client                                                   |
-|                                                                                                 |
-+─────────────────────────────────────────────────────────────────────────────────────────────────+
+|                                    DATA COLLECTION STREAMS                                      |
++───────────────────────────────────────────+─────────────────────────────────────────────────────+
+| Stream 1: Historical Flood Event Data     | Stream 2: Topographic DEM Elevation Data            |
++───────────────────────────────────────────+─────────────────────────────────────────────────────+
+| • Global Flood Database (GFD / DFO)       | • NASA SRTM 30m (1-ArcSecond Global DEM)           |
+| • CWC India Flood Forecasting Network     | • Copernicus GLO-30 (European Space Agency COGs)    |
+| • ISRO Bhuvan NRSC Disaster Records       | • OpenTopography & Open-Elevation REST APIs         |
+| • IMD Historical Precipitation Bulletins  | • Survey of India Coastal Benchmark Geodetics       |
+| • DesInventar / EM-DAT Disaster Registry  |                                                     |
++───────────────────────────────────────────+─────────────────────────────────────────────────────+
+```
+
+---
+
+### 1.1. Collecting Historical Flood Event Data
+
+Historical flood data provides the physical parameters (event dates, peak water levels, geographic centers, and recorded inundated surface area):
+
+#### A. Global Flood Database (GFD / Dartmouth Flood Observatory — Cloud to Street)
+* **What is Collected:** 20+ years (2000–present) of high-resolution satellite-observed flood inundation footprints (MODIS, Sentinel-1 SAR).
+* **Key Fields Extracted:** `event_id`, `start_date`, `end_date`, `centroid_lat`, `centroid_lng`, `inundated_area_sqkm`, `main_cause` (monsoon, tropical cyclone, dam spill).
+* **Collection Method:** 
+  * Bulk download of the global shapefile/CSV archive from the [Global Flood Database Open Data Portal](https://global-flood-database.cloudtostreet.ai/).
+  * Python script filters bounding coordinates for India's spatial envelope (`lat: 8.0° to 37.0° N`, `lng: 68.0° to 97.5° E`).
+
+#### B. Central Water Commission (CWC) Flood Portal & River Gauges
+* **What is Collected:** Official Indian government gauge level observations across 300+ coastal and river monitoring stations.
+* **Key Fields Extracted:** `river_basin`, `gauge_station_name`, `warning_level_m_msl`, `danger_level_m_msl`, `high_flood_level_hfl_m_msl`, `peak_discharge_cumecs`.
+* **Collection Method:** 
+  * Scraping daily flood bulletins and annual flood reports from the [CWC Flood Forecast Portal](https://ffs.india-water.gov.in/).
+  * Correlating HFL breaches with corresponding coastal river mouth coordinates.
+
+#### C. ISRO Bhuvan Disaster Management Support (NRSC)
+* **What is Collected:** Radar-derived flood extent maps (Sentinel-1 SAR and RISAT-1) captured during active Indian cyclone and monsoon emergencies.
+* **Key Fields Extracted:** District-wise cumulative inundated area (sq. km), flood frequency classification, and historical flood inundation vectors.
+* **Collection Method:** 
+  * Ingesting published Flood Hazard Zonation Atlases (Karnataka, Kerala, Tamil Nadu, Maharashtra, Odisha, Andhra Pradesh, West Bengal).
+
+#### D. India Meteorological Department (IMD) & DesInventar Sendai Registry
+* **What is Collected:** 24-hour peak station rainfall (mm), cyclonic track landfall coordinates, and municipal damage inventories.
+* **Collection Method:** Aggregated from IMD Monsoon Season End Reports and the United Nations DesInventar India Disaster database.
+
+---
+
+### 1.2. Collecting Topographical DEM Elevation Data
+
+To calculate where water flows, high-resolution Digital Elevation Models (DEM) measuring terrain height above Mean Sea Level (MSL) are collected:
+
+#### A. NASA SRTM 30-Meter (1-ArcSecond) DEM
+* **What is Collected:** NASA Shuttle Radar Topography Mission (SRTM) global elevation raster tiles at $30\text{m} \times 30\text{m}$ spatial resolution.
+* **Vertical Accuracy:** $\pm 1.0\text{m}$ relative vertical accuracy across coastal floodplains.
+* **Collection Method:**
+  * **Option 1 (Automated Python Ingestion):** Using the Python `elevation` and `rasterio` libraries to download HGT elevation tiles on-demand:
+    ```bash
+    eio clip -o mangalore_dem.tif --bounds 74.80 12.80 74.90 12.95
+    ```
+  * **Option 2 (AWS Open Data S3):** Stream directly from `s3://elevation-tiles-prod/geotiff/` without local storage overhead.
+
+#### B. Copernicus GLO-30 DEM (ESA 30m Global Model)
+* **What is Collected:** 2020-baseline radar altimetry from European Space Agency satellites. Provides superior artifact correction over coastal wetlands, dense mangrove belts, and urban harbor structures.
+* **Collection Method:** Accessed via Cloud-Optimized GeoTIFFs (COG) using STAC API or AWS Open Data registry (`s3://copernicus-dem-30m/`).
+
+#### C. Open-Elevation / OpenTopography REST APIs
+* **What is Collected:** On-demand point and grid elevation queries over HTTP for instant prototyping.
+* **Collection Method:**
+  ```python
+  import httpx
+
+  async def get_elevation_grid(lats: list, lngs: list):
+      payload = {"locations": [{"latitude": lat, "longitude": lng} for lat, lng in zip(lats, lngs)]}
+      response = await httpx.post("https://api.open-elevation.com/api/v1/lookup", json=payload)
+      return response.json()["results"]
+  ```
+
+---
+
+## 2. Automated Data Ingestion & Cleaning Pipeline
+
+```
+[ Step 1: Raw Data Harvesting ]
+├── Run `backend/scripts/download_historical_flood_data.py` (GFD, CWC, IMD)
+└── Run `backend/scripts/fetch_dem_tiles.py` (NASA SRTM 30m / Copernicus COGs)
+                           │
+                           ▼
+[ Step 2: Quality Filtering & Schema Normalization ]
+├── Filter records with verified Water Level (m MSL) and GPS Coordinates
+├── Remove duplicates & reconcile multiple gauge reports for identical events
+└── Compile into standardized `backend/data/historical_flood_records.csv`
+                           │
+                           ▼
+[ Step 3: Topographic DEM Polygonizer Engine ]
+├── Run `backend/scripts/dem_flood_polygonizer.py`
+└── Execute connected flood-fill, Marching Squares contouring, and Douglas-Peucker simplification
+                           │
+                           ▼
+[ Step 4: Storage & Visualization ]
+├── Export `backend/data/historical_flood_zones.geojson`
+├── Ingest into PostGIS table: `coastal_zones`
+└── Render on Next.js 16 + MapLibre GL JS frontend dashboard
 ```
 
 ---
 
 ## 3. Detailed Data Schemas
 
-### 3.1. Input CSV Schema (`backend/data/historical_flood_records.csv`)
+### 3.1. Standardized Historical CSV Format (`backend/data/historical_flood_records.csv`)
 
 ```csv
 event_id,location_name,district,state,latitude,longitude,recorded_flood_level_msl,historical_area_sqkm,major_river_or_sea,year
@@ -73,7 +129,7 @@ FLD-UDU-2020,Udupi Malpe Lowland Strip,Udupi,Karnataka,13.3512,74.7042,2.40,8.9,
 
 ---
 
-### 3.2. Automated Python Generator Workflow (`backend/scripts/dem_flood_polygonizer.py`)
+### 3.2. Automated Python Polygonizer Algorithm (`backend/scripts/dem_flood_polygonizer.py`)
 
 The extraction script executes the following mathematical workflow:
 
@@ -171,9 +227,9 @@ map.addLayer({
 
 ---
 
-## 5. Execution Roadmap
+## 5. Execution Summary
 
-1. **Step 1: Input Dataset Provision:** Populate `backend/data/historical_flood_records.csv` with historical flood event coordinates and water heights.
-2. **Step 2: Automated Extraction Run:** Execute `python backend/scripts/dem_flood_polygonizer.py` to sample NASA SRTM DEM elevations, calculate connected inundation, and generate `historical_flood_zones.geojson`.
-3. **Step 3: Database & API Binding:** Ingest GeoJSON into PostgreSQL PostGIS tables and expose via FastAPI `GET /api/v1/zones/historical`.
-4. **Step 4: Interactive Frontend Layer:** Display historical flood boundary layers on the map with telemetry popups showing recorded water depth and inundated square kilometers.
+1. **Automated Collection:** Python harvesting scripts extract historical disaster benchmarks from Global Flood Database, CWC, and IMD into `historical_flood_records.csv`.
+2. **DEM Ingestion:** 30m NASA SRTM / Copernicus elevation grids are sampled across bounding envelopes.
+3. **Physical Accuracy:** Connected morphological flood-fill ensures zero floating artifacts over elevated terrain.
+4. **Instant Visualization:** Generates lightweight GeoJSON coordinate polygons ready for 60 FPS rendering in MapLibre GL JS.
