@@ -1,44 +1,42 @@
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+    variable: "--font-inter",
+    subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const poppins = Poppins({
+    variable: "--font-poppins",
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "FloodShield AI — Coastal Flood Intelligence & Early Warning",
-  description:
-    "AI-powered coastal flood prediction, zone vulnerability mapping, simulation engine, and emergency evacuation intelligence.",
+    title: "FloodSight AI — Coastal Flood Intelligence & Early Warning System",
+    description:
+        "AI-powered coastal flood prediction, zone vulnerability mapping, simulation engine, and emergency evacuation intelligence.",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body
-        suppressHydrationWarning
-        className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 selection:bg-blue-500 selection:text-white"
-      >
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
+    return (
+        <html
+            lang="en"
+            suppressHydrationWarning
+            className={`dark ${inter.variable} ${poppins.variable} h-full antialiased`}
+        >
+            <body
+                suppressHydrationWarning
+                className="min-h-full flex flex-col bg-[#070709] text-foreground antialiased selection:bg-sky-500 selection:text-white font-sans"
+            >
+                <DashboardShell>{children}</DashboardShell>
+            </body>
+        </html>
+    );
 }
