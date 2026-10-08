@@ -1,4 +1,5 @@
 import type { FeatureCollection } from "geojson";
+import historicalFloodZonesJson from "./historical_flood_zones.json";
 
 export type BaseMapStyleId = "satellite" | "terrain" | "streets" | "dark" | "light";
 
@@ -1276,3 +1277,36 @@ export function generateFloodInundationGeoJSON(
     ],
   };
 }
+
+// 8. 108 Historical Indian Coastal & River Flood Extent Polygons (DEM calibrated)
+export const HISTORICAL_FLOOD_ZONES_GEOJSON: FeatureCollection =
+  historicalFloodZonesJson as unknown as FeatureCollection;
+
+// 9. Historical Flood Event Centroid Point Markers with aggregated telemetry
+export const HISTORICAL_FLOOD_CENTROIDS_GEOJSON: FeatureCollection = {
+  type: "FeatureCollection",
+  features: (historicalFloodZonesJson.features as any[]).map((feat) => {
+    const coords = feat.geometry.coordinates[0];
+    let sumLng = 0;
+    let sumLat = 0;
+    const len = coords.length;
+    for (let i = 0; i < len; i++) {
+      sumLng += coords[i][0];
+      sumLat += coords[i][1];
+    }
+    const centerLng = sumLng / len;
+    const centerLat = sumLat / len;
+    return {
+      type: "Feature",
+      properties: {
+        ...feat.properties,
+        centroidLng: centerLng,
+        centroidLat: centerLat,
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [centerLng, centerLat],
+      },
+    };
+  }),
+};

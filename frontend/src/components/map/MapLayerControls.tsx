@@ -19,12 +19,14 @@ import {
   Moon,
   Sun,
   Maximize2,
+  History,
 } from "lucide-react";
 import { BASE_MAP_STYLES, type BaseMapStyleId } from "@/data/coastal-map-data";
 import { Badge } from "@/components/ui/badge";
 
 export interface MapLayerState {
   dangerZones: boolean;
+  historicalFloods: boolean;
   floodCoverage: boolean;
   lowLyingAreas: boolean;
   waterBodies: boolean;
@@ -78,6 +80,14 @@ export function MapLayerControls({
       description: "Color-coded danger polygons",
       icon: Shield,
       color: "text-rose-400",
+    },
+    {
+      key: "historicalFloods" as const,
+      label: "Historical Flood Zones (108)",
+      description: "Recorded national inundation extents",
+      icon: History,
+      color: "text-amber-400",
+      highlight: true,
     },
     {
       key: "floodCoverage" as const,

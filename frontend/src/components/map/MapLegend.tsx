@@ -51,9 +51,13 @@ export function MapLegend() {
           {/* Regional Floodplain & Hydrology */}
           <div>
             <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
-              Regional Hydrology & Corridors
+              Hydrology, History & Corridors
             </span>
             <div className="space-y-1.5 text-[10px]">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-xs bg-amber-500/50 border border-amber-400" />
+                <span className="text-zinc-300">108 Historical Flood Zones (Recorded Inundation)</span>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-xs bg-purple-500/40 border border-purple-400" />
                 <span className="text-zinc-300">Flood Hub Regional Extent</span>
