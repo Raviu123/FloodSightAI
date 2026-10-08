@@ -1,11 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { Sliders, Waves, CloudRain, Clock, Play, RotateCcw, AlertTriangle, Radio, Shield, Info } from "lucide-react";
+import {
+  Sliders,
+  Waves,
+  CloudRain,
+  Clock,
+  Play,
+  RotateCcw,
+  AlertTriangle,
+  Radio,
+  Shield,
+  Zap,
+  Activity,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusIndicator } from "@/components/ui/status-indicator";
 import { FloodMap } from "@/components/map/FloodMap";
+
+interface ScenarioPreset {
+  name: string;
+  tide: number;
+  rain: number;
+  hours: number;
+}
+
+const SCENARIOS: ScenarioPreset[] = [
+  { name: "Monsoon Surge", tide: 3.2, rain: 95, hours: 6 },
+  { name: "Astronomical Spring Tide", tide: 4.5, rain: 40, hours: 8 },
+  { name: "Severe Cyclone Inundation", tide: 5.2, rain: 140, hours: 12 },
+  { name: "Baseline Normal", tide: 1.8, rain: 20, hours: 4 },
+];
 
 export default function SimulationPage() {
   const [tideLevel, setTideLevel] = useState(2.8);
@@ -14,28 +43,39 @@ export default function SimulationPage() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [selectedZone, setSelectedZone] = useState<any>(null);
 
-  // Compute calculated risk level dynamically based on simulation sliders
   const floodRiskScore = tideLevel * 18 + rainfall * 0.45;
   const riskStatus =
     floodRiskScore > 80
-      ? { label: "CRITICAL DANGER", variant: "destructive" as const }
+      ? { label: "CRITICAL THREAT", variant: "destructive" as const }
       : floodRiskScore > 50
-      ? { label: "HIGH RISK", variant: "warning" as const }
+      ? { label: "HIGH HAZARD", variant: "warning" as const }
       : floodRiskScore > 30
       ? { label: "MODERATE", variant: "default" as const }
       : { label: "NORMAL / SAFE", variant: "success" as const };
 
+  const applyScenario = (sc: ScenarioPreset) => {
+    setTideLevel(sc.tide);
+    setRainfall(sc.rain);
+    setForecastHours(sc.hours);
+  };
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* Simulation Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-850 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white flex items-center gap-2.5">
-            <Sliders className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-            Coastal Flood Simulation & Multi-Layer Map
+          <div className="flex items-center gap-2">
+            <StatusIndicator status="online" label="Hydrological Engine Armed" />
+            <Badge variant="outline" className="text-[10px]">
+              FastAPI Synchronized
+            </Badge>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white mt-1.5 flex items-center gap-2 font-mono uppercase">
+            <Sliders className="h-5 w-5 text-sky-400" />
+            Hydrological Flood Simulation Engine
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            MapLibre GL JS powered interactive engine with satellite, 3D terrain, danger polygons, and dynamic inundation spread.
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Adjust environmental telemetry to dynamically model coastal water ingress and terrain inundation.
           </p>
         </div>
 
@@ -44,54 +84,66 @@ export default function SimulationPage() {
             variant="outline"
             size="sm"
             onClick={() => {
-              setTideLevel(2.0);
-              setRainfall(30);
-              setForecastHours(6);
+              setTideLevel(1.8);
+              setRainfall(20);
+              setForecastHours(4);
             }}
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Reset Defaults
+            Reset Baseline
           </Button>
           <Button
             size="sm"
-            className={isSimulating ? "bg-amber-600 hover:bg-amber-700" : ""}
+            className={isSimulating ? "bg-amber-600 hover:bg-amber-500 border-amber-400/40" : ""}
             onClick={() => setIsSimulating(!isSimulating)}
           >
             <Play className="h-3.5 w-3.5" />
-            {isSimulating ? "Pause Simulation" : "Run Live Simulation"}
+            {isSimulating ? "Pause Telemetry" : "Run Live Simulation"}
           </Button>
         </div>
       </div>
 
+      {/* Scenario Presets Bar */}
+      <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl border border-zinc-850 bg-zinc-900/60 backdrop-blur-md">
+        <span className="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider px-2">
+          Scenario Presets:
+        </span>
+        {SCENARIOS.map((sc) => (
+          <button
+            key={sc.name}
+            onClick={() => applyScenario(sc)}
+            className="px-2.5 py-1 rounded-md text-xs font-mono font-medium border border-zinc-750 bg-zinc-800/80 hover:bg-zinc-750 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+          >
+            {sc.name}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Simulation Controls Sidebar (4 cols) */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-5">
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3 border-b border-zinc-850">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Sliders className="h-4 w-4 text-blue-600" />
-                  Simulation Parameters
+                <CardTitle className="text-xs font-mono uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                  <Sliders className="h-3.5 w-3.5 text-sky-400" />
+                  Environmental Parameters
                 </CardTitle>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  <Radio className="h-3 w-3 animate-pulse" />
-                  Live Sync
-                </div>
+                <Badge variant="outline" className="text-[9px]">
+                  Real-time
+                </Badge>
               </div>
-              <CardDescription>
-                Adjust tide surge and precipitation intensity to watch vector water layers update
-              </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-6">
-              {/* Tide Level Slider */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <label className="font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                    <Waves className="h-4 w-4 text-sky-500" />
-                    Tide Surge (Meters above MSL)
+            <CardContent className="p-4 space-y-5">
+              {/* Tide Slider */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-mono">
+                  <label className="text-zinc-300 flex items-center gap-1.5">
+                    <Waves className="h-3.5 w-3.5 text-sky-400" />
+                    Tide Surge (Above MSL)
                   </label>
-                  <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                  <span className="font-bold text-sky-400">
                     +{tideLevel.toFixed(1)} m
                   </span>
                 </div>
@@ -102,23 +154,23 @@ export default function SimulationPage() {
                   step="0.1"
                   value={tideLevel}
                   onChange={(e) => setTideLevel(parseFloat(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
+                  className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
                 />
-                <div className="flex justify-between text-[11px] text-zinc-400">
-                  <span>0.0m (Low Tide)</span>
+                <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+                  <span>0.0m (Neap)</span>
                   <span>3.0m (Normal)</span>
-                  <span>6.0m (Storm Surge)</span>
+                  <span>6.0m (Storm)</span>
                 </div>
               </div>
 
               {/* Rainfall Slider */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <label className="font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                    <CloudRain className="h-4 w-4 text-blue-500" />
-                    Precipitation Rate (mm / hr)
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-mono">
+                  <label className="text-zinc-300 flex items-center gap-1.5">
+                    <CloudRain className="h-3.5 w-3.5 text-blue-400" />
+                    Precipitation Inflow Rate
                   </label>
-                  <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                  <span className="font-bold text-sky-400">
                     {rainfall} mm/h
                   </span>
                 </div>
@@ -129,23 +181,23 @@ export default function SimulationPage() {
                   step="5"
                   value={rainfall}
                   onChange={(e) => setRainfall(parseInt(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
+                  className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
                 />
-                <div className="flex justify-between text-[11px] text-zinc-400">
-                  <span>0mm (Dry)</span>
-                  <span>75mm (Heavy Rain)</span>
-                  <span>200mm (Extreme)</span>
+                <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+                  <span>0mm</span>
+                  <span>75mm (Heavy)</span>
+                  <span>200mm (Cloudburst)</span>
                 </div>
               </div>
 
-              {/* Time Window Slider */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <label className="font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                    <Clock className="h-4 w-4 text-purple-500" />
-                    Forecast Horizon
+              {/* Forecast Window Slider */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-mono">
+                  <label className="text-zinc-300 flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-purple-400" />
+                    Forecast Window
                   </label>
-                  <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                  <span className="font-bold text-sky-400">
                     +{forecastHours} Hours
                   </span>
                 </div>
@@ -156,51 +208,51 @@ export default function SimulationPage() {
                   step="1"
                   value={forecastHours}
                   onChange={(e) => setForecastHours(parseInt(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
+                  className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
                 />
-                <div className="flex justify-between text-[11px] text-zinc-400">
-                  <span>1h</span>
-                  <span>12h</span>
-                  <span>24h Window</span>
+                <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+                  <span>+1h</span>
+                  <span>+12h</span>
+                  <span>+24h Horizon</span>
                 </div>
               </div>
 
-              {/* Dynamic Threat Index Card */}
-              <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-950/60 p-4 space-y-2">
+              {/* Threat Computation Matrix */}
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-3.5 space-y-2 font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    Calculated Threat Index
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+                    Computed Threat Index
                   </span>
                   <Badge variant={riskStatus.variant}>{riskStatus.label}</Badge>
                 </div>
-                <div className="text-2xl font-black text-zinc-900 dark:text-zinc-50">
-                  {Math.round(floodRiskScore)} / 100
+                <div className="text-2xl font-black text-white">
+                  {Math.round(floodRiskScore)} <span className="text-xs text-zinc-500 font-normal">/ 100</span>
                 </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-[11px] font-sans text-zinc-400 leading-snug">
                   {floodRiskScore > 65
-                    ? "High flood ingress predicted across low-lying coastal estuaries and river mouths."
-                    : "Water levels within standard stormwater drainage buffer capacity."}
+                    ? "Inundation alert: Overtopping predicted across low-elevation estuaries and barrier spits."
+                    : "Stable drainage buffer: Siphon discharge capacity sufficient for anticipated runoff."}
                 </p>
               </div>
 
-              {/* Selected Zone Inspector (if user clicked on map) */}
+              {/* Active Zone Inspector */}
               {selectedZone && (
-                <div className="rounded-xl border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/30 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                      Active Zone Inspector
+                <div className="rounded-lg border border-sky-500/40 bg-sky-950/30 p-3.5 space-y-2 font-mono">
+                  <div className="flex items-center justify-between border-b border-sky-900/60 pb-1.5">
+                    <span className="text-xs font-bold text-sky-300">
+                      {selectedZone.id}
                     </span>
                     <Badge variant="destructive">{selectedZone.riskLevel}</Badge>
                   </div>
-                  <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  <div className="text-xs font-bold font-sans text-white">
                     {selectedZone.name}
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-zinc-600 dark:text-zinc-300 pt-1">
-                    <div>Elevation: <b>{selectedZone.elevationMeters}m MSL</b></div>
-                    <div>Population: <b>{Number(selectedZone.population).toLocaleString()}</b></div>
+                  <div className="grid grid-cols-2 gap-1 text-[11px] text-zinc-300">
+                    <div>Elevation: <b className="text-white">{selectedZone.elevationMeters}m MSL</b></div>
+                    <div>Population: <b className="text-white">{Number(selectedZone.population).toLocaleString()}</b></div>
                   </div>
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400 pt-1">
-                    Recommended: <span className="font-semibold text-blue-600 dark:text-blue-400">{selectedZone.recommendation}</span>
+                  <div className="text-[10px] font-sans text-zinc-400 pt-1 border-t border-sky-950">
+                    Action: <span className="text-sky-300 font-medium">{selectedZone.recommendation}</span>
                   </div>
                 </div>
               )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Navigation } from "lucide-react";
+import { Crosshair, MapPin } from "lucide-react";
 import { REGION_PRESETS, type RegionPreset } from "@/data/coastal-map-data";
 
 interface MapQuickJumperProps {
@@ -10,10 +10,10 @@ interface MapQuickJumperProps {
 
 export function MapQuickJumper({ onSelectRegion, activeRegionId }: MapQuickJumperProps) {
   return (
-    <div className="absolute top-4 left-4 z-20 hidden md:flex items-center gap-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-1.5 shadow-md backdrop-blur-md">
-      <div className="flex items-center gap-1 px-2 text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-        <MapPin className="h-3.5 w-3.5 text-blue-500" />
-        <span>Hotspots:</span>
+    <div className="absolute top-3.5 left-3.5 z-20 hidden md:flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-950/90 p-1.5 shadow-xl backdrop-blur-xl">
+      <div className="flex items-center gap-1.5 px-2 text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider">
+        <Crosshair className="h-3 w-3 text-sky-400" />
+        <span>Hotspots</span>
       </div>
 
       {REGION_PRESETS.map((preset) => {
@@ -22,13 +22,14 @@ export function MapQuickJumper({ onSelectRegion, activeRegionId }: MapQuickJumpe
           <button
             key={preset.id}
             onClick={() => onSelectRegion(preset)}
-            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-mono font-medium transition-all cursor-pointer ${
               isActive
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                ? "bg-blue-600 text-white font-semibold shadow-xs border border-blue-400/40"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 border border-transparent"
             }`}
           >
-            {preset.name.split(" ")[0]}
+            <span>{preset.name}</span>
+            <span className="text-[9px] opacity-60">[{preset.code}]</span>
           </button>
         );
       })}

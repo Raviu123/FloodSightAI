@@ -2,37 +2,43 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldAlert, Waves, Sliders, Bell, BarChart3, Radio } from "lucide-react";
+import { Shield, Sliders, Bell, BarChart3, Activity, Terminal, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { StatusIndicator } from "@/components/ui/status-indicator";
 
 const navItems = [
-  { name: "Overview", href: "/", icon: ShieldAlert },
-  { name: "Live Simulation", href: "/simulation", icon: Sliders },
+  { name: "Overview", href: "/", icon: Activity },
+  { name: "Simulation Engine", href: "/simulation", icon: Sliders },
   { name: "Alerts & Evacuation", href: "/alerts", icon: Bell },
-  { name: "Intelligence & Forecast", href: "/analytics", icon: BarChart3 },
+  { name: "Decision Intelligence", href: "/analytics", icon: BarChart3 },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Brand */}
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-lg tracking-tight">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm shadow-blue-500/30">
-              <Waves className="h-5 w-5" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-sky-600 text-white shadow-sm shadow-blue-500/20 border border-blue-400/30 group-hover:border-blue-400/60 transition-colors">
+              <Shield className="h-4 w-4" />
             </div>
             <div className="flex flex-col">
-              <span className="leading-tight text-zinc-900 dark:text-zinc-50">
-                FloodShield<span className="text-blue-600 dark:text-blue-400">AI</span>
-              </span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                Coastal Intelligence
+              <div className="flex items-center gap-1.5 font-bold text-sm tracking-tight text-white">
+                <span>FloodShield</span>
+                <span className="font-mono text-xs font-semibold px-1 py-0.2 rounded bg-blue-500/20 text-sky-400 border border-blue-500/30">
+                  AI
+                </span>
+              </div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                Coastal Intelligence System
               </span>
             </div>
           </Link>
 
+          {/* Nav Links */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -42,13 +48,13 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                     isActive
-                      ? "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold"
-                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-850 hover:text-zinc-900 dark:hover:text-zinc-100"
+                      ? "bg-zinc-850 text-white font-semibold border border-zinc-700/80 shadow-xs"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/80"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className={cn("h-3.5 w-3.5", isActive ? "text-sky-400" : "text-zinc-500")} />
                   {item.name}
                 </Link>
               );
@@ -56,17 +62,20 @@ export function Navbar() {
           </nav>
         </div>
 
+        {/* Right Status Indicator */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-            <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-600 dark:text-emerald-400" />
-            <span>Simulation Engine Online</span>
-          </div>
+          <StatusIndicator
+            status="online"
+            label="Telemetry Live"
+            className="hidden sm:inline-flex"
+          />
 
           <Link
             href="/simulation"
-            className="hidden sm:inline-flex items-center justify-center rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 text-xs font-semibold tracking-tight transition-colors border border-blue-400/40"
           >
-            Launch Simulator
+            <span>Launch Engine</span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>

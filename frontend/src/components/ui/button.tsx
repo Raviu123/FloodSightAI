@@ -3,27 +3,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-xs font-semibold tracking-tight transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow-sm hover:bg-blue-700 focus-visible:ring-blue-500",
+          "bg-blue-600 text-white shadow-sm hover:bg-blue-500 focus-visible:ring-blue-500 border border-blue-500/50",
         destructive:
-          "bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500",
+          "bg-rose-600 text-white shadow-sm hover:bg-rose-500 focus-visible:ring-rose-500 border border-rose-500/50",
         outline:
-          "border border-zinc-200 dark:border-zinc-800 bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
+          "border border-zinc-750 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-200 hover:text-white hover:border-zinc-600",
         secondary:
-          "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700",
+          "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 border border-zinc-700/60",
         ghost:
-          "hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300",
-        link: "text-blue-600 underline-offset-4 hover:underline",
+          "hover:bg-zinc-800/80 text-zinc-300 hover:text-zinc-100",
+        link: "text-sky-400 underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-lg px-8 text-base",
-        icon: "h-9 w-9 p-0",
+        default: "h-9 px-4 py-2",
+        sm: "h-7.5 rounded-md px-2.5 text-[11px]",
+        lg: "h-11 rounded-lg px-6 text-sm",
+        icon: "h-8.5 w-8.5 p-0",
       },
     },
     defaultVariants: {

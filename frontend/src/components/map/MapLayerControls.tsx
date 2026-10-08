@@ -13,7 +13,12 @@ import {
   Navigation,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
+  Satellite,
+  Mountain,
+  Map,
+  Moon,
+  Sun,
+  Maximize2,
 } from "lucide-react";
 import { BASE_MAP_STYLES, type BaseMapStyleId } from "@/data/coastal-map-data";
 import { Badge } from "@/components/ui/badge";
@@ -48,85 +53,107 @@ export function MapLayerControls({
 }: MapLayerControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const getStyleIcon = (iconName: string) => {
+    switch (iconName) {
+      case "Satellite":
+        return <Satellite className="h-3.5 w-3.5" />;
+      case "Mountain":
+        return <Mountain className="h-3.5 w-3.5" />;
+      case "Map":
+        return <Map className="h-3.5 w-3.5" />;
+      case "Moon":
+        return <Moon className="h-3.5 w-3.5" />;
+      case "Sun":
+        return <Sun className="h-3.5 w-3.5" />;
+      default:
+        return <Map className="h-3.5 w-3.5" />;
+    }
+  };
+
   const layerConfigs = [
     {
       key: "dangerZones" as const,
-      label: "Danger Risk Zones",
-      description: "Color-coded risk classifications",
+      label: "Risk Classification Zones",
+      description: "Color-coded danger polygons",
       icon: Shield,
-      color: "text-red-500",
+      color: "text-rose-400",
     },
     {
       key: "floodInundation" as const,
-      label: "Dynamic Inundation Layer",
-      description: "Live simulated tide & rain spread",
+      label: "Dynamic Surge Inundation",
+      description: "Real-time tidal water spread",
       icon: Waves,
-      color: "text-blue-500",
+      color: "text-sky-400",
       highlight: true,
     },
     {
       key: "lowLyingAreas" as const,
-      label: "Low-Lying Elevation",
-      description: "Regions below 1.0m & 2.5m MSL",
+      label: "Depression Elevation Contours",
+      description: "Areas < 1.0m & 2.5m MSL",
       icon: SlidersHorizontal,
-      color: "text-sky-500",
+      color: "text-cyan-400",
     },
     {
       key: "waterBodies" as const,
-      label: "Water Bodies & Ingress",
-      description: "River networks & estuaries",
+      label: "River & Estuary Channels",
+      description: "Inflow networks & tidal mouths",
       icon: Waves,
-      color: "text-cyan-500",
+      color: "text-teal-400",
     },
     {
       key: "facilities" as const,
-      label: "Critical Facilities",
-      description: "Hospitals, shelters, power stations",
+      label: "Critical Infrastructure",
+      description: "Hospitals, shelters, power hubs",
       icon: MapPin,
-      color: "text-emerald-500",
+      color: "text-emerald-400",
     },
     {
       key: "evacuationRoutes" as const,
-      label: "Safe Evacuation Paths",
-      description: "High-elevation transit corridors",
+      label: "Evacuation Corridors",
+      description: "Designated safe transit paths",
       icon: Navigation,
-      color: "text-green-500",
+      color: "text-green-400",
     },
   ];
 
   return (
     <div
-      className={`absolute top-4 right-4 z-20 transition-all duration-300 ${
-        isCollapsed ? "w-11" : "w-80 sm:w-88"
+      className={`absolute top-3.5 right-3.5 z-20 transition-all duration-200 ${
+        isCollapsed ? "w-10" : "w-80 sm:w-84"
       }`}
     >
-      <div className="overflow-hidden rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 shadow-xl backdrop-blur-md">
+      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/90 shadow-2xl backdrop-blur-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-850/50">
+        <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-zinc-850 bg-zinc-900/60">
           <div className="flex items-center gap-2 overflow-hidden">
-            <Layers className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <Layers className="h-3.5 w-3.5 text-sky-400 shrink-0" />
             {!isCollapsed && (
-              <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate">
-                Map Modes & Layers
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-bold text-xs uppercase tracking-wider text-zinc-200">
+                  Layers & Viewport
+                </span>
+                <Badge variant="outline" className="text-[9px] py-0 px-1">
+                  GIS Vector
+                </Badge>
+              </div>
             )}
           </div>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            title={isCollapsed ? "Expand Layer Panel" : "Collapse Layer Panel"}
+            className="p-1 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            title={isCollapsed ? "Expand Layer HUD" : "Collapse Layer HUD"}
           >
-            {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {isCollapsed ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
           </button>
         </div>
 
         {!isCollapsed && (
-          <div className="p-4 space-y-5 max-h-[calc(100vh-220px)] overflow-y-auto">
+          <div className="p-3.5 space-y-4 max-h-[calc(100vh-230px)] overflow-y-auto">
             {/* Base Map Style Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                Base Map Style
-              </label>
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+                Base Layer
+              </span>
               <div className="grid grid-cols-3 gap-1.5">
                 {BASE_MAP_STYLES.map((style) => (
                   <button
@@ -134,54 +161,49 @@ export function MapLayerControls({
                     onClick={() => onStyleChange(style.id)}
                     className={`flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all cursor-pointer ${
                       currentStyle === style.id
-                        ? "border-blue-600 bg-blue-50/80 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold shadow-xs"
-                        : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-850 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        ? "border-sky-500/80 bg-sky-950/50 text-sky-300 font-semibold shadow-xs"
+                        : "border-zinc-800/80 bg-zinc-900/70 text-zinc-400 hover:bg-zinc-850 hover:text-zinc-200"
                     }`}
                   >
-                    <span className="text-lg">{style.thumbnail}</span>
-                    <span className="text-[11px] leading-tight mt-1">{style.name}</span>
+                    <span className="mb-1">{getStyleIcon(style.iconName)}</span>
+                    <span className="text-[10px] font-mono leading-tight">{style.name}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 3D Perspective Control */}
-            <div className="flex items-center justify-between p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-850/50">
+            {/* 3D Terrain Perspective Toggle */}
+            <div className="flex items-center justify-between p-2.5 rounded-lg border border-zinc-800 bg-zinc-900/40">
               <div className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-purple-500" />
+                <Compass className="h-4 w-4 text-purple-400" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                    3D Terrain Perspective
+                  <span className="text-xs font-semibold text-zinc-200">
+                    3D Terrain Tilt
                   </span>
-                  <span className="text-[10px] text-zinc-400">
-                    {layers.is3DTerrain ? "Tilted 3D View (45°)" : "Top-Down Ortho (0°)"}
+                  <span className="text-[10px] font-mono text-zinc-500">
+                    {layers.is3DTerrain ? "Perspective (45deg Angle)" : "Orthographic (0deg Top-Down)"}
                   </span>
                 </div>
               </div>
               <button
                 onClick={onToggle3D}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold transition-colors cursor-pointer ${
                   layers.is3DTerrain
-                    ? "bg-purple-600 text-white"
-                    : "bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300"
+                    ? "bg-purple-600 text-white border border-purple-400/40"
+                    : "bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700"
                 }`}
               >
-                {layers.is3DTerrain ? "3D ON" : "2D"}
+                {layers.is3DTerrain ? "3D ACTIVE" : "2D FLAT"}
               </button>
             </div>
 
-            {/* Overlays / Map Layers List */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Active Map Layers
-                </label>
-                <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                  GeoJSON Vector
-                </Badge>
-              </div>
+            {/* Active Layers */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+                Vector Overlays
+              </span>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {layerConfigs.map((layer) => {
                   const Icon = layer.icon;
                   const isVisible = layers[layer.key];
@@ -192,28 +214,28 @@ export function MapLayerControls({
                       className={`flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
                         isVisible
                           ? layer.highlight
-                            ? "border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/30"
-                            : "border-zinc-200 dark:border-zinc-750 bg-white dark:bg-zinc-850"
-                          : "border-transparent opacity-60 hover:opacity-90 bg-zinc-50/50 dark:bg-zinc-900"
+                            ? "border-sky-500/40 bg-sky-950/30 text-zinc-100"
+                            : "border-zinc-800 bg-zinc-900/80 text-zinc-200"
+                          : "border-transparent opacity-40 hover:opacity-75 bg-zinc-900/30 text-zinc-500"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Icon className={`h-4 w-4 ${layer.color}`} />
+                      <div className="flex items-center gap-2">
+                        <Icon className={`h-3.5 w-3.5 ${layer.color}`} />
                         <div className="flex flex-col">
-                          <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                          <span className="text-xs font-medium leading-none">
                             {layer.label}
                           </span>
-                          <span className="text-[10px] text-zinc-400">
+                          <span className="text-[10px] text-zinc-500 mt-0.5">
                             {layer.description}
                           </span>
                         </div>
                       </div>
 
-                      <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                      <button className="text-zinc-400 hover:text-white">
                         {isVisible ? (
-                          <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          <Eye className="h-3.5 w-3.5 text-sky-400" />
                         ) : (
-                          <EyeOff className="h-4 w-4 text-zinc-400" />
+                          <EyeOff className="h-3.5 w-3.5 text-zinc-600" />
                         )}
                       </button>
                     </div>
@@ -222,11 +244,11 @@ export function MapLayerControls({
               </div>
             </div>
 
-            {/* Layer Opacity Slider */}
-            <div className="space-y-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Layer Opacity</span>
-                <span className="font-mono text-zinc-900 dark:text-zinc-100 font-semibold">
+            {/* Opacity Slider */}
+            <div className="space-y-1.5 pt-2 border-t border-zinc-850">
+              <div className="flex justify-between text-[11px] font-mono">
+                <span className="text-zinc-400">Layer Density / Opacity</span>
+                <span className="text-sky-400 font-semibold">
                   {Math.round(layers.layerOpacity * 100)}%
                 </span>
               </div>
@@ -237,7 +259,7 @@ export function MapLayerControls({
                 step="0.05"
                 value={layers.layerOpacity}
                 onChange={(e) => onOpacityChange(parseFloat(e.target.value))}
-                className="w-full accent-blue-600 cursor-pointer"
+                className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
               />
             </div>
           </div>

@@ -1,164 +1,186 @@
 "use client";
 
-import { Bell, AlertTriangle, ShieldCheck, PhoneCall, Users, Navigation, MapPin } from "lucide-react";
+import { Bell, AlertTriangle, ShieldCheck, Radio, Users, Navigation, MapPin, Send, CheckCircle2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusIndicator } from "@/components/ui/status-indicator";
 
 const mockZones = [
   {
-    id: "ZONE-A",
-    name: "Coastal Estuary South (Mangalore Sector 4)",
+    id: "ZONE-CRIT-01",
+    name: "Netravati River Confluence (Sector 4)",
+    region: "Mangalore Coast",
     riskLevel: "CRITICAL",
-    elevation: "0.8m",
+    elevation: "0.6m MSL",
     predictedPeak: "14:30 IST",
-    population: 12400,
-    evacStatus: "In Progress",
+    population: 14200,
+    evacStatus: "Order Dispatched",
     badgeVariant: "destructive" as const,
   },
   {
-    id: "ZONE-B",
-    name: "River Confluence Basin (Udupi Lowlands)",
+    id: "ZONE-HIGH-02",
+    name: "Ullal Spit & Lowland Estuary",
+    region: "Mangalore South",
     riskLevel: "HIGH",
-    elevation: "1.4m",
-    predictedPeak: "16:00 IST",
-    population: 8650,
-    evacStatus: "Standby Notice",
+    elevation: "1.2m MSL",
+    predictedPeak: "15:15 IST",
+    population: 9800,
+    evacStatus: "Standby Alert",
     badgeVariant: "warning" as const,
   },
   {
-    id: "ZONE-C",
-    name: "Harbor & Fishery Terminal",
+    id: "ZONE-MED-03",
+    name: "Bengre Sand Spit & Fishery Dock",
+    region: "Port Basin",
     riskLevel: "MEDIUM",
-    elevation: "2.5m",
-    predictedPeak: "18:15 IST",
-    population: 4300,
-    evacStatus: "Advisory Issued",
+    elevation: "2.1m MSL",
+    predictedPeak: "16:45 IST",
+    population: 5300,
+    evacStatus: "Marine Advisory",
     badgeVariant: "default" as const,
   },
   {
-    id: "ZONE-D",
-    name: "Upper Ridge Residential Area",
+    id: "ZONE-SAFE-04",
+    name: "Kadri & Highlands Assembly Area",
+    region: "Ridge Sector",
     riskLevel: "NO_DANGER",
-    elevation: "14.2m",
-    predictedPeak: "N/A",
-    population: 29000,
-    evacStatus: "Safe / Shelter Zone",
+    elevation: "18.5m MSL",
+    predictedPeak: "Safe Zone",
+    population: 34000,
+    evacStatus: "Shelter Operational",
     badgeVariant: "success" as const,
   },
 ];
 
 export default function AlertsPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white flex items-center gap-2.5">
-          <Bell className="h-7 w-7 text-amber-500" />
-          Alerts & Evacuation Priority Center
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Ranked zone prioritization, critical facility status, and emergency notification broadcasting.
-        </p>
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-850 pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <StatusIndicator status="warning" label="High Tidal Warning Active" />
+            <Badge variant="outline" className="text-[10px]">
+              Broadcast Channel Armed
+            </Badge>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white mt-1.5 flex items-center gap-2 font-mono uppercase">
+            <Bell className="h-5 w-5 text-amber-400" />
+            Emergency Response & Evacuation Command Center
+          </h1>
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Multi-criteria zone prioritization, critical facility status, and automated emergency broadcast registry.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button size="sm" className="bg-rose-600 hover:bg-rose-500 border border-rose-400/40 gap-1.5 font-mono">
+            <Send className="h-3.5 w-3.5" />
+            Broadcast Red Alert
+          </Button>
+        </div>
       </div>
 
-      {/* Top Banner */}
+      {/* Top Telemetry KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-red-500/30 bg-red-50/50 dark:bg-red-950/20">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-3 rounded-full bg-red-100 dark:bg-red-900/60 text-red-600 dark:text-red-300">
-              <AlertTriangle className="h-6 w-6" />
+        <Card className="border-rose-500/30 bg-rose-950/20">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-rose-950/80 border border-rose-850 text-rose-400">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-red-700 dark:text-red-400">1 Zone</div>
-              <div className="text-xs text-red-600/80 dark:text-red-300/80 font-medium">
-                Immediate Evacuation Triggered
+              <div className="text-xl font-mono font-bold text-rose-300">01 Sector</div>
+              <div className="text-[11px] font-mono text-zinc-400">
+                Mandatory Evacuation Triggered
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300">
-              <Users className="h-6 w-6" />
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-zinc-850 border border-zinc-750 text-sky-400">
+              <Users className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">21,050</div>
-              <div className="text-xs text-zinc-500 font-medium">Citizens in Monitored Reach</div>
+              <div className="text-xl font-mono font-bold text-white">29,300 Pax</div>
+              <div className="text-[11px] font-mono text-zinc-400">Total Monitored Lowland Reach</div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300">
-              <ShieldCheck className="h-6 w-6" />
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-850 text-emerald-400">
+              <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">4 Designated</div>
-              <div className="text-xs text-emerald-600/80 dark:text-emerald-300/80 font-medium">
-                High-Elevation Safe Shelters
-              </div>
+              <div className="text-xl font-mono font-bold text-emerald-300">04 Facilities</div>
+              <div className="text-[11px] font-mono text-zinc-400">Highland Shelters Prepared</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Zone Priority Table */}
+      {/* Priority Classification Table */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-zinc-850">
           <div>
-            <CardTitle className="text-base">Zone Risk Classification</CardTitle>
-            <CardDescription>
-              Ranked by AI risk model for evacuation prioritization
+            <CardTitle className="text-xs font-mono uppercase tracking-wider text-zinc-300">
+              Zone Risk & Priority Classification
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Ranked dynamically by the Juve Multi-Criteria Decision Framework
             </CardDescription>
           </div>
-          <Button size="sm" variant="outline" className="gap-1.5">
-            <PhoneCall className="h-3.5 w-3.5" />
-            Broadcast SMS Alert
-          </Button>
+          <Badge variant="outline" className="font-mono text-[10px]">
+            Updated Just Now
+          </Badge>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+            <table className="w-full text-left font-mono text-xs">
+              <thead className="border-b border-zinc-800 bg-zinc-900/40 text-[10px] text-zinc-400 uppercase tracking-wider">
                 <tr>
-                  <th className="pb-3">Zone ID</th>
-                  <th className="pb-3">Location & Region</th>
-                  <th className="pb-3">Risk Level</th>
-                  <th className="pb-3">Elevation</th>
-                  <th className="pb-3">Peak Inundation</th>
-                  <th className="pb-3">Population</th>
-                  <th className="pb-3">Action Status</th>
-                  <th className="pb-3 text-right">Route</th>
+                  <th className="py-3 px-4">Identifier</th>
+                  <th className="py-3 px-4">Location Sector</th>
+                  <th className="py-3 px-4">Threat Level</th>
+                  <th className="py-3 px-4">Elevation</th>
+                  <th className="py-3 px-4">Peak Surge</th>
+                  <th className="py-3 px-4">At Risk</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-850">
                 {mockZones.map((zone) => (
-                  <tr key={zone.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
-                    <td className="py-3.5 font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
+                  <tr key={zone.id} className="hover:bg-zinc-850/40 transition-colors">
+                    <td className="py-3 px-4 font-bold text-sky-400">
                       {zone.id}
                     </td>
-                    <td className="py-3.5 font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-zinc-400" />
-                      {zone.name}
+                    <td className="py-3 px-4 font-sans font-medium text-white">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-zinc-500" />
+                        <span>{zone.name}</span>
+                      </div>
                     </td>
-                    <td className="py-3.5">
+                    <td className="py-3 px-4">
                       <Badge variant={zone.badgeVariant}>{zone.riskLevel}</Badge>
                     </td>
-                    <td className="py-3.5 text-zinc-600 dark:text-zinc-400">{zone.elevation}</td>
-                    <td className="py-3.5 text-zinc-600 dark:text-zinc-400 font-mono text-xs">
+                    <td className="py-3 px-4 text-zinc-300">{zone.elevation}</td>
+                    <td className="py-3 px-4 text-amber-400">
                       {zone.predictedPeak}
                     </td>
-                    <td className="py-3.5 text-zinc-600 dark:text-zinc-400">
+                    <td className="py-3 px-4 text-zinc-300">
                       {zone.population.toLocaleString()}
                     </td>
-                    <td className="py-3.5 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    <td className="py-3 px-4 text-zinc-300">
                       {zone.evacStatus}
                     </td>
-                    <td className="py-3.5 text-right">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
-                        <Navigation className="h-3 w-3" />
+                    <td className="py-3 px-4 text-right">
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 font-mono">
+                        <Navigation className="h-3 w-3 text-emerald-400" />
                         Safe Path
                       </Button>
                     </td>

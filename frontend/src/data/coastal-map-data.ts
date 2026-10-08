@@ -5,17 +5,19 @@ export type BaseMapStyleId = "satellite" | "terrain" | "streets" | "dark" | "lig
 export interface BaseMapStyle {
   id: BaseMapStyleId;
   name: string;
+  category: string;
   description: string;
-  thumbnail: string;
+  iconName: "Satellite" | "Mountain" | "Map" | "Moon" | "Sun";
   styleObject: any;
 }
 
 export const BASE_MAP_STYLES: BaseMapStyle[] = [
   {
     id: "satellite",
-    name: "Satellite Imagery",
-    description: "High-resolution real-world satellite imagery (ESRI)",
-    thumbnail: "🛰️",
+    name: "Satellite",
+    category: "Optical Imagery",
+    description: "High-resolution orbital satellite baseline (ESRI World Imagery)",
+    iconName: "Satellite",
     styleObject: {
       version: 8,
       sources: {
@@ -41,9 +43,10 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
   },
   {
     id: "terrain",
-    name: "3D Topo / Terrain",
-    description: "Contour elevations and topographic relief (OpenTopo)",
-    thumbnail: "🏔️",
+    name: "Topography",
+    category: "Elevation Relief",
+    description: "Contour elevations, slope angles, and topographic relief",
+    iconName: "Mountain",
     styleObject: {
       version: 8,
       sources: {
@@ -55,7 +58,7 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
             "https://c.tile.opentopomap.org/{z}/{x}/{y}.png",
           ],
           tileSize: 256,
-          attribution: "© OpenTopoMap, © OpenStreetMap",
+          attribution: "OpenTopoMap, OpenStreetMap",
         },
       },
       layers: [
@@ -72,8 +75,9 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
   {
     id: "dark",
     name: "Tactical Dark",
-    description: "High contrast dark mode optimal for emergency response",
-    thumbnail: "🌙",
+    category: "High Contrast",
+    description: "Engineered dark palette for low-light command centers",
+    iconName: "Moon",
     styleObject: {
       version: 8,
       sources: {
@@ -85,7 +89,7 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
             "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
           ],
           tileSize: 256,
-          attribution: "© CARTO, © OpenStreetMap",
+          attribution: "CARTO, OpenStreetMap",
         },
       },
       layers: [
@@ -101,9 +105,10 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
   },
   {
     id: "streets",
-    name: "Street Map",
-    description: "Road networks and urban infrastructure (OSM)",
-    thumbnail: "🗺️",
+    name: "Cartographic",
+    category: "Vector Roads",
+    description: "Urban transportation network and municipal infrastructure",
+    iconName: "Map",
     styleObject: {
       version: 8,
       sources: {
@@ -111,7 +116,7 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
           type: "raster",
           tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
           tileSize: 256,
-          attribution: "© OpenStreetMap contributors",
+          attribution: "OpenStreetMap contributors",
         },
       },
       layers: [
@@ -127,9 +132,10 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
   },
   {
     id: "light",
-    name: "Clean Light",
-    description: "Minimalist light baseline for high clarity overlays",
-    thumbnail: "☀️",
+    name: "Precision Light",
+    category: "Monochrome",
+    description: "High-contrast clean backdrop for presentation and reporting",
+    iconName: "Sun",
     styleObject: {
       version: 8,
       sources: {
@@ -141,7 +147,7 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
             "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
           ],
           tileSize: 256,
-          attribution: "© CARTO, © OpenStreetMap",
+          attribution: "CARTO, OpenStreetMap",
         },
       },
       layers: [
@@ -160,6 +166,7 @@ export const BASE_MAP_STYLES: BaseMapStyle[] = [
 export interface RegionPreset {
   id: string;
   name: string;
+  code: string;
   state: string;
   latitude: number;
   longitude: number;
@@ -171,7 +178,8 @@ export interface RegionPreset {
 export const REGION_PRESETS: RegionPreset[] = [
   {
     id: "mangalore",
-    name: "Mangalore Estuary & Coast",
+    name: "Mangalore Estuary",
+    code: "IXE-01",
     state: "Karnataka",
     latitude: 12.871,
     longitude: 74.842,
@@ -181,7 +189,8 @@ export const REGION_PRESETS: RegionPreset[] = [
   },
   {
     id: "kochi",
-    name: "Kochi Backwaters Delta",
+    name: "Kochi Backwaters",
+    code: "COK-02",
     state: "Kerala",
     latitude: 9.965,
     longitude: 76.285,
@@ -191,7 +200,8 @@ export const REGION_PRESETS: RegionPreset[] = [
   },
   {
     id: "chennai",
-    name: "Chennai Marina & Adyar River",
+    name: "Chennai Delta",
+    code: "MAA-03",
     state: "Tamil Nadu",
     latitude: 13.035,
     longitude: 80.265,
@@ -201,7 +211,8 @@ export const REGION_PRESETS: RegionPreset[] = [
   },
   {
     id: "mumbai",
-    name: "Mumbai Coastal Bay & Lowlands",
+    name: "Mumbai Coastal Bay",
+    code: "BOM-04",
     state: "Maharashtra",
     latitude: 18.965,
     longitude: 72.825,
@@ -211,8 +222,9 @@ export const REGION_PRESETS: RegionPreset[] = [
   },
   {
     id: "india-overview",
-    name: "All India Coastal Overview",
-    state: "National",
+    name: "National Coastline",
+    code: "IND-ALL",
+    state: "India Coast",
     latitude: 15.5,
     longitude: 78.5,
     zoom: 5.2,
@@ -231,13 +243,14 @@ export const DANGER_ZONES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ZONE-CRIT-01",
-        name: "Mangalore Netravati Confluence Sector",
+        name: "Netravati River Confluence Sector",
+        sectorCode: "SEC-KA-01",
         riskLevel: "CRITICAL",
         riskColor: "#ef4444",
         elevationMeters: 0.6,
         population: 14200,
         peakSurgeTime: "14:30 IST",
-        recommendation: "Immediate Mandatory Evacuation",
+        recommendation: "Mandatory Evacuation Order Issued",
       },
       geometry: {
         type: "Polygon",
@@ -256,13 +269,14 @@ export const DANGER_ZONES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ZONE-HIGH-02",
-        name: "Ullal Coastal Spit & Estuary Bank",
+        name: "Ullal Coastal Spit & Lowlands",
+        sectorCode: "SEC-KA-02",
         riskLevel: "HIGH",
         riskColor: "#f97316",
         elevationMeters: 1.2,
         population: 9800,
         peakSurgeTime: "15:15 IST",
-        recommendation: "Prepare Evacuation Standby",
+        recommendation: "Emergency Standby & Barrier Deployment",
       },
       geometry: {
         type: "Polygon",
@@ -281,13 +295,14 @@ export const DANGER_ZONES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ZONE-MED-03",
-        name: "Bengre Sand Spit & Fishery Dock",
+        name: "Bengre Sand Spit & Port Basin",
+        sectorCode: "SEC-KA-03",
         riskLevel: "MEDIUM",
         riskColor: "#eab308",
         elevationMeters: 2.1,
         population: 5300,
         peakSurgeTime: "16:45 IST",
-        recommendation: "Issue Marine Safety Advisory",
+        recommendation: "Coastal Advisory & Craft Suspension",
       },
       geometry: {
         type: "Polygon",
@@ -306,13 +321,14 @@ export const DANGER_ZONES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ZONE-SAFE-04",
-        name: "Kodialbail & Kadri Highlands",
+        name: "Kadri & Highlands Assembly Area",
+        sectorCode: "SEC-KA-04",
         riskLevel: "NO_DANGER",
         riskColor: "#10b981",
         elevationMeters: 18.5,
         population: 34000,
         peakSurgeTime: "Safe Zone",
-        recommendation: "Designated Relief Assembly Point",
+        recommendation: "Designated Logistics & Shelter Hub",
       },
       geometry: {
         type: "Polygon",
@@ -327,18 +343,18 @@ export const DANGER_ZONES_GEOJSON: FeatureCollection = {
         ],
       },
     },
-    // Kochi Feature
     {
       type: "Feature",
       properties: {
         id: "ZONE-KOCHI-01",
-        name: "Vembanad Lowland Canal Basin",
+        name: "Vembanad Backwater Basin",
+        sectorCode: "SEC-KL-01",
         riskLevel: "HIGH",
         riskColor: "#f97316",
         elevationMeters: 0.7,
         population: 28000,
         peakSurgeTime: "15:00 IST",
-        recommendation: "Pump Deployment Active",
+        recommendation: "High-Volume Siphon Pump Operations Active",
       },
       geometry: {
         type: "Polygon",
@@ -363,7 +379,7 @@ export const LOW_LYING_AREAS_GEOJSON: FeatureCollection = {
     {
       type: "Feature",
       properties: {
-        elevationCategory: "Below 1.0m (Extreme Vulnerability)",
+        elevationCategory: "Below 1.0m MSL (Critical Depression)",
         color: "#38bdf8",
         opacity: 0.6,
       },
@@ -383,7 +399,7 @@ export const LOW_LYING_AREAS_GEOJSON: FeatureCollection = {
     {
       type: "Feature",
       properties: {
-        elevationCategory: "1.0m - 2.5m (Moderate Vulnerability)",
+        elevationCategory: "1.0m - 2.5m MSL (Moderate Vulnerability)",
         color: "#60a5fa",
         opacity: 0.4,
       },
@@ -410,9 +426,9 @@ export const WATER_BODIES_GEOJSON: FeatureCollection = {
     {
       type: "Feature",
       properties: {
-        name: "Netravati River Channel",
+        name: "Netravati River Main Channel",
         type: "River",
-        inflowRate: "420 m³/s",
+        inflowRate: "420 m3/s",
         tidalInfluence: "Very High",
       },
       geometry: {
@@ -429,9 +445,9 @@ export const WATER_BODIES_GEOJSON: FeatureCollection = {
     {
       type: "Feature",
       properties: {
-        name: "Gurupura River Channel",
+        name: "Gurupura River Ingress",
         type: "River",
-        inflowRate: "280 m³/s",
+        inflowRate: "280 m3/s",
         tidalInfluence: "High",
       },
       geometry: {
@@ -455,13 +471,13 @@ export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "FAC-HOSP-01",
-        name: "Mangalore Government District Hospital",
+        name: "District Medical Center",
         facilityType: "hospital",
-        icon: "🏥",
+        typeLabel: "Hospital",
         elevationMeters: 4.8,
         status: "Operational",
         capacity: 650,
-        address: "Hampankatta Central",
+        address: "Hampankatta Sector 1",
       },
       geometry: {
         type: "Point",
@@ -472,13 +488,13 @@ export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "FAC-SHELTER-01",
-        name: "Highland Multi-Purpose Relief Shelter #1",
+        name: "Highland Multi-Purpose Relief Shelter 1",
         facilityType: "shelter",
-        icon: "🛡️",
+        typeLabel: "Safe Shelter",
         elevationMeters: 22.0,
         status: "Active & Ready",
         capacity: 3500,
-        address: "Kadri Hills Assembly",
+        address: "Kadri Hills Ridge",
       },
       geometry: {
         type: "Point",
@@ -489,13 +505,13 @@ export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "FAC-SHELTER-02",
-        name: "St. Aloysius Community Shelter #2",
+        name: "Central Community Shelter 2",
         facilityType: "shelter",
-        icon: "🛡️",
+        typeLabel: "Safe Shelter",
         elevationMeters: 18.5,
         status: "Active & Ready",
         capacity: 2200,
-        address: "Light House Hill",
+        address: "Light House Elevation",
       },
       geometry: {
         type: "Point",
@@ -506,13 +522,13 @@ export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "FAC-PORT-01",
-        name: "Old Mangalore Fishery Wharf & Port",
+        name: "Old Port & Coastal Terminal",
         facilityType: "port",
-        icon: "⚓",
+        typeLabel: "Maritime Terminal",
         elevationMeters: 1.1,
-        status: "Warning: High Tidal Inundation",
+        status: "High Tidal Alert",
         capacity: 120,
-        address: "Bunder Port Road",
+        address: "Bunder Wharf Road",
       },
       geometry: {
         type: "Point",
@@ -523,13 +539,13 @@ export const CRITICAL_FACILITIES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "FAC-POWER-01",
-        name: "Coastal Grid Power Substation",
+        name: "Coastal Transmission Substation",
         facilityType: "power",
-        icon: "⚡",
+        typeLabel: "Substation",
         elevationMeters: 2.3,
-        status: "Monitored",
+        status: "Telemetry Monitored",
         capacity: 250,
-        address: "Jeppu Riverside",
+        address: "Jeppu Riverside Point",
       },
       geometry: {
         type: "Point",
@@ -547,8 +563,8 @@ export const EVACUATION_ROUTES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ROUTE-01",
-        name: "Primary Evacuation Corridor: Netravati to Highland Shelter",
-        status: "CLEAR / RECOMMENDED",
+        name: "Corridor Alpha: Netravati to Highland Shelter",
+        status: "RECOMMENDED / OPEN",
         routeColor: "#22c55e",
         travelTimeMinutes: 14,
         hazardLevel: "Low",
@@ -567,8 +583,8 @@ export const EVACUATION_ROUTES_GEOJSON: FeatureCollection = {
       type: "Feature",
       properties: {
         id: "ROUTE-02",
-        name: "Secondary Coastal Bypass to St. Aloysius Shelter",
-        status: "CAUTION: Near Drainage Canal",
+        name: "Corridor Bravo: Coastal Bypass to Light House Shelter",
+        status: "MODERATE / CANAL PROXIMITY",
         routeColor: "#3b82f6",
         travelTimeMinutes: 19,
         hazardLevel: "Moderate",
@@ -585,19 +601,17 @@ export const EVACUATION_ROUTES_GEOJSON: FeatureCollection = {
   ],
 };
 
-// 6. Dynamic Flood Propagation Generator (generates water overlay based on tide + rain)
+// 6. Dynamic Flood Propagation Generator
 export function generateFloodInundationGeoJSON(
   tideLevelMeters: number,
   rainfallIntensity: number
 ): FeatureCollection {
-  // Scale radius/spread with tide level (0 - 6m) & rainfall (0 - 200 mm/h)
   const surgeMultiplier = (tideLevelMeters * 0.003) + (rainfallIntensity * 0.00008);
   const baseLat = 12.848;
   const baseLng = 74.835;
 
   const r = Math.max(0.008, 0.012 + surgeMultiplier);
 
-  // Approximate water polygon expanding over coastal lowlands
   const coordinates = [
     [
       [baseLng - r * 1.5, baseLat + r * 0.8],
@@ -618,7 +632,7 @@ export function generateFloodInundationGeoJSON(
           id: "SIM-WATER-SPREAD",
           surgeHeight: `+${(tideLevelMeters * 0.8 + (rainfallIntensity / 100) * 0.5).toFixed(2)}m`,
           rainfallMm: rainfallIntensity,
-          threatStatus: tideLevelMeters > 3.0 ? "High Inundation" : "Moderate Runoff",
+          threatStatus: tideLevelMeters > 3.0 ? "Severe Inundation" : "Manageable Runoff",
         },
         geometry: {
           type: "Polygon",

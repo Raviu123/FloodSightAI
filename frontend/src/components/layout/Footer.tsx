@@ -1,32 +1,32 @@
-import Link from "next/link";
-import { Waves, Shield, Activity, MapPin } from "lucide-react";
+import { Shield, Radio, Database, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <footer className="border-t border-zinc-850 bg-zinc-950/80 backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <Waves className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              FloodShield AI
-            </span>
-            <span>— AI-driven Coastal Flood Intelligence & Early Warning System</span>
+          <div className="flex items-center gap-2.5 text-xs text-zinc-400 font-mono">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-950/80 border border-blue-800/60 text-sky-400">
+              <Shield className="h-3 w-3" />
+            </div>
+            <span className="font-semibold text-zinc-200">FloodShield AI</span>
+            <span className="text-zinc-600">|</span>
+            <span>Coastal Flood Intelligence & Decision Support Platform</span>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-zinc-500 dark:text-zinc-400">
-            <span className="flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-blue-500" />
-              Early Evacuation Protocol
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Activity className="h-3.5 w-3.5 text-emerald-500" />
-              Dynamic Prediction
-            </span>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-amber-500" />
-              India Coastal Zones
-            </span>
+          <div className="flex items-center gap-5 text-xs font-mono text-zinc-400">
+            <div className="flex items-center gap-1.5">
+              <Radio className="h-3 w-3 text-emerald-400" />
+              <span>Simulation Engine v0.1</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Database className="h-3 w-3 text-sky-400" />
+              <span>Bathymetry & Tidal Model</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-amber-400" />
+              <span>India Coastal Hotspots</span>
+            </div>
           </div>
         </div>
       </div>

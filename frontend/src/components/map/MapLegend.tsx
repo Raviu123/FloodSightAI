@@ -1,79 +1,66 @@
 "use client";
 
 import { useState } from "react";
-import { Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Info, ChevronDown, ChevronUp, ShieldAlert, Crosshair, Navigation, Waves } from "lucide-react";
 
 export function MapLegend() {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="absolute bottom-6 left-4 z-20 max-w-xs rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 p-3.5 shadow-lg backdrop-blur-md text-xs">
+    <div className="absolute bottom-4 left-4 z-20 max-w-xs rounded-xl border border-zinc-800 bg-zinc-950/90 p-3 shadow-2xl backdrop-blur-xl text-xs">
       <div
-        className="flex items-center justify-between cursor-pointer font-semibold text-zinc-900 dark:text-zinc-100"
+        className="flex items-center justify-between cursor-pointer font-mono font-bold text-xs uppercase tracking-wider text-zinc-300"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-1.5">
-          <Info className="h-4 w-4 text-blue-500" />
-          <span>Map Intelligence Legend</span>
+          <Crosshair className="h-3.5 w-3.5 text-sky-400" />
+          <span>Symbology Key</span>
         </div>
-        <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-          {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+        <button className="text-zinc-500 hover:text-zinc-300">
+          {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
         </button>
       </div>
 
       {isOpen && (
-        <div className="mt-3 space-y-3 pt-2 border-t border-zinc-200 dark:border-zinc-800">
-          {/* Risk Zones */}
+        <div className="mt-2.5 space-y-2.5 pt-2 border-t border-zinc-850 font-mono text-[11px]">
+          {/* Threat Zones */}
           <div>
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">
-              Risk Zones
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-sm bg-red-500/80 border border-red-600" />
-                <span className="text-zinc-700 dark:text-zinc-300">Critical Danger</span>
+            <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
+              Risk Classification
+            </span>
+            <div className="grid grid-cols-2 gap-1 text-[10px]">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-xs bg-rose-500 border border-rose-400" />
+                <span className="text-zinc-300">Critical Threat</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-sm bg-amber-500/80 border border-amber-600" />
-                <span className="text-zinc-700 dark:text-zinc-300">High Danger</span>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-xs bg-amber-500 border border-amber-400" />
+                <span className="text-zinc-300">High Risk</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-sm bg-yellow-500/80 border border-yellow-600" />
-                <span className="text-zinc-700 dark:text-zinc-300">Medium Risk</span>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-xs bg-yellow-500 border border-yellow-400" />
+                <span className="text-zinc-300">Moderate</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-sm bg-emerald-500/80 border border-emerald-600" />
-                <span className="text-zinc-700 dark:text-zinc-300">Safe Highlands</span>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500 border border-emerald-400" />
+                <span className="text-zinc-300">Safe Ridge</span>
               </div>
             </div>
           </div>
 
-          {/* Critical Facilities */}
+          {/* Dynamic Vectors */}
           <div>
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">
-              Critical Facilities
-            </div>
-            <div className="flex flex-wrap gap-2 text-zinc-700 dark:text-zinc-300">
-              <span className="inline-flex items-center gap-1">🏥 Hospital</span>
-              <span className="inline-flex items-center gap-1">🛡️ Safe Shelter</span>
-              <span className="inline-flex items-center gap-1">⚓ Port</span>
-              <span className="inline-flex items-center gap-1">⚡ Power</span>
-            </div>
-          </div>
-
-          {/* Dynamic Elements */}
-          <div>
-            <div className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">
-              Simulation & Corridors
-            </div>
-            <div className="space-y-1">
+            <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
+              Dynamics & Corridors
+            </span>
+            <div className="space-y-1 text-[10px]">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-5 rounded bg-blue-500/60 border border-blue-400 animate-pulse" />
-                <span className="text-zinc-700 dark:text-zinc-300">Dynamic Inundation Layer</span>
+                <span className="h-1.5 w-4 rounded-xs bg-sky-400/80 border border-sky-300" />
+                <span className="text-zinc-300">Dynamic Inundation Layer</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-5 rounded-full bg-emerald-500" />
-                <span className="text-zinc-700 dark:text-zinc-300">Safe Evacuation Route</span>
+                <span className="h-1.5 w-4 rounded-full bg-emerald-400" />
+                <span className="text-zinc-300">Open Evacuation Corridor</span>
               </div>
             </div>
           </div>

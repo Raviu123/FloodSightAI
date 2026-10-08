@@ -52,13 +52,11 @@ export function MapLibreMap({
     layerOpacity: 0.75,
   });
 
-  // Get current base style object
   const getStyleObject = (id: BaseMapStyleId) => {
     const found = BASE_MAP_STYLES.find((s) => s.id === id);
     return found ? found.styleObject : BASE_MAP_STYLES[0].styleObject;
   };
 
-  // Add all GeoJSON sources and layers to map
   const addAllLayers = useCallback((map: maplibregl.Map) => {
     if (!map) return;
 
@@ -175,7 +173,7 @@ export function MapLibreMap({
       });
     }
 
-    // 6. Critical Facilities (Circle + Label)
+    // 6. Critical Facilities
     if (!map.getSource("critical-facilities-source")) {
       map.addSource("critical-facilities-source", {
         type: "geojson",
@@ -187,19 +185,17 @@ export function MapLibreMap({
         type: "circle",
         source: "critical-facilities-source",
         paint: {
-          "circle-radius": 8,
-          "circle-color": "#ffffff",
-          "circle-stroke-color": "#2563eb",
-          "circle-stroke-width": 3,
+          "circle-radius": 7,
+          "circle-color": "#0f172a",
+          "circle-stroke-color": "#38bdf8",
+          "circle-stroke-width": 2.5,
         },
       });
     }
 
-    // Update visibility according to state
     updateLayerVisibilities(map, layers);
   }, [tideLevel, rainfall, layers]);
 
-  // Update layer visibilities on demand
   const updateLayerVisibilities = (map: maplibregl.Map, lState: MapLayerState) => {
     if (!map) return;
 
@@ -218,7 +214,6 @@ export function MapLibreMap({
     setVis("flood-inundation-layer-fill", lState.floodInundation);
     setVis("flood-inundation-layer-stroke", lState.floodInundation);
 
-    // Update opacities
     if (map.getLayer("danger-zones-layer-fill")) {
       map.setPaintProperty("danger-zones-layer-fill", "fill-opacity", lState.layerOpacity * 0.55);
     }
@@ -230,11 +225,10 @@ export function MapLibreMap({
     }
   };
 
-  // Initialize MapLibre
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const defaultRegion = REGION_PRESETS[0]; // Mangalore
+    const defaultRegion = REGION_PRESETS[0];
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -245,7 +239,6 @@ export function MapLibreMap({
       bearing: defaultRegion.bearing,
     });
 
-    // Add controls
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
     map.addControl(new maplibregl.FullscreenControl(), "bottom-right");
     map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
@@ -265,21 +258,22 @@ export function MapLibreMap({
       if (popupRef.current) popupRef.current.remove();
 
       const popupHtml = `
-        <div class="p-3.5 space-y-2 text-zinc-100 min-w-[220px]">
-          <div class="flex items-center justify-between gap-2 border-b border-zinc-700/60 pb-1.5">
-            <span class="font-bold text-xs">${props.id}</span>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded" style="background: ${props.riskColor}33; color: ${props.riskColor}; border: 1px solid ${props.riskColor}">
+        <div class="p-3.5 space-y-2 text-zinc-100 min-w-[240px] font-mono">
+          <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-2">
+            <span class="font-bold text-xs text-sky-400">${props.id}</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${props.riskColor}26; color: ${props.riskColor}; border: 1px solid ${props.riskColor}60">
               ${props.riskLevel}
             </span>
           </div>
-          <div class="font-semibold text-sm leading-tight text-white">${props.name}</div>
+          <div class="font-sans font-semibold text-xs leading-snug text-white">${props.name}</div>
           <div class="grid grid-cols-2 gap-2 text-[11px] pt-1 text-zinc-300">
             <div>Elevation: <b class="text-white">${props.elevationMeters}m MSL</b></div>
             <div>Population: <b class="text-white">${Number(props.population).toLocaleString()}</b></div>
             <div>Peak Time: <b class="text-amber-400">${props.peakSurgeTime}</b></div>
+            <div>Sector: <b class="text-zinc-200">${props.sectorCode || "SEC-01"}</b></div>
           </div>
-          <div class="text-[11px] text-zinc-400 border-t border-zinc-800 pt-1.5">
-            Action: <span class="text-blue-300 font-medium">${props.recommendation}</span>
+          <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
+            Protocol: <span class="text-sky-300 font-medium">${props.recommendation}</span>
           </div>
         </div>
       `;
@@ -301,17 +295,18 @@ export function MapLibreMap({
       if (popupRef.current) popupRef.current.remove();
 
       const popupHtml = `
-        <div class="p-3 space-y-1.5 text-zinc-100 min-w-[200px]">
-          <div class="flex items-center gap-1.5 font-bold text-sm">
-            <span>${props.icon}</span>
-            <span>${props.name}</span>
+        <div class="p-3 space-y-1.5 text-zinc-100 min-w-[220px] font-mono">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-1">
+            <span class="font-bold text-xs text-sky-400">${props.typeLabel || "Facility"}</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">
+              ${props.status}
+            </span>
           </div>
-          <div class="text-xs text-zinc-300">${props.address}</div>
-          <div class="text-[11px] text-zinc-400">
-            Status: <b class="text-emerald-400">${props.status}</b> | Elevation: <b class="text-white">${props.elevationMeters}m</b>
-          </div>
-          <div class="text-[11px] text-zinc-400">
-            Capacity: <b class="text-white">${props.capacity} Persons</b>
+          <div class="font-sans font-semibold text-xs text-white">${props.name}</div>
+          <div class="text-[11px] text-zinc-400 font-sans">${props.address}</div>
+          <div class="grid grid-cols-2 gap-1 text-[10px] text-zinc-300 pt-1">
+            <div>Elevation: <b class="text-white">${props.elevationMeters}m MSL</b></div>
+            <div>Capacity: <b class="text-white">${props.capacity} Pax</b></div>
           </div>
         </div>
       `;
@@ -331,11 +326,14 @@ export function MapLibreMap({
       if (popupRef.current) popupRef.current.remove();
 
       const popupHtml = `
-        <div class="p-3 space-y-1 text-zinc-100 min-w-[220px]">
-          <div class="font-bold text-xs text-emerald-400">🛣️ Evacuation Route</div>
-          <div class="font-semibold text-xs text-white">${props.name}</div>
-          <div class="text-[11px] text-zinc-300">Status: <b>${props.status}</b></div>
-          <div class="text-[11px] text-zinc-400">Est. Transit Time: <b class="text-white">${props.travelTimeMinutes} mins</b></div>
+        <div class="p-3 space-y-1.5 text-zinc-100 min-w-[230px] font-mono">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-1">
+            <span class="font-bold text-xs text-emerald-400">Evacuation Corridor</span>
+            <span class="text-[9px] text-zinc-400">${props.id}</span>
+          </div>
+          <div class="font-sans font-semibold text-xs text-white">${props.name}</div>
+          <div class="text-[10px] text-zinc-300">Status: <b class="text-emerald-300">${props.status}</b></div>
+          <div class="text-[10px] text-zinc-400">Transit Duration: <b class="text-white">${props.travelTimeMinutes} mins</b></div>
         </div>
       `;
 
@@ -345,7 +343,6 @@ export function MapLibreMap({
         .addTo(map);
     });
 
-    // Hover cursor styling
     const setPointer = () => {
       if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
     };
@@ -366,7 +363,6 @@ export function MapLibreMap({
     };
   }, []);
 
-  // Handle Base Map style changes
   const handleStyleChange = (styleId: BaseMapStyleId) => {
     setCurrentStyleId(styleId);
     if (!mapRef.current) return;
@@ -374,13 +370,11 @@ export function MapLibreMap({
     const map = mapRef.current;
     map.setStyle(getStyleObject(styleId));
 
-    // Re-attach data layers once new style finishes loading
     map.once("style.load", () => {
       addAllLayers(map);
     });
   };
 
-  // Handle Dynamic Simulation update (tide + rainfall change)
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
@@ -390,7 +384,6 @@ export function MapLibreMap({
     }
   }, [tideLevel, rainfall, mapLoaded]);
 
-  // Handle Layer toggles & opacity
   const handleLayerToggle = (layerKey: keyof MapLayerState) => {
     const updated = { ...layers, [layerKey]: !layers[layerKey] };
     setLayers(updated);
@@ -407,7 +400,6 @@ export function MapLibreMap({
     }
   };
 
-  // Toggle 3D Terrain Perspective
   const handleToggle3D = () => {
     if (!mapRef.current) return;
     const map = mapRef.current;
@@ -421,7 +413,6 @@ export function MapLibreMap({
     });
   };
 
-  // Handle Region Quick Jump
   const handleSelectRegion = (preset: RegionPreset) => {
     setActiveRegionId(preset.id);
     if (!mapRef.current) return;
@@ -437,17 +428,14 @@ export function MapLibreMap({
   };
 
   return (
-    <div className={`relative w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-md ${heightClassName}`}>
-      {/* MapLibre DOM container */}
+    <div className={`relative w-full overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl bg-zinc-950 ${heightClassName}`}>
       <div ref={mapContainerRef} className="h-full w-full bg-zinc-950" />
 
-      {/* Quick Region Selector (Top-Left) */}
       <MapQuickJumper
         onSelectRegion={handleSelectRegion}
         activeRegionId={activeRegionId}
       />
 
-      {/* Map Layer and Base Style Controls (Top-Right) */}
       <MapLayerControls
         currentStyle={currentStyleId}
         onStyleChange={handleStyleChange}
@@ -457,7 +445,6 @@ export function MapLibreMap({
         onToggle3D={handleToggle3D}
       />
 
-      {/* Map Legend (Bottom-Left) */}
       <MapLegend />
     </div>
   );
