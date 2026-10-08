@@ -15,6 +15,15 @@
 | **SITREP (Situation Report)** | A standardized military and disaster response briefing summarizing active threats and directives. | Automatically generated for NDRF/SDRF commanders to coordinate evacuation logistics. |
 | **Lead Time / Onset Time** | The time window between issuance of the early warning and the arrival of flood waters. | Provides authorities with an exact evacuation countdown (e.g. `onset in 45m, peak in 180m`). |
 
+
+
+
+
+    |     ├── Model 1: Binary Flood Classifier (Will it flood?)                         |                                           
+    |     ├── Model 2: Inundation Depth Regressor (How deep in meters?)                 |                                           
+    |     ├── Model 3: Onset Lead-Time Regressor (How many minutes until water arrives?) |                                          
+    |     └── Model 4: Peak Surge Regressor (When is the worst inundation?)  
+
 ---
 
 ## 2. End-to-End AI System Architecture

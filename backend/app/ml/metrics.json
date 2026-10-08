@@ -1,26 +1,26 @@
 {
   "model_version": "1.0.0",
-  "training_samples": 6000,
+  "training_samples": 12500,
   "metrics": {
-    "roc_auc": 0.9952,
-    "accuracy": 0.9717,
-    "precision": 0.9451,
-    "recall": 0.7478,
-    "f1_score": 0.835,
-    "depth_mae_meters": 0.024,
-    "depth_r2": 0.9369,
-    "onset_time_mae_minutes": 6.43,
-    "peak_time_mae_minutes": 10.99
+    "roc_auc": 0.9934,
+    "accuracy": 0.9512,
+    "precision": 0.9586,
+    "recall": 0.95,
+    "f1_score": 0.9542,
+    "depth_mae_meters": 0.062,
+    "depth_r2": 0.987,
+    "onset_time_mae_minutes": 3.45,
+    "peak_time_mae_minutes": 8.01
   },
   "global_feature_importances_pct": {
-    "dist_to_coast_km": 32.78,
-    "elevation_m": 32.34,
-    "tide_level_m": 13.1,
-    "dist_to_river_km": 4.55,
-    "rainfall_accum_6h_mm": 4.34,
-    "rainfall_rate_mm_h": 4.08,
-    "cyclone_wind_kmh": 3.07,
-    "drainage_capacity_pct": 2.98,
-    "soil_saturation_idx": 2.75
+    "elevation_m": 45.56,
+    "dist_to_coast_km": 15.59,
+    "dist_to_river_km": 9.89,
+    "tide_level_m": 8.41,
+    "rainfall_accum_6h_mm": 5.33,
+    "drainage_capacity_pct": 4.45,
+    "soil_saturation_idx": 4.41,
+    "rainfall_rate_mm_h": 3.21,
+    "cyclone_wind_kmh": 3.15
   }
 }
