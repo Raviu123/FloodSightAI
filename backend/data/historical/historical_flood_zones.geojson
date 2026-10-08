@@ -1,0 +1,1736 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "Historical Indian Coastal & River Flood Extent Polygons",
+    "source": "FloodShield AI Topographic DEM Extraction Engine",
+    "totalEvents": 15
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-IXE-2018",
+        "name": "Mangalore Netravati Estuary & Spit Surge",
+        "district": "Dakshina Kannada",
+        "state": "Karnataka",
+        "year": 2018,
+        "majorWaterbody": "Netravati River & Arabian Sea",
+        "primaryDriver": "Monsoon Pluvial Surge & High Tide",
+        "recordedWaterLevelMetersMSL": 2.8,
+        "peakRainfall24hMm": 248.5,
+        "recordedAreaSqKm": 14.5,
+        "calculatedAreaSqKm": 20.96,
+        "casualtyCount": 4,
+        "economicLossCroreINR": 125.0,
+        "riskTier": "HIGH",
+        "riskColor": "#ea580c",
+        "strokeColor": "#c2410c",
+        "fillOpacity": 0.68,
+        "strokeWidth": 3.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.81298,
+              12.85145
+            ],
+            [
+              74.81606,
+              12.84394
+            ],
+            [
+              74.81915,
+              12.83643
+            ],
+            [
+              74.82685,
+              12.82892
+            ],
+            [
+              74.83455,
+              12.82441
+            ],
+            [
+              74.84225,
+              12.82441
+            ],
+            [
+              74.84995,
+              12.82892
+            ],
+            [
+              74.85457,
+              12.83643
+            ],
+            [
+              74.85611,
+              12.84394
+            ],
+            [
+              74.85457,
+              12.85145
+            ],
+            [
+              74.85303,
+              12.85895
+            ],
+            [
+              74.84841,
+              12.86646
+            ],
+            [
+              74.84225,
+              12.87397
+            ],
+            [
+              74.83455,
+              12.87848
+            ],
+            [
+              74.82685,
+              12.87848
+            ],
+            [
+              74.81915,
+              12.87397
+            ],
+            [
+              74.81606,
+              12.86646
+            ],
+            [
+              74.81298,
+              12.85895
+            ],
+            [
+              74.81298,
+              12.85145
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-IXE-2019",
+        "name": "Ullal & Kotepura Coastal Depression",
+        "district": "Dakshina Kannada",
+        "state": "Karnataka",
+        "year": 2019,
+        "majorWaterbody": "Netravati Estuarine Basin",
+        "primaryDriver": "Sea Surge Overtopping & River Inflow",
+        "recordedWaterLevelMetersMSL": 2.45,
+        "peakRainfall24hMm": 212.0,
+        "recordedAreaSqKm": 9.8,
+        "calculatedAreaSqKm": 14.84,
+        "casualtyCount": 2,
+        "economicLossCroreINR": 65.0,
+        "riskTier": "HIGH",
+        "riskColor": "#ea580c",
+        "strokeColor": "#c2410c",
+        "fillOpacity": 0.68,
+        "strokeWidth": 3.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.8241,
+              12.81871
+            ],
+            [
+              74.82545,
+              12.81346
+            ],
+            [
+              74.82815,
+              12.8082
+            ],
+            [
+              74.83219,
+              12.80294
+            ],
+            [
+              74.83758,
+              12.79768
+            ],
+            [
+              74.84298,
+              12.79637
+            ],
+            [
+              74.84837,
+              12.79637
+            ],
+            [
+              74.85376,
+              12.79899
+            ],
+            [
+              74.85781,
+              12.80425
+            ],
+            [
+              74.85916,
+              12.80951
+            ],
+            [
+              74.85916,
+              12.81477
+            ],
+            [
+              74.85781,
+              12.82003
+            ],
+            [
+              74.85646,
+              12.82529
+            ],
+            [
+              74.85376,
+              12.83054
+            ],
+            [
+              74.84972,
+              12.8358
+            ],
+            [
+              74.84433,
+              12.84106
+            ],
+            [
+              74.83893,
+              12.84238
+            ],
+            [
+              74.83354,
+              12.84238
+            ],
+            [
+              74.82815,
+              12.83712
+            ],
+            [
+              74.82545,
+              12.83186
+            ],
+            [
+              74.8241,
+              12.8266
+            ],
+            [
+              74.8241,
+              12.82134
+            ],
+            [
+              74.8241,
+              12.81871
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-IXE-2023",
+        "name": "Gurupura Baikampady & Jokatte Flood",
+        "district": "Dakshina Kannada",
+        "state": "Karnataka",
+        "year": 2023,
+        "majorWaterbody": "Gurupura (Phalguni) River",
+        "primaryDriver": "Torrential Rainfall Catchment Runoff",
+        "recordedWaterLevelMetersMSL": 2.9,
+        "peakRainfall24hMm": 195.0,
+        "recordedAreaSqKm": 18.2,
+        "calculatedAreaSqKm": 27.01,
+        "casualtyCount": 1,
+        "economicLossCroreINR": 85.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.81152,
+              12.91079
+            ],
+            [
+              74.81324,
+              12.90238
+            ],
+            [
+              74.81842,
+              12.89397
+            ],
+            [
+              74.82705,
+              12.88556
+            ],
+            [
+              74.83568,
+              12.88051
+            ],
+            [
+              74.84432,
+              12.88051
+            ],
+            [
+              74.85295,
+              12.88556
+            ],
+            [
+              74.85812,
+              12.89397
+            ],
+            [
+              74.85985,
+              12.90238
+            ],
+            [
+              74.85812,
+              12.91079
+            ],
+            [
+              74.8564,
+              12.91921
+            ],
+            [
+              74.85295,
+              12.92762
+            ],
+            [
+              74.84432,
+              12.93603
+            ],
+            [
+              74.83568,
+              12.94108
+            ],
+            [
+              74.82705,
+              12.94276
+            ],
+            [
+              74.81842,
+              12.93603
+            ],
+            [
+              74.81324,
+              12.92762
+            ],
+            [
+              74.81152,
+              12.91921
+            ],
+            [
+              74.81152,
+              12.91079
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-UDU-2020",
+        "name": "Udupi Malpe & Swarna River Inundation",
+        "district": "Udupi",
+        "state": "Karnataka",
+        "year": 2020,
+        "majorWaterbody": "Swarna River & Malpe Port Channel",
+        "primaryDriver": "Cyclonic Cloudburst & Tidal Lock",
+        "recordedWaterLevelMetersMSL": 2.4,
+        "peakRainfall24hMm": 265.0,
+        "recordedAreaSqKm": 12.4,
+        "calculatedAreaSqKm": 16.28,
+        "casualtyCount": 3,
+        "economicLossCroreINR": 92.0,
+        "riskTier": "HIGH",
+        "riskColor": "#ea580c",
+        "strokeColor": "#c2410c",
+        "fillOpacity": 0.68,
+        "strokeWidth": 3.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.68208,
+              13.34773
+            ],
+            [
+              74.6835,
+              13.34217
+            ],
+            [
+              74.68636,
+              13.33662
+            ],
+            [
+              74.69064,
+              13.33106
+            ],
+            [
+              74.69635,
+              13.3269
+            ],
+            [
+              74.70206,
+              13.32412
+            ],
+            [
+              74.70777,
+              13.32412
+            ],
+            [
+              74.71348,
+              13.3269
+            ],
+            [
+              74.71776,
+              13.33245
+            ],
+            [
+              74.71919,
+              13.33801
+            ],
+            [
+              74.71919,
+              13.34356
+            ],
+            [
+              74.71776,
+              13.34912
+            ],
+            [
+              74.71633,
+              13.35467
+            ],
+            [
+              74.71348,
+              13.36023
+            ],
+            [
+              74.7092,
+              13.36578
+            ],
+            [
+              74.70349,
+              13.36995
+            ],
+            [
+              74.69778,
+              13.37273
+            ],
+            [
+              74.69207,
+              13.37273
+            ],
+            [
+              74.68779,
+              13.36717
+            ],
+            [
+              74.6835,
+              13.36162
+            ],
+            [
+              74.68208,
+              13.35606
+            ],
+            [
+              74.68208,
+              13.35051
+            ],
+            [
+              74.68208,
+              13.34773
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-COK-2018",
+        "name": "Kochi Vembanad & Willingdon Basin Surge",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "year": 2018,
+        "majorWaterbody": "Periyar River & Vembanad Backwaters",
+        "primaryDriver": "Extreme Monsoonal Dam Spill & Surge",
+        "recordedWaterLevelMetersMSL": 3.2,
+        "peakRainfall24hMm": 310.0,
+        "recordedAreaSqKm": 28.4,
+        "calculatedAreaSqKm": 44.37,
+        "casualtyCount": 48,
+        "economicLossCroreINR": 1850.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.22979,
+              9.95975
+            ],
+            [
+              76.23192,
+              9.94924
+            ],
+            [
+              76.23833,
+              9.93873
+            ],
+            [
+              76.24686,
+              9.92822
+            ],
+            [
+              76.25753,
+              9.92191
+            ],
+            [
+              76.2682,
+              9.92191
+            ],
+            [
+              76.27887,
+              9.92402
+            ],
+            [
+              76.28741,
+              9.93453
+            ],
+            [
+              76.28954,
+              9.94503
+            ],
+            [
+              76.28954,
+              9.95554
+            ],
+            [
+              76.28741,
+              9.96605
+            ],
+            [
+              76.28314,
+              9.97656
+            ],
+            [
+              76.27674,
+              9.98707
+            ],
+            [
+              76.26607,
+              9.99547
+            ],
+            [
+              76.2554,
+              9.99968
+            ],
+            [
+              76.24473,
+              9.99968
+            ],
+            [
+              76.23619,
+              9.98917
+            ],
+            [
+              76.22979,
+              9.97866
+            ],
+            [
+              76.22766,
+              9.96815
+            ],
+            [
+              76.22979,
+              9.95975
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-COK-2021",
+        "name": "Aluva & Fort Kochi Tidal Flood",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "year": 2021,
+        "majorWaterbody": "Periyar Delta & Arabian Sea",
+        "primaryDriver": "Spring Tide & Backwater Overflow",
+        "recordedWaterLevelMetersMSL": 2.6,
+        "peakRainfall24hMm": 185.0,
+        "recordedAreaSqKm": 15.6,
+        "calculatedAreaSqKm": 21.54,
+        "casualtyCount": 6,
+        "economicLossCroreINR": 210.0,
+        "riskTier": "HIGH",
+        "riskColor": "#ea580c",
+        "strokeColor": "#c2410c",
+        "fillOpacity": 0.68,
+        "strokeWidth": 3.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.21549,
+              9.96955
+            ],
+            [
+              76.21707,
+              9.96332
+            ],
+            [
+              76.22023,
+              9.95709
+            ],
+            [
+              76.22497,
+              9.95086
+            ],
+            [
+              76.2313,
+              9.94618
+            ],
+            [
+              76.23763,
+              9.94463
+            ],
+            [
+              76.24395,
+              9.94463
+            ],
+            [
+              76.25028,
+              9.94774
+            ],
+            [
+              76.25503,
+              9.95241
+            ],
+            [
+              76.25661,
+              9.95864
+            ],
+            [
+              76.25661,
+              9.96488
+            ],
+            [
+              76.25661,
+              9.97111
+            ],
+            [
+              76.25503,
+              9.97734
+            ],
+            [
+              76.25186,
+              9.98357
+            ],
+            [
+              76.2487,
+              9.9898
+            ],
+            [
+              76.24237,
+              9.99603
+            ],
+            [
+              76.23605,
+              9.99914
+            ],
+            [
+              76.22972,
+              9.99914
+            ],
+            [
+              76.22339,
+              9.99603
+            ],
+            [
+              76.21865,
+              9.9898
+            ],
+            [
+              76.21549,
+              9.98357
+            ],
+            [
+              76.21549,
+              9.97734
+            ],
+            [
+              76.21549,
+              9.97111
+            ],
+            [
+              76.21549,
+              9.96955
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-MAA-2015",
+        "name": "Chennai Great Adyar Delta Deluge",
+        "district": "Chennai",
+        "state": "Tamil Nadu",
+        "year": 2015,
+        "majorWaterbody": "Adyar River & Chembarambakkam Reservoir",
+        "primaryDriver": "Extreme Pluvial Cloudburst & Estuary Surcharge",
+        "recordedWaterLevelMetersMSL": 3.4,
+        "peakRainfall24hMm": 494.0,
+        "recordedAreaSqKm": 38.5,
+        "calculatedAreaSqKm": 62.33,
+        "casualtyCount": 289,
+        "economicLossCroreINR": 8500.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              80.21105,
+              13.00644
+            ],
+            [
+              80.21607,
+              12.9942
+            ],
+            [
+              80.22361,
+              12.98196
+            ],
+            [
+              80.23365,
+              12.97218
+            ],
+            [
+              80.24621,
+              12.96484
+            ],
+            [
+              80.25877,
+              12.96484
+            ],
+            [
+              80.27133,
+              12.96728
+            ],
+            [
+              80.28137,
+              12.97707
+            ],
+            [
+              80.28388,
+              12.98931
+            ],
+            [
+              80.28388,
+              13.00154
+            ],
+            [
+              80.28388,
+              13.01378
+            ],
+            [
+              80.27886,
+              13.02601
+            ],
+            [
+              80.27133,
+              13.03825
+            ],
+            [
+              80.25877,
+              13.05048
+            ],
+            [
+              80.24621,
+              13.05538
+            ],
+            [
+              80.23365,
+              13.05538
+            ],
+            [
+              80.22109,
+              13.04559
+            ],
+            [
+              80.21356,
+              13.03335
+            ],
+            [
+              80.21105,
+              13.02112
+            ],
+            [
+              80.21105,
+              13.00888
+            ],
+            [
+              80.21105,
+              13.00644
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-MAA-2023",
+        "name": "Chennai Cyclone Michaung Cooum Inundation",
+        "district": "Chennai",
+        "state": "Tamil Nadu",
+        "year": 2023,
+        "majorWaterbody": "Cooum River & Buckingham Canal",
+        "primaryDriver": "Tropical Cyclone Michaung Surge",
+        "recordedWaterLevelMetersMSL": 3.1,
+        "peakRainfall24hMm": 340.0,
+        "recordedAreaSqKm": 32.0,
+        "calculatedAreaSqKm": 49.13,
+        "casualtyCount": 17,
+        "economicLossCroreINR": 3200.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              80.23221,
+              13.07442
+            ],
+            [
+              80.2345,
+              13.06327
+            ],
+            [
+              80.24137,
+              13.05211
+            ],
+            [
+              80.25053,
+              13.04096
+            ],
+            [
+              80.26198,
+              13.03427
+            ],
+            [
+              80.27344,
+              13.03427
+            ],
+            [
+              80.28489,
+              13.03873
+            ],
+            [
+              80.29405,
+              13.04765
+            ],
+            [
+              80.29634,
+              13.05881
+            ],
+            [
+              80.29634,
+              13.06996
+            ],
+            [
+              80.29405,
+              13.08112
+            ],
+            [
+              80.28947,
+              13.09227
+            ],
+            [
+              80.2826,
+              13.10343
+            ],
+            [
+              80.27115,
+              13.11235
+            ],
+            [
+              80.25969,
+              13.11681
+            ],
+            [
+              80.24824,
+              13.11681
+            ],
+            [
+              80.23908,
+              13.10566
+            ],
+            [
+              80.2345,
+              13.0945
+            ],
+            [
+              80.23221,
+              13.08335
+            ],
+            [
+              80.23221,
+              13.07442
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-BOM-2005",
+        "name": "Mumbai Great Mithi River Cloudburst",
+        "district": "Mumbai Suburban",
+        "state": "Maharashtra",
+        "year": 2005,
+        "majorWaterbody": "Mithi River & Mahim Creek",
+        "primaryDriver": "Historic Pluvial Cloudburst & 4.4m High Tide",
+        "recordedWaterLevelMetersMSL": 4.5,
+        "peakRainfall24hMm": 944.0,
+        "recordedAreaSqKm": 46.0,
+        "calculatedAreaSqKm": 90.61,
+        "casualtyCount": 1094,
+        "economicLossCroreINR": 12000.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.78982,
+              19.02831
+            ],
+            [
+              72.79265,
+              19.01494
+            ],
+            [
+              72.80114,
+              19.00156
+            ],
+            [
+              72.81246,
+              18.98819
+            ],
+            [
+              72.82661,
+              18.98017
+            ],
+            [
+              72.84076,
+              18.98017
+            ],
+            [
+              72.8549,
+              18.98017
+            ],
+            [
+              72.86905,
+              18.98017
+            ],
+            [
+              72.88037,
+              18.99354
+            ],
+            [
+              72.8832,
+              19.00691
+            ],
+            [
+              72.8832,
+              19.02029
+            ],
+            [
+              72.88037,
+              19.03366
+            ],
+            [
+              72.87471,
+              19.04704
+            ],
+            [
+              72.86905,
+              19.06041
+            ],
+            [
+              72.85773,
+              19.07378
+            ],
+            [
+              72.84359,
+              19.08181
+            ],
+            [
+              72.82944,
+              19.08448
+            ],
+            [
+              72.81529,
+              19.08448
+            ],
+            [
+              72.80114,
+              19.07111
+            ],
+            [
+              72.79548,
+              19.05774
+            ],
+            [
+              72.78982,
+              19.04436
+            ],
+            [
+              72.78982,
+              19.03099
+            ],
+            [
+              72.78982,
+              19.02831
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-BOM-2023",
+        "name": "Mumbai Mahim & Kurla Monsoon Ingress",
+        "district": "Mumbai Suburban",
+        "state": "Maharashtra",
+        "year": 2023,
+        "majorWaterbody": "Mithi River & Arabian Sea",
+        "primaryDriver": "Tidal Confluence & Drainage Saturation",
+        "recordedWaterLevelMetersMSL": 2.75,
+        "peakRainfall24hMm": 215.0,
+        "recordedAreaSqKm": 19.5,
+        "calculatedAreaSqKm": 27.66,
+        "casualtyCount": 5,
+        "economicLossCroreINR": 450.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8346,
+              19.05565
+            ],
+            [
+              72.83828,
+              19.04694
+            ],
+            [
+              72.84381,
+              19.03823
+            ],
+            [
+              72.85118,
+              19.02952
+            ],
+            [
+              72.86039,
+              19.0243
+            ],
+            [
+              72.86961,
+              19.0243
+            ],
+            [
+              72.87882,
+              19.02952
+            ],
+            [
+              72.88435,
+              19.03823
+            ],
+            [
+              72.88435,
+              19.04694
+            ],
+            [
+              72.88435,
+              19.05565
+            ],
+            [
+              72.8825,
+              19.06435
+            ],
+            [
+              72.87698,
+              19.07306
+            ],
+            [
+              72.86961,
+              19.08177
+            ],
+            [
+              72.86039,
+              19.08699
+            ],
+            [
+              72.85118,
+              19.08699
+            ],
+            [
+              72.84381,
+              19.08177
+            ],
+            [
+              72.83828,
+              19.07306
+            ],
+            [
+              72.8346,
+              19.06435
+            ],
+            [
+              72.8346,
+              19.05565
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-SUR-2006",
+        "name": "Surat Tapi River & Ukai Dam Release Deluge",
+        "district": "Surat",
+        "state": "Gujarat",
+        "year": 2006,
+        "majorWaterbody": "Tapi River & Gulf of Khambhat",
+        "primaryDriver": "Upstream Dam Release & High Spring Tide",
+        "recordedWaterLevelMetersMSL": 4.8,
+        "peakRainfall24hMm": 285.0,
+        "recordedAreaSqKm": 65.0,
+        "calculatedAreaSqKm": 133.17,
+        "casualtyCount": 150,
+        "economicLossCroreINR": 4500.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.7612,
+              21.16225
+            ],
+            [
+              72.76802,
+              21.14317
+            ],
+            [
+              72.78166,
+              21.1241
+            ],
+            [
+              72.79871,
+              21.10502
+            ],
+            [
+              72.81917,
+              21.10502
+            ],
+            [
+              72.83962,
+              21.10502
+            ],
+            [
+              72.86008,
+              21.10502
+            ],
+            [
+              72.87372,
+              21.12092
+            ],
+            [
+              72.87713,
+              21.13999
+            ],
+            [
+              72.87713,
+              21.15907
+            ],
+            [
+              72.87372,
+              21.17815
+            ],
+            [
+              72.86349,
+              21.19723
+            ],
+            [
+              72.84644,
+              21.2163
+            ],
+            [
+              72.82599,
+              21.22902
+            ],
+            [
+              72.80553,
+              21.2322
+            ],
+            [
+              72.78507,
+              21.22266
+            ],
+            [
+              72.77143,
+              21.20359
+            ],
+            [
+              72.76461,
+              21.18451
+            ],
+            [
+              72.7612,
+              21.16543
+            ],
+            [
+              72.7612,
+              21.16225
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-PUR-2019",
+        "name": "Puri Cyclone Fani Coastal Storm Surge",
+        "district": "Puri",
+        "state": "Odisha",
+        "year": 2019,
+        "majorWaterbody": "Mahanadi Delta & Bay of Bengal",
+        "primaryDriver": "Category 5 Extremely Severe Cyclone Fani",
+        "recordedWaterLevelMetersMSL": 4.2,
+        "peakRainfall24hMm": 240.0,
+        "recordedAreaSqKm": 52.0,
+        "calculatedAreaSqKm": 96.77,
+        "casualtyCount": 64,
+        "economicLossCroreINR": 6200.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              85.77528,
+              19.80639
+            ],
+            [
+              85.7783,
+              19.79217
+            ],
+            [
+              85.78435,
+              19.77795
+            ],
+            [
+              85.79946,
+              19.76373
+            ],
+            [
+              85.81457,
+              19.7552
+            ],
+            [
+              85.82969,
+              19.7552
+            ],
+            [
+              85.8448,
+              19.7552
+            ],
+            [
+              85.85992,
+              19.76089
+            ],
+            [
+              85.86899,
+              19.77511
+            ],
+            [
+              85.86899,
+              19.78933
+            ],
+            [
+              85.86899,
+              19.80355
+            ],
+            [
+              85.86596,
+              19.81777
+            ],
+            [
+              85.85992,
+              19.83199
+            ],
+            [
+              85.85085,
+              19.84621
+            ],
+            [
+              85.83573,
+              19.86042
+            ],
+            [
+              85.82062,
+              19.86611
+            ],
+            [
+              85.80551,
+              19.86611
+            ],
+            [
+              85.79039,
+              19.85474
+            ],
+            [
+              85.78132,
+              19.84052
+            ],
+            [
+              85.77528,
+              19.8263
+            ],
+            [
+              85.77225,
+              19.81208
+            ],
+            [
+              85.77528,
+              19.80639
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-KOL-2020",
+        "name": "Kolkata Cyclone Amphan Hooghly Estuary Surge",
+        "district": "Kolkata",
+        "state": "West Bengal",
+        "year": 2020,
+        "majorWaterbody": "Hooghly River & Sundarbans Estuary",
+        "primaryDriver": "Super Cyclonic Storm Amphan",
+        "recordedWaterLevelMetersMSL": 3.8,
+        "peakRainfall24hMm": 260.0,
+        "recordedAreaSqKm": 44.0,
+        "calculatedAreaSqKm": 76.16,
+        "casualtyCount": 86,
+        "economicLossCroreINR": 7500.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              88.31149,
+              22.56606
+            ],
+            [
+              88.31715,
+              22.55298
+            ],
+            [
+              88.32282,
+              22.5399
+            ],
+            [
+              88.33699,
+              22.52682
+            ],
+            [
+              88.35115,
+              22.51897
+            ],
+            [
+              88.36532,
+              22.51897
+            ],
+            [
+              88.37948,
+              22.51897
+            ],
+            [
+              88.39365,
+              22.52944
+            ],
+            [
+              88.39931,
+              22.54252
+            ],
+            [
+              88.39931,
+              22.5556
+            ],
+            [
+              88.39648,
+              22.56868
+            ],
+            [
+              88.39365,
+              22.58176
+            ],
+            [
+              88.38515,
+              22.59484
+            ],
+            [
+              88.37382,
+              22.60792
+            ],
+            [
+              88.35965,
+              22.61576
+            ],
+            [
+              88.34549,
+              22.61838
+            ],
+            [
+              88.33132,
+              22.61315
+            ],
+            [
+              88.31999,
+              22.60007
+            ],
+            [
+              88.31432,
+              22.58699
+            ],
+            [
+              88.31149,
+              22.57391
+            ],
+            [
+              88.31149,
+              22.56606
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-VZG-2014",
+        "name": "Visakhapatnam Cyclone Hudhud Tidal Ingress",
+        "district": "Visakhapatnam",
+        "state": "Andhra Pradesh",
+        "year": 2014,
+        "majorWaterbody": "Meghadrigedda River & Bay of Bengal",
+        "primaryDriver": "Very Severe Cyclonic Storm Hudhud",
+        "recordedWaterLevelMetersMSL": 3.9,
+        "peakRainfall24hMm": 290.0,
+        "recordedAreaSqKm": 24.0,
+        "calculatedAreaSqKm": 42.93,
+        "casualtyCount": 49,
+        "economicLossCroreINR": 3800.0,
+        "riskTier": "CRITICAL",
+        "riskColor": "#dc2626",
+        "strokeColor": "#991b1b",
+        "fillOpacity": 0.75,
+        "strokeWidth": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              83.18098,
+              17.68197
+            ],
+            [
+              83.18301,
+              17.67231
+            ],
+            [
+              83.1891,
+              17.66265
+            ],
+            [
+              83.19721,
+              17.65299
+            ],
+            [
+              83.20735,
+              17.64719
+            ],
+            [
+              83.21749,
+              17.64719
+            ],
+            [
+              83.22763,
+              17.64719
+            ],
+            [
+              83.23777,
+              17.65106
+            ],
+            [
+              83.24182,
+              17.66072
+            ],
+            [
+              83.24385,
+              17.67038
+            ],
+            [
+              83.24385,
+              17.68004
+            ],
+            [
+              83.24182,
+              17.6897
+            ],
+            [
+              83.23777,
+              17.69936
+            ],
+            [
+              83.22965,
+              17.70902
+            ],
+            [
+              83.21951,
+              17.71868
+            ],
+            [
+              83.20937,
+              17.72061
+            ],
+            [
+              83.19923,
+              17.72061
+            ],
+            [
+              83.19112,
+              17.71288
+            ],
+            [
+              83.18504,
+              17.70322
+            ],
+            [
+              83.18098,
+              17.69356
+            ],
+            [
+              83.18098,
+              17.6839
+            ],
+            [
+              83.18098,
+              17.68197
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "eventId": "FLD-GOA-2021",
+        "name": "Goa Mandovi River & Panaji Waterfront Surge",
+        "district": "North Goa",
+        "state": "Goa",
+        "year": 2021,
+        "majorWaterbody": "Mandovi River & Arabian Sea",
+        "primaryDriver": "Prolonged Monsoon Runoff & High Tide",
+        "recordedWaterLevelMetersMSL": 2.3,
+        "peakRainfall24hMm": 225.0,
+        "recordedAreaSqKm": 11.2,
+        "calculatedAreaSqKm": 14.45,
+        "casualtyCount": 2,
+        "economicLossCroreINR": 80.0,
+        "riskTier": "HIGH",
+        "riskColor": "#ea580c",
+        "strokeColor": "#c2410c",
+        "fillOpacity": 0.68,
+        "strokeWidth": 3.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.80657,
+              15.4876
+            ],
+            [
+              73.80794,
+              15.48232
+            ],
+            [
+              73.81068,
+              15.47704
+            ],
+            [
+              73.81479,
+              15.47176
+            ],
+            [
+              73.82027,
+              15.4678
+            ],
+            [
+              73.82575,
+              15.46516
+            ],
+            [
+              73.83122,
+              15.46516
+            ],
+            [
+              73.8367,
+              15.4678
+            ],
+            [
+              73.84081,
+              15.47308
+            ],
+            [
+              73.84218,
+              15.47836
+            ],
+            [
+              73.84218,
+              15.48364
+            ],
+            [
+              73.84081,
+              15.48892
+            ],
+            [
+              73.83944,
+              15.4942
+            ],
+            [
+              73.8367,
+              15.49948
+            ],
+            [
+              73.83259,
+              15.50476
+            ],
+            [
+              73.82712,
+              15.50872
+            ],
+            [
+              73.82164,
+              15.51004
+            ],
+            [
+              73.81616,
+              15.51004
+            ],
+            [
+              73.81205,
+              15.50608
+            ],
+            [
+              73.80931,
+              15.5008
+            ],
+            [
+              73.80657,
+              15.49552
+            ],
+            [
+              73.80657,
+              15.49024
+            ],
+            [
+              73.80657,
+              15.4876
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

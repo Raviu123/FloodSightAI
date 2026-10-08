@@ -1,0 +1,16 @@
+event_id,event_name,district,state,latitude,longitude,year,start_date,end_date,recorded_flood_level_msl,peak_rainfall_24h_mm,historical_area_sqkm,major_waterbody,primary_driver,casualty_count,economic_loss_crore_inr
+FLD-IXE-2018,Mangalore Netravati Estuary & Spit Surge,Dakshina Kannada,Karnataka,12.8552,74.8384,2018,2018-05-29,2018-06-02,2.80,248.5,14.50,Netravati River & Arabian Sea,Monsoon Pluvial Surge & High Tide,4,125.0
+FLD-IXE-2019,Ullal & Kotepura Coastal Depression,Dakshina Kannada,Karnataka,12.8220,74.8450,2019,2019-08-08,2019-08-12,2.45,212.0,9.80,Netravati Estuarine Basin,Sea Surge Overtopping & River Inflow,2,65.0
+FLD-IXE-2023,Gurupura Baikampady & Jokatte Flood,Dakshina Kannada,Karnataka,12.9150,74.8400,2023,2023-07-06,2023-07-09,2.90,195.0,18.20,Gurupura (Phalguni) River,Torrential Rainfall Catchment Runoff,1,85.0
+FLD-UDU-2020,Udupi Malpe & Swarna River Inundation,Udupi,Karnataka,13.3512,74.7042,2020,2020-09-19,2020-09-22,2.40,265.0,12.40,Swarna River & Malpe Port Channel,Cyclonic Cloudburst & Tidal Lock,3,92.0
+FLD-COK-2018,Kochi Vembanad & Willingdon Basin Surge,Ernakulam,Kerala,9.9650,76.2650,2018,2018-08-14,2018-08-20,3.20,310.0,28.40,Periyar River & Vembanad Backwaters,Extreme Monsoonal Dam Spill & Surge,48,1850.0
+FLD-COK-2021,Aluva & Fort Kochi Tidal Flood,Ernakulam,Kerala,9.9750,76.2400,2021,2021-10-16,2021-10-19,2.60,185.0,15.60,Periyar Delta & Arabian Sea,Spring Tide & Backwater Overflow,6,210.0
+FLD-MAA-2015,Chennai Great Adyar Delta Deluge,Chennai,Tamil Nadu,13.0150,80.2550,2015,2015-11-30,2015-12-05,3.40,494.0,38.50,Adyar River & Chembarambakkam Reservoir,Extreme Pluvial Cloudburst & Estuary Surcharge,289,8500.0
+FLD-MAA-2023,Chennai Cyclone Michaung Cooum Inundation,Chennai,Tamil Nadu,13.0800,80.2700,2023,2023-12-03,2023-12-06,3.10,340.0,32.00,Cooum River & Buckingham Canal,Tropical Cyclone Michaung Surge,17,3200.0
+FLD-BOM-2005,Mumbai Great Mithi River Cloudburst,Mumbai Suburban,Maharashtra,19.0350,72.8450,2005,2005-07-26,2005-07-28,4.50,944.0,46.00,Mithi River & Mahim Creek,Historic Pluvial Cloudburst & 4.4m High Tide,1094,12000.0
+FLD-BOM-2023,Mumbai Mahim & Kurla Monsoon Ingress,Mumbai Suburban,Maharashtra,19.0600,72.8650,2023,2023-07-19,2023-07-22,2.75,215.0,19.50,Mithi River & Arabian Sea,Tidal Confluence & Drainage Saturation,5,450.0
+FLD-SUR-2006,Surat Tapi River & Ukai Dam Release Deluge,Surat,Gujarat,21.1702,72.8311,2006,2006-08-07,2006-08-11,4.80,285.0,65.00,Tapi River & Gulf of Khambhat,Upstream Dam Release & High Spring Tide,150,4500.0
+FLD-PUR-2019,Puri Cyclone Fani Coastal Storm Surge,Puri,Odisha,19.8135,85.8312,2019,2019-05-02,2019-05-05,4.20,240.0,52.00,Mahanadi Delta & Bay of Bengal,Category 5 Extremely Severe Cyclone Fani,64,6200.0
+FLD-KOL-2020,Kolkata Cyclone Amphan Hooghly Estuary Surge,Kolkata,West Bengal,22.5726,88.3639,2020,2020-05-20,2020-05-22,3.80,260.0,44.00,Hooghly River & Sundarbans Estuary,Super Cyclonic Storm Amphan,86,7500.0
+FLD-VZG-2014,Visakhapatnam Cyclone Hudhud Tidal Ingress,Visakhapatnam,Andhra Pradesh,17.6868,83.2185,2014,2014-10-12,2014-10-15,3.90,290.0,24.00,Meghadrigedda River & Bay of Bengal,Very Severe Cyclonic Storm Hudhud,49,3800.0
+FLD-GOA-2021,Goa Mandovi River & Panaji Waterfront Surge,North Goa,Goa,15.4909,73.8278,2021,2021-07-22,2021-07-25,2.30,225.0,11.20,Mandovi River & Arabian Sea,Prolonged Monsoon Runoff & High Tide,2,80.0
