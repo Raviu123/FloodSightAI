@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Info, ChevronDown, ChevronUp, ShieldAlert, Crosshair, Navigation, Waves } from "lucide-react";
+import { ChevronDown, ChevronUp, Crosshair } from "lucide-react";
 
 export function MapLegend() {
   const [isOpen, setIsOpen] = useState(true);
@@ -14,7 +14,7 @@ export function MapLegend() {
       >
         <div className="flex items-center gap-1.5">
           <Crosshair className="h-3.5 w-3.5 text-sky-400" />
-          <span>Symbology Key</span>
+          <span>Flood Symbology Key</span>
         </div>
         <button className="text-zinc-500 hover:text-zinc-300">
           {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
@@ -26,24 +26,24 @@ export function MapLegend() {
           {/* Threat Zones */}
           <div>
             <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
-              Risk Classification
+              Topographic Risk Tiers (DEM)
             </span>
-            <div className="grid grid-cols-2 gap-1 text-[10px]">
+            <div className="grid grid-cols-2 gap-1.5 text-[10px]">
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-xs bg-rose-500 border border-rose-400" />
-                <span className="text-zinc-300">Critical Threat</span>
+                <span className="h-2.5 w-2.5 rounded-xs bg-[#dc2626] border border-rose-400" />
+                <span className="text-zinc-300">Extreme (&lt;1.0m MSL)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-xs bg-amber-500 border border-amber-400" />
-                <span className="text-zinc-300">High Risk</span>
+                <span className="h-2.5 w-2.5 rounded-xs bg-[#ea580c] border border-orange-400" />
+                <span className="text-zinc-300">Danger (1.0 - 2.5m)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-xs bg-yellow-500 border border-yellow-400" />
-                <span className="text-zinc-300">Moderate</span>
+                <span className="h-2.5 w-2.5 rounded-xs bg-[#eab308] border border-yellow-400" />
+                <span className="text-zinc-300">Warning (2.5 - 5.0m)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500 border border-emerald-400" />
-                <span className="text-zinc-300">Safe Ridge</span>
+                <span className="h-2.5 w-2.5 rounded-xs bg-[#10b981] border border-emerald-400" />
+                <span className="text-zinc-300">Safe Ridge (&gt;15m)</span>
               </div>
             </div>
           </div>
@@ -51,12 +51,12 @@ export function MapLegend() {
           {/* Dynamic Vectors */}
           <div>
             <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
-              Dynamics & Corridors
+              Hydrology & Corridors
             </span>
             <div className="space-y-1 text-[10px]">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-4 rounded-xs bg-sky-400/80 border border-sky-300" />
-                <span className="text-zinc-300">Dynamic Inundation Layer</span>
+                <span className="h-1.5 w-4 rounded-xs bg-cyan-400 border border-cyan-300" />
+                <span className="text-zinc-300">Active River Channels</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-1.5 w-4 rounded-full bg-emerald-400" />

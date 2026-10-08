@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import {
   BASE_MAP_STYLES,
   type BaseMapStyleId,
@@ -11,12 +12,15 @@ import {
   EVACUATION_ROUTES_GEOJSON,
   generateFloodInundationGeoJSON,
   calculateDynamicZoneTilesGeoJSON,
+  calculateDynamicZoneCentroidsGeoJSON,
+  REAL_DEM_ZONE_TILES_RAW,
   REGION_PRESETS,
   type RegionPreset,
 } from "@/data/coastal-map-data";
 import { MapLayerControls, type MapLayerState } from "./MapLayerControls";
 import { MapLegend } from "./MapLegend";
 import { MapQuickJumper } from "./MapQuickJumper";
+import { Crosshair, ShieldAlert, ChevronRight } from "lucide-react";
 
 export interface MapLibreMapProps {
   tideLevel?: number;
@@ -41,7 +45,7 @@ export function MapLibreMap({
   const [activeRegionId, setActiveRegionId] = useState<string>("mangalore");
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Set dangerZones and floodInundation as primary visible layers
+  // Layer toggles state
   const [layers, setLayers] = useState<MapLayerState>({
     dangerZones: true,
     lowLyingAreas: false,
@@ -58,10 +62,49 @@ export function MapLibreMap({
     return found ? found.styleObject : BASE_MAP_STYLES[0].styleObject;
   };
 
+  const updateLayerVisibilities = (map: maplibregl.Map, lState: MapLayerState) => {
+    if (!map) return;
+
+    const setVis = (layerId: string, visible: boolean) => {
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
+      }
+    };
+
+    setVis("danger-zones-layer-fill", lState.dangerZones);
+    setVis("danger-zones-layer-stroke", lState.dangerZones);
+    setVis("danger-zones-centroids-halo", lState.dangerZones);
+    setVis("danger-zones-centroids-circle", lState.dangerZones);
+    setVis("low-lying-layer-fill", lState.lowLyingAreas);
+    setVis("water-bodies-layer-line", lState.waterBodies);
+    setVis("evacuation-routes-layer-line", lState.evacuationRoutes);
+    setVis("critical-facilities-layer-circle", lState.facilities);
+    setVis("flood-inundation-layer-fill", lState.floodInundation);
+    setVis("flood-inundation-layer-stroke", lState.floodInundation);
+  };
+
   const addAllLayers = useCallback((map: maplibregl.Map) => {
     if (!map) return;
 
-    // 1. Dynamic Flood Inundation Simulation Layer
+    // 1. Low-lying Areas (Contour depression)
+    if (!map.getSource("low-lying-source")) {
+      map.addSource("low-lying-source", {
+        type: "geojson",
+        data: LOW_LYING_AREAS_GEOJSON,
+      });
+
+      map.addLayer({
+        id: "low-lying-layer-fill",
+        type: "fill",
+        source: "low-lying-source",
+        paint: {
+          "fill-color": ["get", "color"],
+          "fill-opacity": ["get", "opacity"],
+        },
+      });
+    }
+
+    // 2. Dynamic Flood Inundation Simulation Layer
     if (!map.getSource("flood-inundation-source")) {
       map.addSource("flood-inundation-source", {
         type: "geojson",
@@ -74,7 +117,7 @@ export function MapLibreMap({
         source: "flood-inundation-source",
         paint: {
           "fill-color": "#38bdf8",
-          "fill-opacity": layers.layerOpacity * 0.45,
+          "fill-opacity": 0.35,
         },
       });
 
@@ -90,7 +133,7 @@ export function MapLibreMap({
       });
     }
 
-    // 2. Real DEM Elevation Danger Zones (High visibility color-coded polygon tiles)
+    // 3. Real DEM Elevation Danger Zones (Polygons - Google Flood Hub Style)
     if (!map.getSource("danger-zones-source")) {
       map.addSource("danger-zones-source", {
         type: "geojson",
@@ -103,7 +146,7 @@ export function MapLibreMap({
         source: "danger-zones-source",
         paint: {
           "fill-color": ["get", "riskColor"],
-          "fill-opacity": layers.layerOpacity * 0.70,
+          "fill-opacity": ["get", "fillOpacity"],
         },
       });
 
@@ -112,31 +155,44 @@ export function MapLibreMap({
         type: "line",
         source: "danger-zones-source",
         paint: {
-          "line-color": ["get", "riskColor"],
-          "line-width": 3.0,
+          "line-color": ["get", "strokeColor"],
+          "line-width": ["get", "strokeWidth"],
         },
       });
     }
 
-    // 3. Low-lying Areas (Contour depression)
-    if (!map.getSource("low-lying-source")) {
-      map.addSource("low-lying-source", {
+    // 4. Danger Zone Centroid Beacons / Badges
+    if (!map.getSource("danger-zones-centroids-source")) {
+      map.addSource("danger-zones-centroids-source", {
         type: "geojson",
-        data: LOW_LYING_AREAS_GEOJSON,
+        data: calculateDynamicZoneCentroidsGeoJSON(tideLevel, rainfall),
       });
 
       map.addLayer({
-        id: "low-lying-layer-fill",
-        type: "fill",
-        source: "low-lying-source",
+        id: "danger-zones-centroids-halo",
+        type: "circle",
+        source: "danger-zones-centroids-source",
         paint: {
-          "fill-color": ["get", "color"],
-          "fill-opacity": ["*", layers.layerOpacity * 0.35, ["get", "opacity"]],
+          "circle-radius": 14,
+          "circle-color": ["get", "riskColor"],
+          "circle-opacity": 0.40,
+        },
+      });
+
+      map.addLayer({
+        id: "danger-zones-centroids-circle",
+        type: "circle",
+        source: "danger-zones-centroids-source",
+        paint: {
+          "circle-radius": 8,
+          "circle-color": ["get", "riskColor"],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#ffffff",
         },
       });
     }
 
-    // 4. Water Bodies & Ingress Channels
+    // 5. Water Bodies & Ingress Channels
     if (!map.getSource("water-bodies-source")) {
       map.addSource("water-bodies-source", {
         type: "geojson",
@@ -155,7 +211,7 @@ export function MapLibreMap({
       });
     }
 
-    // 5. Evacuation Routes
+    // 6. Evacuation Routes
     if (!map.getSource("evacuation-routes-source")) {
       map.addSource("evacuation-routes-source", {
         type: "geojson",
@@ -174,7 +230,7 @@ export function MapLibreMap({
       });
     }
 
-    // 6. Critical Facilities
+    // 7. Critical Facilities
     if (!map.getSource("critical-facilities-source")) {
       map.addSource("critical-facilities-source", {
         type: "geojson",
@@ -197,33 +253,41 @@ export function MapLibreMap({
     updateLayerVisibilities(map, layers);
   }, [tideLevel, rainfall, layers]);
 
-  const updateLayerVisibilities = (map: maplibregl.Map, lState: MapLayerState) => {
-    if (!map) return;
+  const openZonePopup = (props: any, lngLat: maplibregl.LngLatLike, map: maplibregl.Map) => {
+    if (popupRef.current) popupRef.current.remove();
 
-    const setVis = (layerId: string, visible: boolean) => {
-      if (map.getLayer(layerId)) {
-        map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
-      }
-    };
+    const popupHtml = `
+      <div class="p-3.5 space-y-2 text-zinc-100 min-w-[280px] font-mono">
+        <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
+          <span class="font-bold text-xs text-sky-400">${props.id}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${props.riskColor}26; color: ${props.riskColor}; border: 1px solid ${props.riskColor}60">
+            ${props.riskLevel}
+          </span>
+        </div>
+        <div class="font-sans font-bold text-xs leading-snug text-white">${props.name}</div>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] pt-1 text-zinc-300 border-t border-zinc-850">
+          <div>DEM Altitude: <b class="text-white">${props.elevationMeters}m MSL</b></div>
+          <div>Coast Distance: <b class="text-sky-300">${props.distanceToSeaKm} km</b></div>
+          <div>Inundation: <b class="text-amber-400">${props.inundationDepth || "0.0m"}</b></div>
+          <div>Threat Index: <b class="text-rose-400">${props.threatScore || 75}/100</b></div>
+          <div>Population: <b class="text-white">${Number(props.population).toLocaleString()}</b></div>
+          <div>Critical Hubs: <b class="text-white">${props.criticalFacilitiesCount || 2}</b></div>
+        </div>
+        <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
+          Shelter Hub: <span class="text-emerald-300 font-semibold">${props.evacuationHub || "Designated Highland Hub"}</span>
+        </div>
+        <div class="text-[10px] text-zinc-400 font-sans">
+          Directive: <span class="text-sky-300 font-medium">${props.actionProtocol || "Monitor Inundation"}</span>
+        </div>
+      </div>
+    `;
 
-    setVis("danger-zones-layer-fill", lState.dangerZones);
-    setVis("danger-zones-layer-stroke", lState.dangerZones);
-    setVis("low-lying-layer-fill", lState.lowLyingAreas);
-    setVis("water-bodies-layer-line", lState.waterBodies);
-    setVis("evacuation-routes-layer-line", lState.evacuationRoutes);
-    setVis("critical-facilities-layer-circle", lState.facilities);
-    setVis("flood-inundation-layer-fill", lState.floodInundation);
-    setVis("flood-inundation-layer-stroke", lState.floodInundation);
+    popupRef.current = new maplibregl.Popup({ offset: 12 })
+      .setLngLat(lngLat)
+      .setHTML(popupHtml)
+      .addTo(map);
 
-    if (map.getLayer("danger-zones-layer-fill")) {
-      map.setPaintProperty("danger-zones-layer-fill", "fill-opacity", lState.layerOpacity * 0.70);
-    }
-    if (map.getLayer("flood-inundation-layer-fill")) {
-      map.setPaintProperty("flood-inundation-layer-fill", "fill-opacity", lState.layerOpacity * 0.45);
-    }
-    if (map.getLayer("low-lying-layer-fill")) {
-      map.setPaintProperty("low-lying-layer-fill", "fill-opacity", lState.layerOpacity * 0.35);
-    }
+    if (onZoneSelect) onZoneSelect(props);
   };
 
   useEffect(() => {
@@ -250,46 +314,17 @@ export function MapLibreMap({
       setMapLoaded(true);
     });
 
-    // Click handler for Danger Zones (NASA SRTM Telemetry Popup)
+    // Click handler for Danger Zones Polygon
     map.on("click", "danger-zones-layer-fill", (e) => {
       if (!e.features || !e.features[0]) return;
-      const feature = e.features[0];
-      const props = feature.properties as any;
+      openZonePopup(e.features[0].properties, e.lngLat, map);
+    });
 
-      if (popupRef.current) popupRef.current.remove();
-
-      const popupHtml = `
-        <div class="p-3.5 space-y-2 text-zinc-100 min-w-[260px] font-mono">
-          <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
-            <span class="font-bold text-xs text-sky-400">${props.id}</span>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${props.riskColor}26; color: ${props.riskColor}; border: 1px solid ${props.riskColor}60">
-              ${props.riskLevel}
-            </span>
-          </div>
-          <div class="font-sans font-bold text-xs leading-snug text-white">${props.name}</div>
-          <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] pt-1 text-zinc-300 border-t border-zinc-850">
-            <div>DEM Altitude: <b class="text-white">${props.elevationMeters}m MSL</b></div>
-            <div>Coast Distance: <b class="text-sky-300">${props.distanceToSeaKm} km</b></div>
-            <div>Inundation: <b class="text-amber-400">${props.inundationDepth || "0.0m"}</b></div>
-            <div>Threat Index: <b class="text-rose-400">${props.threatScore || 75}/100</b></div>
-            <div>Population: <b class="text-white">${Number(props.population).toLocaleString()}</b></div>
-            <div>Critical Hubs: <b class="text-white">${props.criticalFacilitiesCount || 2}</b></div>
-          </div>
-          <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
-            Shelter Hub: <span class="text-emerald-300 font-semibold">${props.evacuationHub || "Designated Highland Hub"}</span>
-          </div>
-          <div class="text-[10px] text-zinc-400 font-sans">
-            Directive: <span class="text-sky-300 font-medium">${props.actionProtocol || "Monitor Inundation"}</span>
-          </div>
-        </div>
-      `;
-
-      popupRef.current = new maplibregl.Popup({ offset: 12 })
-        .setLngLat(e.lngLat)
-        .setHTML(popupHtml)
-        .addTo(map);
-
-      if (onZoneSelect) onZoneSelect(props);
+    // Click handler for Danger Zones Centroid Badge
+    map.on("click", "danger-zones-centroids-circle", (e) => {
+      if (!e.features || !e.features[0]) return;
+      const coords = (e.features[0].geometry as any).coordinates.slice();
+      openZonePopup(e.features[0].properties, coords, map);
     });
 
     // Click handler for Critical Facilities
@@ -358,6 +393,8 @@ export function MapLibreMap({
 
     map.on("mouseenter", "danger-zones-layer-fill", setPointer);
     map.on("mouseleave", "danger-zones-layer-fill", resetPointer);
+    map.on("mouseenter", "danger-zones-centroids-circle", setPointer);
+    map.on("mouseleave", "danger-zones-centroids-circle", resetPointer);
     map.on("mouseenter", "critical-facilities-layer-circle", setPointer);
     map.on("mouseleave", "critical-facilities-layer-circle", resetPointer);
     map.on("mouseenter", "evacuation-routes-layer-line", setPointer);
@@ -381,7 +418,7 @@ export function MapLibreMap({
     });
   };
 
-  // Live dynamic recalculation of both Water Inundation and Real DEM Risk Zone Tiles
+  // Live dynamic recalculation of Water Inundation and Real DEM Risk Zone Tiles + Centroids
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
     const map = mapRef.current;
@@ -392,10 +429,16 @@ export function MapLibreMap({
       simSource.setData(generateFloodInundationGeoJSON(tideLevel, rainfall));
     }
 
-    // 2. Update Real DEM Risk Zone Tiles (recomputes colors, threat scores, inundation depths)
+    // 2. Update Real DEM Risk Zone Polygons
     const dangerSource = map.getSource("danger-zones-source") as maplibregl.GeoJSONSource;
     if (dangerSource) {
       dangerSource.setData(calculateDynamicZoneTilesGeoJSON(tideLevel, rainfall));
+    }
+
+    // 3. Update Real DEM Risk Zone Centroids
+    const centroidSource = map.getSource("danger-zones-centroids-source") as maplibregl.GeoJSONSource;
+    if (centroidSource) {
+      centroidSource.setData(calculateDynamicZoneCentroidsGeoJSON(tideLevel, rainfall));
     }
   }, [tideLevel, rainfall, mapLoaded]);
 
@@ -422,8 +465,8 @@ export function MapLibreMap({
     setLayers((prev) => ({ ...prev, is3DTerrain: new3D }));
 
     map.easeTo({
-      pitch: new3D ? 50 : 0,
-      bearing: new3D ? -20 : 0,
+      pitch: new3D ? 45 : 0,
+      bearing: new3D ? -15 : 0,
       duration: 1000,
     });
   };
@@ -442,15 +485,48 @@ export function MapLibreMap({
     });
   };
 
+  const flyToSpecificZone = (zoneId: string) => {
+    if (!mapRef.current) return;
+    const found = REAL_DEM_ZONE_TILES_RAW.find((z) => z.properties.id === zoneId);
+    if (!found) return;
+
+    const coords = found.coordinates[0];
+    let sumLng = 0;
+    let sumLat = 0;
+    for (let i = 0; i < coords.length - 1; i++) {
+      sumLng += coords[i][0];
+      sumLat += coords[i][1];
+    }
+    const centerLng = sumLng / (coords.length - 1);
+    const centerLat = sumLat / (coords.length - 1);
+
+    mapRef.current.flyTo({
+      center: [centerLng, centerLat],
+      zoom: 14.5,
+      pitch: 45,
+      bearing: -10,
+      duration: 1500,
+      essential: true,
+    });
+
+    setTimeout(() => {
+      if (mapRef.current) {
+        openZonePopup(found.properties, [centerLng, centerLat], mapRef.current);
+      }
+    }, 1550);
+  };
+
   return (
     <div className={`relative w-full overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl bg-zinc-950 ${heightClassName}`}>
       <div ref={mapContainerRef} className="h-full w-full bg-zinc-950" />
 
+      {/* Quick Region Selector (Top-Left) */}
       <MapQuickJumper
         onSelectRegion={handleSelectRegion}
         activeRegionId={activeRegionId}
       />
 
+      {/* Map Layer and Base Style Controls (Top-Right) */}
       <MapLayerControls
         currentStyle={currentStyleId}
         onStyleChange={handleStyleChange}
@@ -460,6 +536,52 @@ export function MapLibreMap({
         onToggle3D={handleToggle3D}
       />
 
+      {/* Active Zone Fast-Fly HUD (Top-Left below Hotspots) */}
+      <div className="absolute top-16 left-3.5 z-20 hidden lg:flex flex-col gap-1 rounded-xl border border-zinc-800 bg-zinc-950/90 p-2.5 backdrop-blur-xl shadow-2xl max-w-xs">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold flex items-center gap-1">
+          <Crosshair className="h-3 w-3 text-sky-400" />
+          Jump to River & Estuary Sectors:
+        </span>
+        <div className="flex flex-col gap-1 pt-1">
+          <button
+            onClick={() => flyToSpecificZone("ZONE-IXE-01")}
+            className="flex items-center justify-between text-left px-2 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-rose-500/40 text-[11px] font-mono text-white transition-colors cursor-pointer"
+          >
+            <span className="truncate">Bengre River Mouth Spit</span>
+            <span className="text-rose-400 font-bold ml-2">0.4m MSL</span>
+          </button>
+          <button
+            onClick={() => flyToSpecificZone("ZONE-IXE-02")}
+            className="flex items-center justify-between text-left px-2 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-rose-500/40 text-[11px] font-mono text-white transition-colors cursor-pointer"
+          >
+            <span className="truncate">Ullal Fishery Lowlands</span>
+            <span className="text-rose-400 font-bold ml-2">0.9m MSL</span>
+          </button>
+          <button
+            onClick={() => flyToSpecificZone("ZONE-IXE-03")}
+            className="flex items-center justify-between text-left px-2 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-amber-500/40 text-[11px] font-mono text-white transition-colors cursor-pointer"
+          >
+            <span className="truncate">Old Port Bunder Wharf</span>
+            <span className="text-amber-400 font-bold ml-2">1.5m MSL</span>
+          </button>
+          <button
+            onClick={() => flyToSpecificZone("ZONE-IXE-04")}
+            className="flex items-center justify-between text-left px-2 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-amber-500/40 text-[11px] font-mono text-white transition-colors cursor-pointer"
+          >
+            <span className="truncate">Gurupura River Valley</span>
+            <span className="text-amber-400 font-bold ml-2">2.3m MSL</span>
+          </button>
+          <button
+            onClick={() => flyToSpecificZone("ZONE-IXE-06")}
+            className="flex items-center justify-between text-left px-2 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-emerald-500/40 text-[11px] font-mono text-white transition-colors cursor-pointer"
+          >
+            <span className="truncate">Kadri Highland Safe HQ</span>
+            <span className="text-emerald-400 font-bold ml-2">24.5m MSL</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Map Legend (Bottom-Left) */}
       <MapLegend />
     </div>
   );
