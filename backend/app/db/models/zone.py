@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Float, Integer, Boolean, ForeignKey, JSON
+from datetime import datetime, timezone
+from sqlalchemy import Column, String, Float, Integer, Boolean, ForeignKey, JSON, DateTime
 from sqlalchemy.orm import relationship
 from ..base import Base
 
@@ -25,6 +26,21 @@ class Zone(Base):
     roads = relationship("AffectedRoad", back_populates="zone", cascade="all, delete-orphan")
     predictions = relationship("PredictionRecord", back_populates="zone", cascade="all, delete-orphan")
     alerts = relationship("AlertRecord", back_populates="zone", cascade="all, delete-orphan")
+    subscribers = relationship("ZoneSubscriber", back_populates="zone", cascade="all, delete-orphan")
+
+
+class ZoneSubscriber(Base):
+    __tablename__ = "zone_subscribers"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    zone_id = Column(String(50), ForeignKey("zones.id"), nullable=False, index=True)
+    zone_name = Column(String(200), nullable=False)
+    phone_number = Column(String(50), nullable=False, index=True)
+    name = Column(String(100), nullable=True)
+    is_active = Column(Boolean, default=True)
+    subscribed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    zone = relationship("Zone", back_populates="subscribers")
 
 
 class CriticalFacility(Base):

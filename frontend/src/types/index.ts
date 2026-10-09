@@ -306,3 +306,97 @@ export interface IndiaHotspotCollection {
   features: IndiaHotspotFeature[];
   metadata: Record<string, any>;
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+export interface ChatRequest {
+  message: string;
+  zone_id?: string;
+  user_role?: "civilian" | "commander" | "engineer";
+  conversation_history?: ChatMessage[];
+}
+
+export interface ChatResponse {
+  reply: string;
+  threat_level: string;
+  target_zone: string;
+  grounded_facts?: Record<string, any>;
+  tools_invoked: string[];
+  suggested_actions: string[];
+  referenced_zones: string[];
+}
+
+// --- GeoJSON Spatial Layers ---
+export interface GeoJSONGeometry {
+  type: "Point" | "LineString" | "Polygon" | "MultiPolygon";
+  coordinates: any;
+}
+
+export interface GeoJSONFeature<P = Record<string, any>> {
+  type: "Feature";
+  properties: P;
+  geometry: GeoJSONGeometry;
+}
+
+export interface GeoJSONFeatureCollection<P = Record<string, any>> {
+  type: "FeatureCollection";
+  name?: string;
+  features: GeoJSONFeature<P>[];
+}
+
+export interface HistoricFloodProperties {
+  flood_id: string;
+  event_name: string;
+  state: string;
+  district: string;
+  waterbody: string;
+  year: number;
+  start_date: string;
+  end_date: string;
+  affected_area_sq_km: number;
+  peak_depth_meters: number;
+  primary_cause: string;
+  return_period_years: number;
+  fatalities: number;
+  economic_damage_usd_m: number;
+  center: [number, number];
+}
+
+export interface InfrastructureProperties {
+  id: string;
+  name: string;
+  category: "HOSPITAL" | "BRIDGE" | "POWER_SUBSTATION" | "SHELTER";
+  zone_id: string;
+  zone_name: string;
+  state: string;
+  ground_elevation_m: number;
+  risk_tier: "CRITICAL_LOWLAND" | "VULNERABLE_LOWLAND" | "MODERATE_BUFFER" | "SAFE_HIGHLAND";
+  capacity?: number;
+  flood_cutoff_depth_m?: number;
+  clearance_m?: number | null;
+}
+
+export interface SubmersibleRoadProperties {
+  id: string;
+  name: string;
+  road_type: string;
+  zone_id: string;
+  flood_cutoff_depth_m: number;
+}
+
+export interface MapLayersBundle {
+  historic_floods: GeoJSONFeatureCollection<HistoricFloodProperties>;
+  vulnerable_infrastructure: GeoJSONFeatureCollection<InfrastructureProperties>;
+  safe_shelters: GeoJSONFeatureCollection<InfrastructureProperties>;
+  submersible_roads: GeoJSONFeatureCollection<SubmersibleRoadProperties>;
+  summary: {
+    total_historic_events: number;
+    total_critical_infrastructure: number;
+    total_safe_shelters: number;
+    total_submersible_roads: number;
+    elevation_source: string;
+  };
+}

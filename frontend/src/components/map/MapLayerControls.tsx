@@ -12,6 +12,7 @@ import {
     Eye,
     EyeOff,
     Globe2,
+    History,
     Layers,
     Map,
     MapPin,
@@ -30,6 +31,7 @@ import { MapOverlayCard } from "./MapOverlayCard";
 
 export interface MapLayerState {
     dangerZones: boolean;
+    historicalFloods: boolean;
     floodCoverage: boolean;
     lowLyingAreas: boolean;
     waterBodies: boolean;
@@ -41,6 +43,7 @@ export interface MapLayerState {
     elevationSafety: boolean;
     indiaBaseline: boolean;
     indiaHotspots: boolean;
+    is3DTerrain?: boolean;
     layerOpacity: number;
 }
 
@@ -101,6 +104,14 @@ export function MapLayerControls({
             description: "Color-coded danger polygons",
             icon: Shield,
             color: "text-rose-400",
+        },
+        {
+            key: "historicalFloods" as const,
+            label: "Historical Flood Zones (108)",
+            description: "Recorded national inundation extents",
+            icon: History,
+            color: "text-amber-400",
+            highlight: true,
         },
         {
             key: "floodCoverage" as const,

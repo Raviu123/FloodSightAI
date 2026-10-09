@@ -1,0 +1,222 @@
+{
+  "type": "FeatureCollection",
+  "name": "India_Submersible_Roads",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-MNG-01",
+        "name": "NH-66 Netravati Bridge Lowland Approach",
+        "road_type": "HIGHWAY",
+        "zone_id": "ZONE-01",
+        "flood_cutoff_depth_m": 0.35
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            74.838,
+            12.855
+          ],
+          [
+            74.843,
+            12.861
+          ],
+          [
+            74.85,
+            12.868
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-MNG-02",
+        "name": "Bolar Estuary River Road",
+        "road_type": "ARTERIAL",
+        "zone_id": "ZONE-01",
+        "flood_cutoff_depth_m": 0.25
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            74.832,
+            12.85
+          ],
+          [
+            74.838,
+            12.857
+          ],
+          [
+            74.842,
+            12.863
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-MNG-03",
+        "name": "Jeppu Higher Ground Bypass",
+        "road_type": "HIGHWAY",
+        "zone_id": "ZONE-01",
+        "flood_cutoff_depth_m": 1.5
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            74.845,
+            12.858
+          ],
+          [
+            74.852,
+            12.868
+          ],
+          [
+            74.86,
+            12.875
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-UDP-01",
+        "name": "Malpe Port Access Causeway",
+        "road_type": "ARTERIAL",
+        "zone_id": "ZONE-02",
+        "flood_cutoff_depth_m": 0.3
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            74.698,
+            13.345
+          ],
+          [
+            74.704,
+            13.351
+          ],
+          [
+            74.712,
+            13.358
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-KOC-01",
+        "name": "Mattancherry Low Canal Ring Road",
+        "road_type": "ARTERIAL",
+        "zone_id": "ZONE-03",
+        "flood_cutoff_depth_m": 0.2
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.248,
+            9.952
+          ],
+          [
+            76.256,
+            9.957
+          ],
+          [
+            76.262,
+            9.964
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-KOC-02",
+        "name": "MG Road Elevated Transit Flyover",
+        "road_type": "HIGHWAY",
+        "zone_id": "ZONE-03",
+        "flood_cutoff_depth_m": 2.0
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27,
+            9.965
+          ],
+          [
+            76.28,
+            9.975
+          ],
+          [
+            76.29,
+            9.985
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-CHN-01",
+        "name": "Marina Coastal Road (Kamarajar Salai)",
+        "road_type": "ARTERIAL",
+        "zone_id": "ZONE-04",
+        "flood_cutoff_depth_m": 0.4
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            80.252,
+            13.002
+          ],
+          [
+            80.258,
+            13.01
+          ],
+          [
+            80.265,
+            13.022
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-CHN-02",
+        "name": "Adyar Bridge Overpass Link",
+        "road_type": "HIGHWAY",
+        "zone_id": "ZONE-04",
+        "flood_cutoff_depth_m": 1.2
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            80.245,
+            13.005
+          ],
+          [
+            80.255,
+            13.012
+          ],
+          [
+            80.262,
+            13.02
+          ]
+        ]
+      }
+    }
+  ]
+}

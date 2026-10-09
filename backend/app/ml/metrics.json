@@ -1,26 +1,45 @@
 {
-  "model_version": "1.0.0",
-  "training_samples": 12500,
-  "metrics": {
-    "roc_auc": 0.9934,
-    "accuracy": 0.9512,
-    "precision": 0.9586,
-    "recall": 0.95,
-    "f1_score": 0.9542,
-    "depth_mae_meters": 0.062,
-    "depth_r2": 0.987,
-    "onset_time_mae_minutes": 3.45,
-    "peak_time_mae_minutes": 8.01
+  "model_architecture": "Decoupled HistGradientBoosting Regressors + Balanced Random Forest Ensemble",
+  "dataset_source": "Open-Meteo ERA5-Land Reanalysis (1980-2024) + GloFAS + Marine Telemetry + NASA SRTM",
+  "training_samples": 12816,
+  "test_samples": 2564,
+  "classification_metrics": {
+    "accuracy": 0.9485,
+    "precision": 0.9467,
+    "recall": 0.9485,
+    "f1_score": 0.9472,
+    "auc_roc": 0.9971
   },
-  "global_feature_importances_pct": {
-    "elevation_m": 45.56,
-    "dist_to_coast_km": 15.59,
-    "dist_to_river_km": 9.89,
-    "tide_level_m": 8.41,
-    "rainfall_accum_6h_mm": 5.33,
-    "drainage_capacity_pct": 4.45,
-    "soil_saturation_idx": 4.41,
-    "rainfall_rate_mm_h": 3.21,
-    "cyclone_wind_kmh": 3.15
-  }
+  "regression_metrics": {
+    "depth_mae_meters": 0.0213,
+    "depth_rmse_meters": 0.0276,
+    "depth_r2_score": 0.9944,
+    "area_mae_sq_km": 0.1721,
+    "area_r2_score": 0.9923,
+    "onset_mae_minutes": 4.01,
+    "peak_mae_minutes": 6.26
+  },
+  "feature_importances": {
+    "backwater_factor": 0.3727,
+    "tide_level_m": 0.2222,
+    "wave_height_m": 0.0626,
+    "elevation_m": 0.0567,
+    "drainage_capacity_pct": 0.0415,
+    "river_discharge_m3_s": 0.0326,
+    "dist_to_coast_km": 0.0257,
+    "dist_to_river_km": 0.0246,
+    "soil_saturation_idx": 0.0206,
+    "pluvial_runoff": 0.0205,
+    "topographic_wetness_index": 0.0195,
+    "barometric_surge_m": 0.0157,
+    "rainfall_accum_6h_mm": 0.0153,
+    "rainfall_accum_24h_mm": 0.0151,
+    "surface_pressure_hpa": 0.0145,
+    "wind_speed_kmh": 0.0138,
+    "rainfall_rate_mm_h": 0.0136,
+    "wind_gust_kmh": 0.0126,
+    "cyclone_active": 0.0002,
+    "fluvial_overflow": 0.0
+  },
+  "trained_timestamp": "2026-10-08T18:42:16.577820Z"
 }

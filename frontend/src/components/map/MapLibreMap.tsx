@@ -9,105 +9,14 @@ import {
     EVACUATION_ROUTES_GEOJSON,
     generateFloodInundationGeoJSON,
     GOOGLE_FLOOD_HUB_COVERAGE_GEOJSON,
+    HISTORICAL_FLOOD_CENTROIDS_GEOJSON,
+    HISTORICAL_FLOOD_ZONES_GEOJSON,
     LOW_LYING_AREAS_GEOJSON,
     REAL_DEM_ZONE_TILES_RAW,
     REGION_PRESETS,
     type RegionPreset,
     WATER_BODIES_GEOJSON,
 } from "@/data/coastal-map-data";
-import type { FeatureCollection } from "geojson";
-import { ChevronDown, ChevronUp, Crosshair, Layers, MapPin, Shield, SlidersHorizontal } from "lucide-react";
-import * as maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { type CameraMode, MapLayerControls, type MapLayerState } from "./MapLayerControls";
-import { MapLegend } from "./MapLegend";
-import { MapOverlayCard } from "./MapOverlayCard";
-import { MapQuickJumper } from "./MapQuickJumper";
-import { REAL_MAP_TILE_SOURCE, TRAFFIC_ATTRIBUTION, TRAFFIC_SOURCE_LAYER, TRAFFIC_TILE_URL } from "./map-data-sources";
-
-import { fetchIndiaBaseline, fetchIndiaHotspots } from "@/lib/api";
-
-const DEM_SOURCE_ID = "floodsight-dem";
-const HILLSHADE_SOURCE_ID = "floodsight-dem-hillshade";
-const HILLSHADE_LAYER_ID = "floodsight-hillshade";
-const REAL_MAP_SOURCE_ID = REAL_MAP_TILE_SOURCE.id;
-const TRANSPORT_LAYER_ID = "real-transport-network";
-const WATER_BODY_LAYER_ID = "real-water-bodies-fill";
-const WATER_BODY_OUTLINE_LAYER_ID = "real-water-bodies-outline";
-const TRAFFIC_SOURCE_ID = "configured-traffic-source";
-const TRAFFIC_LAYER_ID = "configured-traffic-layer";
-const ELEVATION_SAFETY_SOURCE_ID = "elevation-safety-source";
-const ELEVATION_SAFETY_LAYER_IDS = [
-    "elevation-safety-danger-fill",
-    "elevation-safety-neutral-fill",
-    "elevation-safety-safe-fill",
-    "elevation-safety-outline",
-] as const;
-
-const INDIA_BASELINE_SOURCE_ID = "india-baseline-source";
-const INDIA_BASELINE_LAYER_IDS = [
-    "india-baseline-safer-fill",
-    "india-baseline-neutral-fill",
-    "india-baseline-susceptible-fill",
-    "india-baseline-outline",
-] as const;
-
-const INDIA_HOTSPOTS_SOURCE_ID = "india-hotspots-source";
-const INDIA_HOTSPOTS_LAYER_IDS = [
-    "india-hotspots-low-fill",
-    "india-hotspots-mod-fill",
-    "india-hotspots-high-fill",
-    "india-hotspots-outline",
-] as const;
-const EMPTY_FEATURE_COLLECTION: FeatureCollection = { type: "FeatureCollection", features: [] };
-const ELEVATION_CLASSIFICATIONS = new Set(["safe", "neutral", "danger"]);
-const ELEVATION_SAFETY_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-const DEFAULT_DEM_TILE_URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
-const DEM_TILE_URL =
-    process.env.NEXT_PUBLIC_DEM_TILE_URL === "disabled"
-        ? null
-        : process.env.NEXT_PUBLIC_DEM_TILE_URL || DEFAULT_DEM_TILE_URL;
-const TERRAIN_EXAGGERATION = Math.min(
-    2,
-    Math.max(0.5, Number.parseFloat(process.env.NEXT_PUBLIC_TERRAIN_EXAGGERATION || "1.25") || 1.25),
-);
-
-const CAMERA_PRESETS: Record<CameraMode, { pitch: number; bearing: number }> = {
-    standard: { pitch: 0, bearing: 0 },
-    terrain: { pitch: 35, bearing: -12 },
-    intelligence: { pitch: 50, bearing: -18 },
-};
-
-function isElevationSafetyFeatureCollection(value: unknown): value is FeatureCollection {
-    if (!value || typeof value !== "object") return false;
-    const collection = value as { type?: unknown; features?: unknown };
-    if (collection.type !== "FeatureCollection" || !Array.isArray(collection.features)) return false;
-
-    return collection.features.every(feature => {
-        if (!feature || typeof feature !== "object") return false;
-        const candidate = feature as {
-            type?: unknown;
-            geometry?: { type?: unknown; coordinates?: unknown } | null;
-            properties?: { classification?: unknown } | null;
-        };
-        return (
-            candidate.type === "Feature" &&
-            (candidate.geometry?.type === "Polygon" || candidate.geometry?.type === "MultiPolygon") &&
-            candidate.geometry.coordinates !== undefined &&
-            ELEVATION_CLASSIFICATIONS.has(String(candidate.properties?.classification))
-        );
-    });
-}
-
-// Configure local standalone Web Worker for MapLibre GL in Next.js / Turbopack
-if (typeof window !== "undefined") {
-    if (typeof (maplibregl as any).setWorkerUrl === "function") {
-        (maplibregl as any).setWorkerUrl("/maplibre-gl-worker.mjs");
-    } else if ((maplibregl as any).config) {
-        (maplibregl as any).config.WORKER_URL = "/maplibre-gl-worker.mjs";
-    }
-}
 
 export interface MapLibreMapProps {
     tideLevel?: number;
@@ -147,15 +56,16 @@ export function MapLibreMap({
 
     // Layer toggles state
     const [layers, setLayers] = useState<MapLayerState>({
-        dangerZones: false,
-        floodCoverage: false,
+        dangerZones: true,
+        historicalFloods: true,
+        floodCoverage: true,
         lowLyingAreas: false,
         waterBodies: true,
         transport: true,
         traffic: false,
         facilities: true,
         evacuationRoutes: true,
-        floodInundation: false,
+        floodInundation: true,
         elevationSafety: true,
         indiaBaseline: false,
         indiaHotspots: false,
@@ -235,6 +145,10 @@ export function MapLibreMap({
 
         setVis("flood-coverage-layer-fill", lState.floodCoverage);
         setVis("flood-coverage-layer-stroke", lState.floodCoverage);
+        setVis("historical-flood-zones-fill", lState.historicalFloods);
+        setVis("historical-flood-zones-stroke", lState.historicalFloods);
+        setVis("historical-flood-centroids-halo", lState.historicalFloods);
+        setVis("historical-flood-centroids-circle", lState.historicalFloods);
         setVis("danger-zones-layer-fill", lState.dangerZones);
         setVis("danger-zones-layer-stroke", lState.dangerZones);
         setVis("danger-zones-centroids-halo", lState.dangerZones);
@@ -259,6 +173,90 @@ export function MapLibreMap({
     const addAllLayers = useCallback(
         (map: maplibregl.Map) => {
             if (!map) return;
+
+            // 0b. 108 Historical Flood Zones (Recorded Inundation Extents across India)
+            if (!map.getSource("historical-flood-zones-source")) {
+                map.addSource("historical-flood-zones-source", {
+                    type: "geojson",
+                    data: HISTORICAL_FLOOD_ZONES_GEOJSON,
+                });
+            }
+            if (!map.getLayer("historical-flood-zones-fill")) {
+                map.addLayer({
+                    id: "historical-flood-zones-fill",
+                    type: "fill",
+                    source: "historical-flood-zones-source",
+                    paint: {
+                        "fill-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "fill-opacity": ["coalesce", ["get", "fillOpacity"], 0.65],
+                    },
+                });
+            }
+            if (!map.getLayer("historical-flood-zones-stroke")) {
+                map.addLayer({
+                    id: "historical-flood-zones-stroke",
+                    type: "line",
+                    source: "historical-flood-zones-source",
+                    paint: {
+                        "line-color": ["coalesce", ["get", "strokeColor"], "#c2410c"],
+                        "line-width": ["coalesce", ["get", "strokeWidth"], 2.5],
+                        "line-opacity": 0.95,
+                    },
+                });
+            }
+
+            // 0c. Historical Flood Event Centroid Pulse Markers
+            if (!map.getSource("historical-flood-centroids-source")) {
+                map.addSource("historical-flood-centroids-source", {
+                    type: "geojson",
+                    data: HISTORICAL_FLOOD_CENTROIDS_GEOJSON,
+                });
+            }
+            if (!map.getLayer("historical-flood-centroids-halo")) {
+                map.addLayer({
+                    id: "historical-flood-centroids-halo",
+                    type: "circle",
+                    source: "historical-flood-centroids-source",
+                    paint: {
+                        "circle-radius": 14,
+                        "circle-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "circle-opacity": 0.35,
+                    },
+                });
+            }
+            if (!map.getLayer("historical-flood-centroids-circle")) {
+                map.addLayer({
+                    id: "historical-flood-centroids-circle",
+                    type: "circle",
+                    source: "historical-flood-centroids-source",
+                    paint: {
+                        "circle-radius": 7,
+                        "circle-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "circle-stroke-width": 2,
+                        "circle-stroke-color": "#ffffff",
+                    },
+                });
+            }
+
+    // 1. Low-lying Areas (Contour depression)
+    if (!map.getSource("low-lying-source")) {
+      map.addSource("low-lying-source", {
+        type: "geojson",
+        data: LOW_LYING_AREAS_GEOJSON,
+      });
+    }
+    if (!map.getLayer("low-lying-layer-fill")) {
+      map.addLayer({
+        id: "low-lying-layer-fill",
+        type: "fill",
+        source: "low-lying-source",
+        paint: {
+          "fill-color": ["coalesce", ["get", "color"], "#0284c7"],
+          "fill-opacity": ["coalesce", ["get", "opacity"], 0.4],
+        },
+      });
+    }
+>>>>>>> origin/main
 
             ensureTerrainSupport(map, cameraMode !== "standard");
 
@@ -785,6 +783,80 @@ export function MapLibreMap({
         if (onZoneSelect) onZoneSelect(props);
     };
 
+  const openHistoricalFloodPopup = (props: any, lngLat: maplibregl.LngLatLike, map: maplibregl.Map) => {
+    if (popupRef.current) popupRef.current.remove();
+
+    const riskColor = props.riskColor || "#ea580c";
+    const riskTier = props.riskTier || "HIGH";
+    const casualtyCount = Number(props.casualtyCount || 0);
+    const economicLoss = Number(props.economicLossCroreINR || 0);
+
+    const popupHtml = `
+      <div class="p-3.5 space-y-2 text-zinc-100 min-w-[300px] max-w-[340px] font-mono">
+        <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-xs text-amber-400">${props.eventId || "HIST-FLD"}</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-semibold">${props.year || "Recorded"} EVENT</span>
+          </div>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${riskColor}26; color: ${riskColor}; border: 1px solid ${riskColor}60">
+            ${riskTier} RISK
+          </span>
+        </div>
+        <div class="font-sans font-bold text-sm leading-snug text-white">${props.name}</div>
+        <div class="text-[11px] text-zinc-400 font-sans">${props.district ? `${props.district}, ` : ""}${props.state}</div>
+
+        <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] pt-1 text-zinc-300 border-t border-zinc-850">
+          <div>Peak Water Level: <b class="text-white">${props.recordedWaterLevelMetersMSL}m MSL</b></div>
+          <div>24h Peak Rain: <b class="text-sky-300">${props.peakRainfall24hMm} mm</b></div>
+          <div>Inundated Area: <b class="text-amber-400">${props.recordedAreaSqKm} km²</b></div>
+          <div>Casualties: <b class="${casualtyCount > 0 ? "text-rose-400" : "text-emerald-400"}">${casualtyCount}</b></div>
+          <div class="col-span-2">Economic Loss: <b class="text-amber-300">₹${economicLoss.toLocaleString()} Crore</b></div>
+        </div>
+
+        <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
+          Major Waterbody: <span class="text-cyan-300 font-medium">${props.majorWaterbody}</span>
+        </div>
+        <div class="text-[10px] text-zinc-400 font-sans">
+          Primary Driver: <span class="text-zinc-200 font-medium">${props.primaryDriver}</span>
+        </div>
+      </div>
+    `;
+
+    popupRef.current = new maplibregl.Popup({ offset: 12 })
+      .setLngLat(lngLat)
+      .setHTML(popupHtml)
+      .addTo(map);
+  };
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    if (typeof (maplibregl as any).setWorkerUrl === "function") {
+      (maplibregl as any).setWorkerUrl("/maplibre-gl-worker.mjs");
+    }
+
+    const defaultRegion = REGION_PRESETS[0];
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: getStyleObject(currentStyleId),
+      center: [defaultRegion.longitude, defaultRegion.latitude],
+      zoom: defaultRegion.zoom,
+      pitch: defaultRegion.pitch,
+      bearing: defaultRegion.bearing,
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
+    map.addControl(new maplibregl.FullscreenControl(), "bottom-right");
+    map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
+
+    const onMapReady = () => {
+      mapRef.current = map;
+      addAllLayers(map);
+      setMapLoaded(true);
+>>>>>>> origin/main
+    };
+
     const openElevationSafetyPopup = (
         props: Record<string, unknown>,
         lngLat: maplibregl.LngLatLike,
@@ -1027,6 +1099,19 @@ export function MapLibreMap({
             popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(popupHtml).addTo(map);
         });
 
+        // Click handler for 108 Historical Flood Zones Polygon
+        map.on("click", "historical-flood-zones-fill", (e) => {
+            if (!e.features || !e.features[0]) return;
+            openHistoricalFloodPopup(e.features[0].properties, e.lngLat, map);
+        });
+
+        // Click handler for 108 Historical Flood Zones Centroid Marker
+        map.on("click", "historical-flood-centroids-circle", (e) => {
+            if (!e.features || !e.features[0]) return;
+            const coords = (e.features[0].geometry as any).coordinates.slice();
+            openHistoricalFloodPopup(e.features[0].properties, coords, map);
+        });
+
         const setPointer = () => {
             if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
         };
@@ -1038,6 +1123,10 @@ export function MapLibreMap({
         map.on("mouseleave", "danger-zones-layer-fill", resetPointer);
         map.on("mouseenter", "danger-zones-centroids-circle", setPointer);
         map.on("mouseleave", "danger-zones-centroids-circle", resetPointer);
+        map.on("mouseenter", "historical-flood-zones-fill", setPointer);
+        map.on("mouseleave", "historical-flood-zones-fill", resetPointer);
+        map.on("mouseenter", "historical-flood-centroids-circle", setPointer);
+        map.on("mouseleave", "historical-flood-centroids-circle", resetPointer);
         map.on("mouseenter", "elevation-safety-outline", setPointer);
         map.on("mousemove", "elevation-safety-outline", () => {
             for (const layerId of [

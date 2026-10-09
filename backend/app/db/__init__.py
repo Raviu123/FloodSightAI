@@ -14,8 +14,10 @@ from .models import (
     Zone,
     CriticalFacility,
     AffectedRoad,
+    ZoneSubscriber,
     PredictionRecord,
     AlertRecord,
+    SMSLogRecord,
 )
 
 __all__ = [
@@ -32,6 +34,8 @@ __all__ = [
     "Zone",
     "CriticalFacility",
     "AffectedRoad",
+    "ZoneSubscriber",
     "PredictionRecord",
     "AlertRecord",
+    "SMSLogRecord",
 ]

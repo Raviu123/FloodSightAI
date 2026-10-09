@@ -76,6 +76,9 @@
 }
 
 @theme inline {
+    --color-zinc-750: #232326;
+    --color-zinc-850: #18181b;
+    --color-zinc-950: #09090b;
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);

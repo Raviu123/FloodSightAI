@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     HYDROSHEDS_DATA_DIR: str = os.getenv("HYDROSHEDS_DATA_DIR", "data/hydrosheds")
     IMERG_HDF5_FILE: str = os.getenv("IMERG_HDF5_FILE", "3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B (2).HDF5")
 
+    # SMS Gateway (TextBee API)
+    TEXTBEE_API_KEY: str = ""
+    TEXTBEE_DEVICE_ID: str = "6ac7d5062597187c9cfc5f46"
+    TEXTBEE_BASE_URL: str = "https://api.textbee.dev/api/v1/gateway/send-bulk-sms"
+
     class Config:
         case_sensitive = True
         env_file = ".env"
