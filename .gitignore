@@ -91,5 +91,22 @@ desktop.ini
 .vercel/
 *.pem
 
+# Large Data & GIS Files
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.gz
+*.tif
+*.tiff
+*.nc
+*.flt
+*.hdr
+*.hdf5
+*.HDF5
+*.h5
+backend/data/merit_hydro/
+backend/data/rainfall/*.hdf5
+backend/data/rainfall/*.HDF5
 
 skills-lock.json

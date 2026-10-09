@@ -44,3 +44,15 @@ ENV/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+
+# Data & GIS Datasets
+data/merit_hydro/
+data/rainfall/*.hdf5
+data/rainfall/*.HDF5
+*.tif
+*.tiff
+*.hdf5
+*.HDF5
+*.h5
+*.tar
+
