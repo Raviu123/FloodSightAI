@@ -169,6 +169,7 @@ export interface BroadcastRequest {
   alert_title: string;
   alert_message: string;
   target_channels?: string[];
+  recipient_phone_numbers?: string[];
 }
 
 export interface BroadcastResponse {

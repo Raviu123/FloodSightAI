@@ -10,7 +10,11 @@ import type {
     ThreatLevel,
 } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const cleanBaseUrl = rawBaseUrl.replace(/\/+$/, "").replace(/\/api\/v1$/, "");
+
+export const API_BASE_URL = cleanBaseUrl;
+export const API_V1_URL = `${cleanBaseUrl}/api/v1`;
 
 /**
  * Health check to verify FastAPI backend connection status
@@ -36,7 +40,7 @@ export async function checkBackendHealth(): Promise<{ status: "online" | "offlin
  */
 export async function runSimulation(input: SimulationInput): Promise<SimulationResponse> {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/predict`, {
+        const res = await fetch(`${API_V1_URL}/simulation/run`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(input),
@@ -44,6 +48,15 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
         });
         if (res.ok) {
             return await res.json();
+        }
+        const resPredict = await fetch(`${API_V1_URL}/simulation/predict`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+            cache: "no-store",
+        });
+        if (resPredict.ok) {
+            return await resPredict.json();
         }
     } catch (_) {
         // Fallback simulation calculation
@@ -389,16 +402,29 @@ export async function fetchTerrainSusceptibilityMetadata(region: string = "india
 export async function fetchElevationSafetyBatch(
     regionId: string,
     radius: number = 1,
+    options?: {
+        minimum_feature_width_m?: number;
+        minimum_hotspot_area_m2?: number;
+        danger_percentile?: number;
+        safe_percentile?: number;
+        signal?: AbortSignal;
+    }
 ): Promise<any | null> {
     try {
+        const validRegion = (regionId && regionId !== "india") ? regionId : "mumbai";
         const params = new URLSearchParams({
-            region_id: regionId,
+            region_id: validRegion,
             radius: radius.toString(),
+            minimum_feature_width_m: (options?.minimum_feature_width_m ?? 20).toString(),
+            minimum_hotspot_area_m2: (options?.minimum_hotspot_area_m2 ?? 400).toString(),
+            danger_percentile: (options?.danger_percentile ?? 33).toString(),
+            safe_percentile: (options?.safe_percentile ?? 67).toString(),
         });
-        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/elevation-safety-batch?${params.toString()}`, {
+        const res = await fetch(`${API_V1_URL}/terrain/elevation-safety-batch?${params.toString()}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             cache: "no-store",
+            signal: options?.signal,
         });
         if (res.ok) {
             return await res.json();
@@ -436,3 +462,104 @@ export async function chatWithCopilot(request: ChatRequest): Promise<ChatRespons
         referenced_zones: [request.zone_id || "IXE-01"],
     };
 }
+
+/**
+ * Fetch TextBee SMS Gateway Readiness Status
+ */
+export async function fetchSMSGatewayStatus(): Promise<any | null> {
+    try {
+        const res = await fetch(`${API_V1_URL}/sms/status`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Fetch historical SMS dispatch logs
+ */
+export async function fetchSMSLogs(zoneId?: string): Promise<any | null> {
+    try {
+        const url = zoneId ? `${API_V1_URL}/sms/logs/${zoneId}` : `${API_V1_URL}/sms/logs`;
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Send single SMS alert to a recipient phone number
+ */
+export async function sendSingleSMS(recipient: string, message: string): Promise<any | null> {
+    try {
+        const res = await fetch(`${API_V1_URL}/sms/send`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recipient, message }),
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Broadcast SMS message to multiple recipients
+ */
+export async function broadcastSMS(recipients: string[], message: string, deviceId?: string): Promise<any | null> {
+    try {
+        const res = await fetch(`${API_V1_URL}/sms/broadcast`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recipients, message, device_id: deviceId }),
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Fetch registered citizen phone subscriptions connected to coastal zones
+ */
+export async function fetchZoneSubscriptions(zoneId?: string): Promise<any | null> {
+    try {
+        const url = zoneId ? `${API_V1_URL}/sms/subscriptions?zone_id=${encodeURIComponent(zoneId)}` : `${API_V1_URL}/sms/subscriptions`;
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Connect a citizen phone number to a coastal zone for automatic critical SMS dispatches
+ */
+export async function subscribePhoneToZone(req: {
+    phone_number: string;
+    zone_id?: string;
+    zone_name?: string;
+    name?: string;
+}): Promise<any | null> {
+    try {
+        const res = await fetch(`${API_V1_URL}/sms/subscribe-zone`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(req),
+            cache: "no-store",
+        });
+        if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+}
+

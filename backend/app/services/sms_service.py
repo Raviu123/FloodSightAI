@@ -27,7 +27,44 @@ class SMSService:
         self._api_key = api_key
         self._device_id = device_id
         self._base_url = base_url or settings.TEXTBEE_BASE_URL
-        self._in_memory_subscriptions: Dict[str, Dict[str, Any]] = {}
+        self._in_memory_subscriptions: Dict[str, Dict[str, Any]] = {
+            "+919876543210_IXE-01": {
+                "id": 1,
+                "phone_number": "+919876543210",
+                "zone_id": "IXE-01",
+                "zone_name": "Bengre Sand Spit & Alive Sagara",
+                "name": "Captain R. Sharma (Incident Response Lead)",
+                "is_active": True,
+                "subscribed_at": "2026-10-09T00:00:00Z",
+            },
+            "+919812345678_IXE-01": {
+                "id": 2,
+                "phone_number": "+919812345678",
+                "zone_id": "IXE-01",
+                "zone_name": "Bengre Sand Spit & Alive Sagara",
+                "name": "Bengre Fisheries Clinic Supervisor",
+                "is_active": True,
+                "subscribed_at": "2026-10-09T00:00:00Z",
+            },
+            "+919898989898_IXE-02": {
+                "id": 3,
+                "phone_number": "+919898989898",
+                "zone_id": "IXE-02",
+                "zone_name": "Ullal Coastal Lowlands & Someshwar",
+                "name": "Someshwar Coastal Relief Warden",
+                "is_active": True,
+                "subscribed_at": "2026-10-09T00:00:00Z",
+            },
+            "+919765432109_ZONE-03": {
+                "id": 4,
+                "phone_number": "+919765432109",
+                "zone_id": "ZONE-03",
+                "zone_name": "Kochi Backwaters & Canal Network",
+                "name": "Ernakulam Disaster Control Desk",
+                "is_active": True,
+                "subscribed_at": "2026-10-09T00:00:00Z",
+            },
+        }
         self._in_memory_logs: List[Dict[str, Any]] = []
 
     @property
