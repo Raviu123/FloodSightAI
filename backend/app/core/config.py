@@ -43,6 +43,17 @@ class Settings(BaseSettings):
     DEM_TILE_URL: str = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
     DEM_TILE_ZOOM: int = 14
 
+    # Terrain Flood Susceptibility Model Engineering Weights (Configurable)
+    TERRAIN_WEIGHT_FLOW_ACC: float = 0.40
+    TERRAIN_WEIGHT_RELATIVE_ELEV: float = 0.30
+    TERRAIN_WEIGHT_SLOPE: float = 0.15
+    TERRAIN_WEIGHT_WATER_PROXIMITY: float = 0.10
+    TERRAIN_WEIGHT_COASTAL_EXPOSURE: float = 0.05
+
+    # Dataset Directories & Files
+    HYDROSHEDS_DATA_DIR: str = os.getenv("HYDROSHEDS_DATA_DIR", "data/hydrosheds")
+    IMERG_HDF5_FILE: str = os.getenv("IMERG_HDF5_FILE", "3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B (2).HDF5")
+
     class Config:
         case_sensitive = True
         env_file = ".env"
