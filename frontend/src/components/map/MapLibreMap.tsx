@@ -17,6 +17,99 @@ import {
     type RegionPreset,
     WATER_BODIES_GEOJSON,
 } from "@/data/coastal-map-data";
+import type { FeatureCollection } from "geojson";
+import { ChevronDown, ChevronUp, Crosshair, Layers, MapPin, Shield, SlidersHorizontal } from "lucide-react";
+import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { type CameraMode, MapLayerControls, type MapLayerState } from "./MapLayerControls";
+import { MapLegend } from "./MapLegend";
+import { MapOverlayCard } from "./MapOverlayCard";
+import { MapQuickJumper } from "./MapQuickJumper";
+import { REAL_MAP_TILE_SOURCE, TRAFFIC_ATTRIBUTION, TRAFFIC_SOURCE_LAYER, TRAFFIC_TILE_URL } from "./map-data-sources";
+
+import { fetchIndiaBaseline, fetchIndiaHotspots } from "@/lib/api";
+
+const DEM_SOURCE_ID = "floodsight-dem";
+const HILLSHADE_SOURCE_ID = "floodsight-dem-hillshade";
+const HILLSHADE_LAYER_ID = "floodsight-hillshade";
+const REAL_MAP_SOURCE_ID = REAL_MAP_TILE_SOURCE.id;
+const TRANSPORT_LAYER_ID = "real-transport-network";
+const WATER_BODY_LAYER_ID = "real-water-bodies-fill";
+const WATER_BODY_OUTLINE_LAYER_ID = "real-water-bodies-outline";
+const TRAFFIC_SOURCE_ID = "configured-traffic-source";
+const TRAFFIC_LAYER_ID = "configured-traffic-layer";
+const ELEVATION_SAFETY_SOURCE_ID = "elevation-safety-source";
+const ELEVATION_SAFETY_LAYER_IDS = [
+    "elevation-safety-danger-fill",
+    "elevation-safety-neutral-fill",
+    "elevation-safety-safe-fill",
+    "elevation-safety-outline",
+] as const;
+
+const INDIA_BASELINE_SOURCE_ID = "india-baseline-source";
+const INDIA_BASELINE_LAYER_IDS = [
+    "india-baseline-safer-fill",
+    "india-baseline-neutral-fill",
+    "india-baseline-susceptible-fill",
+    "india-baseline-outline",
+] as const;
+
+const INDIA_HOTSPOTS_SOURCE_ID = "india-hotspots-source";
+const INDIA_HOTSPOTS_LAYER_IDS = [
+    "india-hotspots-low-fill",
+    "india-hotspots-mod-fill",
+    "india-hotspots-high-fill",
+    "india-hotspots-outline",
+] as const;
+const EMPTY_FEATURE_COLLECTION: FeatureCollection = { type: "FeatureCollection", features: [] };
+const ELEVATION_CLASSIFICATIONS = new Set(["safe", "neutral", "danger"]);
+const ELEVATION_SAFETY_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const DEFAULT_DEM_TILE_URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
+const DEM_TILE_URL =
+    process.env.NEXT_PUBLIC_DEM_TILE_URL === "disabled"
+        ? null
+        : process.env.NEXT_PUBLIC_DEM_TILE_URL || DEFAULT_DEM_TILE_URL;
+const TERRAIN_EXAGGERATION = Math.min(
+    2,
+    Math.max(0.5, Number.parseFloat(process.env.NEXT_PUBLIC_TERRAIN_EXAGGERATION || "1.25") || 1.25),
+);
+
+const CAMERA_PRESETS: Record<CameraMode, { pitch: number; bearing: number }> = {
+    standard: { pitch: 0, bearing: 0 },
+    terrain: { pitch: 35, bearing: -12 },
+    intelligence: { pitch: 50, bearing: -18 },
+};
+
+function isElevationSafetyFeatureCollection(value: unknown): value is FeatureCollection {
+    if (!value || typeof value !== "object") return false;
+    const collection = value as { type?: unknown; features?: unknown };
+    if (collection.type !== "FeatureCollection" || !Array.isArray(collection.features)) return false;
+
+    return collection.features.every(feature => {
+        if (!feature || typeof feature !== "object") return false;
+        const candidate = feature as {
+            type?: unknown;
+            geometry?: { type?: unknown; coordinates?: unknown } | null;
+            properties?: { classification?: unknown } | null;
+        };
+        return (
+            candidate.type === "Feature" &&
+            (candidate.geometry?.type === "Polygon" || candidate.geometry?.type === "MultiPolygon") &&
+            candidate.geometry.coordinates !== undefined &&
+            ELEVATION_CLASSIFICATIONS.has(String(candidate.properties?.classification))
+        );
+    });
+}
+
+// Configure local standalone Web Worker for MapLibre GL in Next.js / Turbopack
+if (typeof window !== "undefined") {
+    if (typeof (maplibregl as any).setWorkerUrl === "function") {
+        (maplibregl as any).setWorkerUrl("/maplibre-gl-worker.mjs");
+    } else if ((maplibregl as any).config) {
+        (maplibregl as any).config.WORKER_URL = "/maplibre-gl-worker.mjs";
+    }
+}
 
 export interface MapLibreMapProps {
     tideLevel?: number;
@@ -256,7 +349,6 @@ export function MapLibreMap({
         },
       });
     }
->>>>>>> origin/main
 
             ensureTerrainSupport(map, cameraMode !== "standard");
 
@@ -827,35 +919,6 @@ export function MapLibreMap({
       .setHTML(popupHtml)
       .addTo(map);
   };
-
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
-
-    if (typeof (maplibregl as any).setWorkerUrl === "function") {
-      (maplibregl as any).setWorkerUrl("/maplibre-gl-worker.mjs");
-    }
-
-    const defaultRegion = REGION_PRESETS[0];
-
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: getStyleObject(currentStyleId),
-      center: [defaultRegion.longitude, defaultRegion.latitude],
-      zoom: defaultRegion.zoom,
-      pitch: defaultRegion.pitch,
-      bearing: defaultRegion.bearing,
-    });
-
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
-    map.addControl(new maplibregl.FullscreenControl(), "bottom-right");
-    map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
-
-    const onMapReady = () => {
-      mapRef.current = map;
-      addAllLayers(map);
-      setMapLoaded(true);
->>>>>>> origin/main
-    };
 
     const openElevationSafetyPopup = (
         props: Record<string, unknown>,

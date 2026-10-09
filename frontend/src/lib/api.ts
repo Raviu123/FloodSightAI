@@ -1,6 +1,8 @@
 import type {
     BroadcastRequest,
     BroadcastResponse,
+    ChatRequest,
+    ChatResponse,
     PriorityQueueResponse,
     SimulationInput,
     SimulationResponse,
@@ -405,4 +407,32 @@ export async function fetchElevationSafetyBatch(
         // Network fallback
     }
     return null;
+}
+
+/**
+ * Send query to AI Assistant Copilot endpoint
+ */
+export async function chatWithCopilot(request: ChatRequest): Promise<ChatResponse> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/assistant/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(request),
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Fallback response
+    }
+
+    return {
+        reply: "AI Copilot connection unavailable. Standby for telemetry update.",
+        threat_level: "MEDIUM",
+        target_zone: request.zone_id || "ALL_ZONES",
+        tools_invoked: [],
+        suggested_actions: ["Monitor regional surge gauge", "Inspect evacuation corridors"],
+        referenced_zones: [request.zone_id || "IXE-01"],
+    };
 }
