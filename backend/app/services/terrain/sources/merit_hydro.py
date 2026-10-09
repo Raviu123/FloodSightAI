@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from PIL import Image
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(__file__).resolve().parents[5]
 DATA_DIR = REPO_ROOT / "data" / "merit_hydro"
 MERIT_COVERAGE_BBOX = [60.0, 0.0, 90.0, 30.0]  # West, South, East, North for n00e060 group
 
@@ -101,29 +101,61 @@ def load_merit_hydro_indicator_window(
     """
     Extracts high-resolution window matrix for requested bounding box [west, south, east, north]
     for the specified indicator ('elv', 'hnd', or 'upa'), optionally padded with buffer_cells.
+    Seamlessly stitches across 5x5 MERIT tile boundaries if requested bbox spans multiple tiles.
     """
     west, south, east, north = bbox
 
-    center_lat = (south + north) / 2.0
-    center_lon = (west + east) / 2.0
-    tile_id = get_merit_tile_id(center_lat, center_lon)
+    min_lat_block = int(math.floor(south / 5.0) * 5)
+    max_lat_block = int(math.floor((north - 1e-9) / 5.0) * 5)
+    min_lon_block = int(math.floor(west / 5.0) * 5)
+    max_lon_block = int(math.floor((east - 1e-9) / 5.0) * 5)
 
-    tile_path = ensure_merit_tile_extracted(tile_id, indicator)
-    if not tile_path:
-        return None
+    lat_blocks = list(range(max_lat_block, min_lat_block - 5, -5))
+    lon_blocks = list(range(min_lon_block, max_lon_block + 5, 5))
 
-    arr, t_west, t_south, t_east, t_north = read_geotiff_tile(tile_path)
+    row_mosaics = []
+    top_north, left_west, bottom_south, right_east = None, None, None, None
 
-    rows, cols = arr.shape
-    d_lon = (t_east - t_west) / cols
-    d_lat = (t_north - t_south) / rows
+    for row_idx, lat_b in enumerate(lat_blocks):
+        col_rasters = []
+        for col_idx, lon_b in enumerate(lon_blocks):
+            tile_id = get_merit_tile_id(lat_b + 2.5, lon_b + 2.5)
+            tile_path = ensure_merit_tile_extracted(tile_id, indicator)
+            if not tile_path:
+                return None
+            arr, t_w, t_s, t_e, t_n = read_geotiff_tile(tile_path)
+            col_rasters.append(arr)
+            if row_idx == 0 and col_idx == 0:
+                top_north = t_n
+                left_west = t_w
+            if row_idx == len(lat_blocks) - 1 and col_idx == len(lon_blocks) - 1:
+                bottom_south = t_s
+                right_east = t_e
+        if len(col_rasters) == 1:
+            row_mosaics.append(col_rasters[0])
+        else:
+            row_mosaics.append(np.hstack(col_rasters))
 
-    col_start = max(0, int(math.floor((west - t_west) / d_lon)) - buffer_cells)
-    col_end = min(cols, int(math.ceil((east - t_west) / d_lon)) + buffer_cells)
-    row_start = max(0, int(math.floor((t_north - north) / d_lat)) - buffer_cells)
-    row_end = min(rows, int(math.ceil((t_north - south) / d_lat)) + buffer_cells)
+    if len(row_mosaics) == 1:
+        stitched = row_mosaics[0]
+    else:
+        stitched = np.vstack(row_mosaics)
 
-    window = arr[row_start:row_end, col_start:col_end]
+    m_west = left_west
+    m_east = right_east
+    m_south = bottom_south
+    m_north = top_north
+
+    rows, cols = stitched.shape
+    d_lon = (m_east - m_west) / cols
+    d_lat = (m_north - m_south) / rows
+
+    col_start = max(0, int(math.floor((west - m_west) / d_lon)) - buffer_cells)
+    col_end = min(cols, int(math.ceil((east - m_west) / d_lon)) + buffer_cells)
+    row_start = max(0, int(math.floor((m_north - north) / d_lat)) - buffer_cells)
+    row_end = min(rows, int(math.ceil((m_north - south) / d_lat)) + buffer_cells)
+
+    window = stitched[row_start:row_end, col_start:col_end]
     if window.size == 0:
         return None
 

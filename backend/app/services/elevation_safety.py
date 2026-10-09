@@ -93,6 +93,13 @@ async def _load_elevation_window(
     zoom: int,
 ) -> np.ndarray:
     west, south, east, north = bbox
+
+    # Cap zoom for wide bounding boxes (> 0.25 deg span) to prevent request explosion
+    span_lon = abs(east - west)
+    span_lat = abs(north - south)
+    if (span_lon > 0.25 or span_lat > 0.25) and zoom > 12:
+        zoom = 12
+
     min_tile_x = max(0, math.floor(_tile_x(west, zoom)))
     max_tile_x = max(0, math.floor(_tile_x(east, zoom)))
     min_tile_y = max(0, math.floor(_tile_y(north, zoom)))
@@ -104,15 +111,19 @@ async def _load_elevation_window(
         dtype=np.float32,
     )
 
-    async with httpx.AsyncClient(timeout=20.0) as client:
+    limits = httpx.Limits(max_connections=32, max_keepalive_connections=16)
+    semaphore = asyncio.Semaphore(16)
+
+    async with httpx.AsyncClient(limits=limits, timeout=30.0) as client:
         async def _fetch_tile(tx: int, ty: int) -> tuple[int, int, np.ndarray]:
-            url = tile_url.format(z=zoom, x=tx, y=ty)
-            response = await client.get(url)
-            response.raise_for_status()
-            tile = _terrarium_elevation(response.content)
-            ys = (ty - min_tile_y) * TILE_SIZE
-            xs = (tx - min_tile_x) * TILE_SIZE
-            return ys, xs, tile
+            async with semaphore:
+                url = tile_url.format(z=zoom, x=tx, y=ty)
+                response = await client.get(url)
+                response.raise_for_status()
+                tile = _terrarium_elevation(response.content)
+                ys = (ty - min_tile_y) * TILE_SIZE
+                xs = (tx - min_tile_x) * TILE_SIZE
+                return ys, xs, tile
 
         tasks = [
             _fetch_tile(tile_x, tile_y)
