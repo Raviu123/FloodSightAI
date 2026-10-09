@@ -44,9 +44,11 @@ def ensure_merit_tile_extracted(tile_id: str, indicator: str) -> Optional[Path]:
     if target_path.exists() and target_path.stat().st_size > 1000:
         return target_path
 
-    tar_path = REPO_ROOT / f"{folder_name}.tar"
+    tar_path = REPO_ROOT / "data" / f"{folder_name}.tar"
     if not tar_path.exists():
-        return None
+        tar_path = REPO_ROOT / f"{folder_name}.tar"
+        if not tar_path.exists():
+            return None
 
     try:
         with tarfile.open(tar_path, "r") as tar:

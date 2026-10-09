@@ -31,8 +31,8 @@ def chat_with_copilot(req: ChatRequest):
         target_zone=result["target_zone"],
         grounded_facts=result["grounded_facts"],
         tools_invoked=result["tools_invoked"],
-        suggested_actions=["Check Evacuation Corridor", "View Nearest Shelters", "Dial Emergency Helpline 112"],
-        referenced_zones=[result["target_zone"]],
+        suggested_actions=result.get("suggested_actions", ["Check Evacuation Corridor", "View Nearest Shelters", "Dial Emergency Helpline 112"]),
+        referenced_zones=result.get("referenced_zones", [result["target_zone"]]),
     )
 
 

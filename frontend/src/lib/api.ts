@@ -8,6 +8,9 @@ import type {
     SimulationResponse,
     SITREPReport,
     ThreatLevel,
+    Timeline24hResponse,
+    WhatIfInput,
+    WhatIfResponse,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -17,7 +20,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
  */
 export async function checkBackendHealth(): Promise<{ status: "online" | "offline"; message?: string }> {
     try {
-        const res = await fetch(`${API_BASE_URL}/health`, {
+        const res = await fetch(`${API_BASE_URL}/api/v1/health`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             cache: "no-store",
@@ -28,15 +31,15 @@ export async function checkBackendHealth(): Promise<{ status: "online" | "offlin
     } catch (_) {
         // Fallback for offline local dev mode
     }
-    return { status: "online" };
+    return { status: "offline" };
 }
 
 /**
- * Execute hydrological simulation predictions
+ * Execute AI Coastal Flood Simulation predictions
  */
 export async function runSimulation(input: SimulationInput): Promise<SimulationResponse> {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/predict`, {
+        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/run`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(input),
@@ -147,6 +150,129 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
         ],
         recommendation: "Deploy priority NDRF boats to Bengre Sand Spit and activate Ullal coastal evacuation corridors.",
     };
+}
+
+/**
+ * Fetch 24-Hour Flood Propagation Timeline
+ */
+export async function fetch24hTimeline(input: SimulationInput): Promise<Timeline24hResponse | null> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/forecast-timeline-24h`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Fallback for offline mode
+    }
+
+    // Client-side 24h mathematical projection fallback
+    const steps = [];
+    const baseTide = input.tide_level_meters || 2.4;
+    const baseRain = input.rainfall_mm_per_hour || 65;
+    let maxDepth = 0;
+    let peakH = 12;
+
+    for (let h = 1; h <= 24; h++) {
+        const tideOffset = Math.sin((h / 12.4) * 2 * Math.PI) * 0.9;
+        const hourlyTide = Math.max(0, baseTide + tideOffset);
+        const rainMult = Math.max(0.1, Math.exp(-Math.pow(h - 10, 2) / 25.0) * 1.6);
+        const hourlyRain = baseRain * rainMult;
+        const depth = Number((hourlyTide * 0.85 + hourlyRain * 0.008).toFixed(2));
+        if (depth > maxDepth) {
+            maxDepth = depth;
+            peakH = h;
+        }
+
+        const risk: ThreatLevel = depth > 2.0 ? "CRITICAL" : depth > 1.2 ? "HIGH" : depth > 0.6 ? "MEDIUM" : "LOW";
+
+        steps.push({
+            hour: h,
+            tide_level_meters: Number(hourlyTide.toFixed(2)),
+            rainfall_mm_per_hour: Number(hourlyRain.toFixed(1)),
+            total_population_at_risk: Math.round(depth * 28000),
+            inundated_area_sq_km: Number((depth * 14.5).toFixed(1)),
+            critical_zones_count: depth > 1.5 ? 2 : depth > 0.8 ? 1 : 0,
+            overall_risk: risk,
+            zone_depths: {
+                "IXE-01": depth,
+                "IXE-02": Number(Math.max(0, depth - 0.25).toFixed(2)),
+            },
+        });
+    }
+
+    return {
+        simulation_id: `TL-LOCAL-${Date.now().toString().slice(-6)}`,
+        generated_at: new Date().toISOString(),
+        total_hours: 24,
+        peak_hour: peakH,
+        peak_water_depth_m: maxDepth,
+        max_population_at_risk: Math.round(maxDepth * 28000),
+        timeline_steps: steps,
+    };
+}
+
+/**
+ * Execute What-If Counterfactual Sensitivity Analysis
+ */
+export async function fetchWhatIfAnalysis(input: WhatIfInput): Promise<WhatIfResponse | null> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/what-if`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Fallback
+    }
+
+    const baseRes = await runSimulation(input.base_params);
+    const counterParams: SimulationInput = {
+        ...input.base_params,
+        tide_level_meters: Math.max(0, input.base_params.tide_level_meters + (input.tide_delta_m || 0)),
+        rainfall_mm_per_hour: Math.max(0, input.base_params.rainfall_mm_per_hour * (1 + (input.rain_delta_pct || 0) / 100)),
+    };
+    const counterRes = await runSimulation(counterParams);
+
+    const deltaArea = Number((counterRes.estimated_inundated_area_sq_km - baseRes.estimated_inundated_area_sq_km).toFixed(2));
+    const deltaPop = counterRes.total_population_at_risk - baseRes.total_population_at_risk;
+
+    return {
+        scenario_summary: `What-If Analysis: ${deltaArea >= 0 ? "+" : ""}${deltaArea} km² land and ${deltaPop >= 0 ? "+" : ""}${deltaPop.toLocaleString()} residents affected.`,
+        base_threat_level: baseRes.overall_risk,
+        new_threat_level: counterRes.overall_risk,
+        avoided_or_added_inundation_sq_km: deltaArea,
+        avoided_or_added_population_at_risk: deltaPop,
+        base_response: baseRes,
+        counterfactual_response: counterRes,
+    };
+}
+
+/**
+ * Fetch trained ML model performance metrics
+ */
+export async function fetchModelMetrics(): Promise<any | null> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/simulation/metrics`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Fallback
+    }
+    return null;
 }
 
 /**

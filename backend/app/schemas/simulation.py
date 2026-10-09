@@ -18,6 +18,9 @@ class ZoneOverrideItem(BaseModel):
     drainage_blocked_pct: Optional[float] = None
 
 
+ZoneOverrideInput = ZoneOverrideItem
+
+
 class SimulationInput(BaseModel):
     tide_level_meters: float = Field(default=2.4, ge=0.0, le=10.0, description="Tide level above MSL in meters")
     rainfall_mm_per_hour: float = Field(default=65.0, ge=0.0, le=500.0, description="Precipitation rate in mm/hour")
@@ -25,6 +28,8 @@ class SimulationInput(BaseModel):
     wind_speed_kmh: Optional[float] = Field(default=35.0, ge=0.0, description="Wind speed in km/h")
     cyclone_active: Optional[bool] = Field(default=False, description="Whether a cyclonic storm surge is active")
     soil_saturation: Optional[float] = Field(default=0.75, ge=0.0, le=1.0, description="Soil saturation index (0-1)")
+    river_discharge_m3_s: Optional[float] = Field(default=None, description="Optional upstream river discharge rate in m3/s")
+    region_id: Optional[str] = Field(default=None, description="Optional target regional hotspot ID filter (e.g., mumbai, guwahati, chennai, all)")
     zone_overrides: Optional[List[ZoneOverrideItem]] = Field(default=None, description="Optional localized zone parameter overrides")
 
 
@@ -55,6 +60,7 @@ class EnhancedZoneResult(BaseModel):
     zone_name: str
     state: str
     region: str
+    zone_type: str = "COASTAL"
     elevation_meters: float
     population: int
     dist_to_coast_km: float

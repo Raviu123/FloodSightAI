@@ -131,5 +131,40 @@ class FloodShieldLogger:
         print(f"{WHITE}|  {BOLD}PRIORITY 1:{RESET}   {BOLD}{top_zone}{RESET} -> {YELLOW}{top_action}{RESET}")
         print(f"{WHITE}+-----------------------------------------------------------------------------{RESET}")
 
+    def log_assistant_chat(
+        self,
+        user_message: str,
+        user_role: str,
+        target_zone: str,
+        threat_level: str,
+        tools_invoked: List[str],
+        exec_time_ms: float,
+        model_used: str,
+        reply_snippet: str,
+        suggested_actions: List[str] = None,
+    ):
+        clean_msg = (user_message or "").strip().replace("\n", " ")
+        if len(clean_msg) > 75:
+            clean_msg = clean_msg[:72] + "..."
+        clean_reply = (reply_snippet or "").strip().replace("\n", " ")
+        if len(clean_reply) > 90:
+            clean_reply = clean_reply[:87] + "..."
+
+        print(f"{CYAN}{BOLD}+-- AI DISASTER COPILOT INTERACTION ------------------------------------------{RESET}")
+        print(f"{WHITE}|  {BOLD}USER QUERY:{RESET}  \"{YELLOW}{clean_msg}{RESET}\"")
+        print(
+            f"{WHITE}|  {BOLD}CONTEXT:{RESET}     Role: {MAGENTA}{user_role.upper()}{RESET} | "
+            f"Target: {CYAN}{BOLD}{target_zone}{RESET} | "
+            f"Threat: {get_threat_badge(threat_level)}"
+        )
+        tools_str = ", ".join(tools_invoked) if tools_invoked else "direct_grounded_lookup"
+        print(f"{WHITE}|  {BOLD}TOOLS DISPATCHED:{RESET} {GREEN}{tools_str}{RESET}")
+        print(f"{WHITE}|  {BOLD}MODEL / ENGINE:{RESET}   {CYAN}{model_used}{RESET} | Total Latency: {GREEN}{exec_time_ms:.1f}ms{RESET}")
+        print(f"{WHITE}|  {BOLD}RESPONSE PREVIEW:{RESET} {WHITE}{clean_reply}{RESET}")
+        if suggested_actions:
+            acts_str = " | ".join(suggested_actions[:3])
+            print(f"{WHITE}|  {BOLD}SUGGESTED ACTIONS:{RESET} {DIM}{acts_str}{RESET}")
+        print(f"{CYAN}+-----------------------------------------------------------------------------{RESET}")
+
 
 logger = FloodShieldLogger()
