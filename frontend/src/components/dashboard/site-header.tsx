@@ -28,6 +28,8 @@ export function SiteHeader() {
         switch (pathname) {
             case "/simulation":
                 return { section: "Hydrology", page: "Simulation & Surge Engine" };
+            case "/sms":
+                return { section: "Dispatch", page: "Emergency SMS Broadcast Center" };
             case "/alerts":
                 return { section: "Emergency", page: "Hazard Matrix & Evacuation" };
             case "/analytics":

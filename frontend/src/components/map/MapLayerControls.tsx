@@ -43,6 +43,8 @@ export interface MapLayerState {
     elevationSafety: boolean;
     indiaBaseline: boolean;
     indiaHotspots: boolean;
+    scenarioInundation?: boolean;
+    scenarioComparison?: boolean;
     is3DTerrain?: boolean;
     layerOpacity: number;
 }

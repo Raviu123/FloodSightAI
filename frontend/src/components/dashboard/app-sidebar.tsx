@@ -48,6 +48,12 @@ const telemetryData = {
             icon: Sliders,
         },
         {
+            title: "SMS & Broadcast Module",
+            url: "/sms",
+            icon: Radio,
+            badge: "TEXTBEE",
+        },
+        {
             title: "Hazard & Evacuation",
             url: "/alerts",
             icon: Bell,

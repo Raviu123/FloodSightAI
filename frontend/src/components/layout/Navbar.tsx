@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, Sliders, Bell, BarChart3, Activity, Terminal, ArrowUpRight } from "lucide-react";
+import { Shield, Sliders, Bell, BarChart3, Activity, Terminal, ArrowUpRight, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 
 const navItems = [
   { name: "Overview", href: "/", icon: Activity },
   { name: "Simulation Engine", href: "/simulation", icon: Sliders },
+  { name: "SMS Broadcast", href: "/sms", icon: MessageSquare },
   { name: "Alerts & Evacuation", href: "/alerts", icon: Bell },
   { name: "Decision Intelligence", href: "/analytics", icon: BarChart3 },
 ];

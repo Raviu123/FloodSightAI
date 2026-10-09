@@ -240,7 +240,8 @@ class TerrainCacheManager {
                 if (config?.danger_percentile) params.set("danger_percentile", config.danger_percentile.toString());
                 if (config?.safe_percentile) params.set("safe_percentile", config.safe_percentile.toString());
 
-                const res = await fetch(`${apiBaseUrl}/terrain/elevation-safety?${params}`, {
+                const cleanBaseUrl = apiBaseUrl.replace(/\/+$/, "").replace(/\/api\/v1$/, "");
+                const res = await fetch(`${cleanBaseUrl}/api/v1/terrain/elevation-safety?${params}`, {
                     signal,
                 });
                 if (!res.ok) return null;
