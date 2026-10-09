@@ -9,6 +9,8 @@ import {
     EVACUATION_ROUTES_GEOJSON,
     generateFloodInundationGeoJSON,
     GOOGLE_FLOOD_HUB_COVERAGE_GEOJSON,
+    HISTORICAL_FLOOD_CENTROIDS_GEOJSON,
+    HISTORICAL_FLOOD_ZONES_GEOJSON,
     LOW_LYING_AREAS_GEOJSON,
     REAL_DEM_ZONE_TILES_RAW,
     REGION_PRESETS,
@@ -156,7 +158,7 @@ export function MapLibreMap({
     // Layer toggles state
     const [layers, setLayers] = useState<MapLayerState>({
         dangerZones: false,
-        historicalFloods: false,
+        historicalFloods: true,
         floodCoverage: false,
         lowLyingAreas: false,
         waterBodies: true,
@@ -242,6 +244,10 @@ export function MapLibreMap({
             }
         };
 
+        setVis("historical-flood-zones-fill", lState.historicalFloods);
+        setVis("historical-flood-zones-stroke", lState.historicalFloods);
+        setVis("historical-flood-centroids-halo", lState.historicalFloods);
+        setVis("historical-flood-centroids-circle", lState.historicalFloods);
         setVis("flood-coverage-layer-fill", lState.floodCoverage);
         setVis("flood-coverage-layer-stroke", lState.floodCoverage);
         setVis("danger-zones-layer-fill", lState.dangerZones);
@@ -363,7 +369,71 @@ export function MapLibreMap({
                 });
             }
 
-            // 0. Google Flood Hub Extended Regional Floodplain Coverage Network
+            // 0a. 108 Historical Flood Zones (DEM calibrated inundation polygons)
+            if (!map.getSource("historical-flood-zones-source")) {
+                map.addSource("historical-flood-zones-source", {
+                    type: "geojson",
+                    data: HISTORICAL_FLOOD_ZONES_GEOJSON,
+                });
+            }
+            if (!map.getLayer("historical-flood-zones-fill")) {
+                map.addLayer({
+                    id: "historical-flood-zones-fill",
+                    type: "fill",
+                    source: "historical-flood-zones-source",
+                    paint: {
+                        "fill-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "fill-opacity": ["coalesce", ["get", "fillOpacity"], 0.65],
+                    },
+                });
+            }
+            if (!map.getLayer("historical-flood-zones-stroke")) {
+                map.addLayer({
+                    id: "historical-flood-zones-stroke",
+                    type: "line",
+                    source: "historical-flood-zones-source",
+                    paint: {
+                        "line-color": ["coalesce", ["get", "strokeColor"], "#c2410c"],
+                        "line-width": ["coalesce", ["get", "strokeWidth"], 2.5],
+                        "line-opacity": 0.95,
+                    },
+                });
+            }
+
+            // 0b. Historical Flood Event Centroid Pulse Markers
+            if (!map.getSource("historical-flood-centroids-source")) {
+                map.addSource("historical-flood-centroids-source", {
+                    type: "geojson",
+                    data: HISTORICAL_FLOOD_CENTROIDS_GEOJSON,
+                });
+            }
+            if (!map.getLayer("historical-flood-centroids-halo")) {
+                map.addLayer({
+                    id: "historical-flood-centroids-halo",
+                    type: "circle",
+                    source: "historical-flood-centroids-source",
+                    paint: {
+                        "circle-radius": 14,
+                        "circle-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "circle-opacity": 0.35,
+                    },
+                });
+            }
+            if (!map.getLayer("historical-flood-centroids-circle")) {
+                map.addLayer({
+                    id: "historical-flood-centroids-circle",
+                    type: "circle",
+                    source: "historical-flood-centroids-source",
+                    paint: {
+                        "circle-radius": 7,
+                        "circle-color": ["coalesce", ["get", "riskColor"], "#ea580c"],
+                        "circle-stroke-width": 2,
+                        "circle-stroke-color": "#ffffff",
+                    },
+                });
+            }
+
+            // 0c. Google Flood Hub Extended Regional Floodplain Coverage Network
             if (!map.getSource("flood-coverage-source")) {
                 map.addSource("flood-coverage-source", {
                     type: "geojson",
@@ -884,6 +954,52 @@ export function MapLibreMap({
         popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(lngLat).setHTML(popupHtml).addTo(map);
     };
 
+    const openHistoricalFloodPopup = (
+        props: Record<string, any>,
+        lngLat: maplibregl.LngLatLike,
+        map: maplibregl.Map,
+    ) => {
+        if (popupRef.current) popupRef.current.remove();
+
+        const riskColor = props.riskColor || "#ea580c";
+        const riskTier = props.riskTier || "HIGH";
+        const casualtyCount = Number(props.casualtyCount || 0);
+        const economicLoss = Number(props.economicLossCroreINR || 0);
+
+        const popupHtml = `
+            <div class="p-3.5 space-y-2 text-zinc-100 min-w-[300px] max-w-[340px] font-mono">
+                <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-xs text-amber-400">${props.eventId || "HIST-FLD"}</span>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-semibold">${props.year || "Recorded"} EVENT</span>
+                    </div>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase" style="background: ${riskColor}26; color: ${riskColor}; border: 1px solid ${riskColor}60">
+                        ${riskTier} RISK
+                    </span>
+                </div>
+                <div class="font-sans font-bold text-sm leading-snug text-white">${props.name || "Historical Flood Extent"}</div>
+                <div class="text-[11px] text-zinc-400 font-sans">${props.district ? `${props.district}, ` : ""}${props.state || ""}</div>
+
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] pt-1 text-zinc-300 border-t border-zinc-850">
+                    <div>Peak Water Level: <b class="text-white">${props.recordedWaterLevelMetersMSL ?? "N/A"}m MSL</b></div>
+                    <div>24h Peak Rain: <b class="text-sky-300">${props.peakRainfall24hMm ?? "N/A"} mm</b></div>
+                    <div>Inundated Area: <b class="text-amber-400">${props.recordedAreaSqKm ?? "N/A"} km²</b></div>
+                    <div>Casualties: <b class="${casualtyCount > 0 ? "text-rose-400" : "text-emerald-400"}">${casualtyCount}</b></div>
+                    <div class="col-span-2">Economic Loss: <b class="text-amber-300">₹${economicLoss.toLocaleString()} Crore</b></div>
+                </div>
+
+                <div class="text-[10px] text-zinc-400 border-t border-zinc-850 pt-1.5 font-sans">
+                    Major Waterbody: <span class="text-cyan-300 font-medium">${props.majorWaterbody || "Coastal Basin"}</span>
+                </div>
+                <div class="text-[10px] text-zinc-400 font-sans">
+                    Primary Driver: <span class="text-zinc-200 font-medium">${props.primaryDriver || "Cyclonic Storm Surge"}</span>
+                </div>
+            </div>
+        `;
+
+        popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(lngLat).setHTML(popupHtml).addTo(map);
+    };
+
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
@@ -1015,6 +1131,19 @@ export function MapLibreMap({
             popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(coords).setHTML(popupHtml).addTo(map);
         });
 
+        // Click handler for 108 Historical Flood Zones Polygon
+        map.on("click", "historical-flood-zones-fill", e => {
+            if (!e.features || !e.features[0]) return;
+            openHistoricalFloodPopup(e.features[0].properties || {}, e.lngLat, map);
+        });
+
+        // Click handler for 108 Historical Flood Zones Centroid Marker
+        map.on("click", "historical-flood-centroids-circle", e => {
+            if (!e.features || !e.features[0]) return;
+            const coords = (e.features[0].geometry as any).coordinates.slice();
+            openHistoricalFloodPopup(e.features[0].properties || {}, coords, map);
+        });
+
         // Click handler for Evacuation Routes
         map.on("click", "evacuation-routes-layer-line", e => {
             if (!e.features || !e.features[0]) return;
@@ -1048,6 +1177,10 @@ export function MapLibreMap({
         map.on("mouseleave", "danger-zones-layer-fill", resetPointer);
         map.on("mouseenter", "danger-zones-centroids-circle", setPointer);
         map.on("mouseleave", "danger-zones-centroids-circle", resetPointer);
+        map.on("mouseenter", "historical-flood-zones-fill", setPointer);
+        map.on("mouseleave", "historical-flood-zones-fill", resetPointer);
+        map.on("mouseenter", "historical-flood-centroids-circle", setPointer);
+        map.on("mouseleave", "historical-flood-centroids-circle", resetPointer);
         map.on("mouseenter", "elevation-safety-outline", setPointer);
         map.on("mousemove", "elevation-safety-outline", () => {
             for (const layerId of [
