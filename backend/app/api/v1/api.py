@@ -1,10 +1,11 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, simulation, zones, alerts, ai_assistant, decision, sitrep, sms, terrain
+from app.api.v1.endpoints import health, simulation, zones, alerts, ai_assistant, decision, sitrep, sms, terrain, scenario_simulation
 
 api_router = APIRouter()
 
 api_router.include_router(health.router, tags=["Health"])
 api_router.include_router(simulation.router, prefix="/simulation", tags=["AI Simulation Engine"])
+api_router.include_router(scenario_simulation.router, prefix="/simulation/scenarios", tags=["Multi-Scenario Hydro Simulation"])
 api_router.include_router(zones.router, prefix="/zones", tags=["Coastal Zones & Infrastructure"])
 api_router.include_router(decision.router, prefix="/decision", tags=["Juve Decision Framework"])
 api_router.include_router(sitrep.router, prefix="/sitrep", tags=["Automated SITREP Briefing"])

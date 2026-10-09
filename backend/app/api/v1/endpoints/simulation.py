@@ -20,6 +20,7 @@ from app.core.logging_config import logger
 router = APIRouter()
 
 
+@router.post("/predict", response_model=SimulationResponse, summary="Predict Coastal Flood Hazards via ML Models")
 @router.post("/run", response_model=SimulationResponse, summary="Run AI Coastal Flood Simulation")
 def run_simulation(params: SimulationInput, db: Session = Depends(get_db)):
     """
