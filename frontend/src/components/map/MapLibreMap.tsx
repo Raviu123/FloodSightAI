@@ -115,6 +115,10 @@ export interface MapLibreMapProps {
     heightClassName?: string;
     onZoneSelect?: (zone: any) => void;
     interactive?: boolean;
+    activeRegionId?: string;
+    onRegionChange?: (regionId: string) => void;
+    simulationGeoJson?: any;
+    comparisonGeoJson?: any;
 }
 
 export function MapLibreMap({
@@ -123,6 +127,10 @@ export function MapLibreMap({
     heightClassName = "h-[650px]",
     onZoneSelect,
     interactive = true,
+    activeRegionId: propActiveRegionId,
+    onRegionChange,
+    simulationGeoJson,
+    comparisonGeoJson,
 }: MapLibreMapProps) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const rootContainerRef = useRef<HTMLDivElement>(null);
@@ -130,7 +138,7 @@ export function MapLibreMap({
     const popupRef = useRef<maplibregl.Popup | null>(null);
 
     const [currentStyleId, setCurrentStyleId] = useState<BaseMapStyleId>("satellite");
-    const [activeRegionId, setActiveRegionId] = useState<string>("mangalore");
+    const [activeRegionId, setActiveRegionId] = useState<string>(propActiveRegionId || "mangalore");
     const [mapLoaded, setMapLoaded] = useState(false);
     const [mapStyleVersion, setMapStyleVersion] = useState(0);
     const [cameraMode, setActiveCameraMode] = useState<CameraMode>("intelligence");
@@ -148,6 +156,7 @@ export function MapLibreMap({
     // Layer toggles state
     const [layers, setLayers] = useState<MapLayerState>({
         dangerZones: false,
+        historicalFloods: false,
         floodCoverage: false,
         lowLyingAreas: false,
         waterBodies: true,

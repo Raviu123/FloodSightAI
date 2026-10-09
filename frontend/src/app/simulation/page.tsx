@@ -4,11 +4,13 @@ import { FloodMap } from "@/components/map/FloodMap";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AiCopilotPanel } from "@/components/chat/AiCopilotPanel";
 import { REGION_PRESETS } from "@/data/coastal-map-data";
 import { API_V1_URL } from "@/lib/api";
 import {
     AlertTriangle,
     ArrowRightLeft,
+    Bot,
     ChevronDown,
     ChevronUp,
     Clock,
@@ -112,6 +114,7 @@ export default function SimulationPage() {
     const [comparisonMode, setComparisonMode] = useState<boolean>(false);
     const [timelineIndex, setTimelineIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isCopilotOpen, setIsCopilotOpen] = useState(false);
 
     // Collapsible Console Sections State
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -159,26 +162,15 @@ export default function SimulationPage() {
                 }
                 return next;
             });
-        }, 800);
+        }, 1200);
+
         return () => window.clearInterval(timer);
     }, [isPlaying, simulationResult]);
 
-    // Apply preset configuration
-    const applyPreset = (preset: any) => {
-        if (!preset?.config) return;
-        const cfg = preset.config;
-        setRainfallIntensity(cfg.rainfall_intensity_mm_h || 75);
-        setRainfallDuration(cfg.rainfall_duration_hours || 6);
-        setSoilSaturation(cfg.soil_saturation_index || 0.75);
-        setCoastalSurge(cfg.coastal_surge_stage_m || 0);
-        setRiverInflow(cfg.river_inflow_m3_s || 0);
-        setTotalDuration(cfg.total_duration_hours || 12);
-    };
-
-    // Execute 2D Hydrodynamic Simulation
+    // Handle single scenario execution
     const handleRunSimulation = async () => {
         if (!isRegionValid) {
-            setSimulationError("Hotspot Region Selection Required: Select an official flood hotspot before running.");
+            setSimulationError("Please select an official hotspot region before executing simulation.");
             return;
         }
 
@@ -186,89 +178,99 @@ export default function SimulationPage() {
         setSimulationError(null);
         setComparisonResult(null);
 
-        const scenarioPayload = {
-            scenario_id: `scen_${selectedRegionId}_${rainfallIntensity}mm_${rainfallDuration}h`,
-            name: `${activePresetRegion?.name || selectedRegionId} Hydro Run (${rainfallIntensity}mm/h)`,
-            description: `${rainfallIntensity} mm/h for ${rainfallDuration}h with ${(soilSaturation * 100).toFixed(0)}% soil saturation`,
+        const payload = {
+            name: `Manual Run: ${activePresetRegion?.name ?? selectedRegionId}`,
             spatial_domain: selectedRegionId,
-            rainfall_intensity_mm_h: rainfallIntensity,
+            rainfall_intensity_mm_per_hr: rainfallIntensity,
             rainfall_duration_hours: rainfallDuration,
-            soil_saturation_index: soilSaturation,
-            coastal_surge_stage_m: coastalSurge,
-            river_inflow_m3_s: riverInflow,
-            time_step_minutes: 15.0,
+            soil_saturation_ratio: soilSaturation,
+            coastal_surge_peak_m: coastalSurge,
+            river_inflow_m3_per_sec: riverInflow,
             total_duration_hours: totalDuration,
-            hypothetical_disclaimer:
-                "Hypothetical 2D hydrodynamic simulation output for planning and sensitivity analysis.",
+            apply_coastal_surge: coastalSurge > 0,
+            apply_river_inflow: riverInflow > 0,
+            time_step_seconds: 60,
         };
 
         try {
             const res = await fetch(`${API_V1_URL}/simulation/scenarios/run`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(scenarioPayload),
+                body: JSON.stringify(payload),
             });
 
             if (!res.ok) {
-                const errData = await res.json().catch(() => ({ detail: "Simulation request failed" }));
+                const errData = await res.json().catch(() => null);
                 throw new Error(formatSimulationError(errData, res.status));
             }
 
-            const data: ScenarioRunResultData = await res.json();
+            const data = await res.json();
             setSimulationResult(data);
             setTimelineIndex(0);
             setIsPlaying(false);
+            setOpenSections(prev => ({ ...prev, metrics: true }));
         } catch (err: any) {
-            console.error("Simulation error:", err);
-            setSimulationError(err.message || "Failed to execute hydrodynamic simulation.");
+            setSimulationError(err.message || "Failed to execute simulation. Backend may be offline.");
         } finally {
             setIsSimulating(false);
         }
     };
 
-    // Compare Baseline Simulation with a Counterfactual Run/Preset
-    const handleCompareScenario = async (compPreset: any) => {
-        if (!simulationResult) {
-            setSimulationError("Run a baseline simulation first before comparing scenarios.");
+    // Apply preset scenario configuration
+    const handleApplyPreset = (scenario: any) => {
+        if (scenario.rainfall_intensity_mm_per_hr !== undefined) {
+            setRainfallIntensity(scenario.rainfall_intensity_mm_per_hr);
+        }
+        if (scenario.rainfall_duration_hours !== undefined) {
+            setRainfallDuration(scenario.rainfall_duration_hours);
+        }
+        if (scenario.soil_saturation_ratio !== undefined) {
+            setSoilSaturation(scenario.soil_saturation_ratio);
+        }
+        if (scenario.coastal_surge_peak_m !== undefined) {
+            setCoastalSurge(scenario.coastal_surge_peak_m);
+        }
+        if (scenario.river_inflow_m3_per_sec !== undefined) {
+            setRiverInflow(scenario.river_inflow_m3_per_sec);
+        }
+        if (scenario.total_duration_hours !== undefined) {
+            setTotalDuration(scenario.total_duration_hours);
+        }
+    };
+
+    // Handle Comparative Scenario Execution
+    const handleRunComparison = async (baselineScenario: any, comparisonScenario: any) => {
+        if (!isRegionValid) {
+            setSimulationError("Please select an official hotspot region before executing comparison.");
             return;
         }
-        if (!compPreset?.config) return;
 
         setIsSimulating(true);
         setSimulationError(null);
 
-        const compConfig = {
-            ...compPreset.config,
-            spatial_domain: selectedRegionId,
-            scenario_id: `scen_comp_${selectedRegionId}_${compPreset.preset_id}`,
+        const payload = {
+            baseline_scenario: baselineScenario,
+            comparison_scenario: comparisonScenario,
         };
 
         try {
-            // First run comparison scenario to ensure run exists in backend DB
-            const compRunRes = await fetch(`${API_V1_URL}/simulation/scenarios/run`, {
+            const res = await fetch(`${API_V1_URL}/simulation/scenarios/compare`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(compConfig),
+                body: JSON.stringify(payload),
             });
-            if (!compRunRes.ok) throw new Error("Failed to execute comparison scenario run.");
-            const compRunData: ScenarioRunResultData = await compRunRes.json();
 
-            // Compare baseline with comparison run
-            const cmpRes = await fetch(`${API_V1_URL}/simulation/scenarios/compare`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    baseline_run_id: simulationResult.run_id,
-                    comparison_run_id: compRunData.run_id,
-                }),
-            });
-            if (!cmpRes.ok) throw new Error("Failed to compute scenario comparison deltas.");
-            const cmpData: ScenarioComparisonResultData = await cmpRes.json();
+            if (!res.ok) {
+                const errData = await res.json().catch(() => null);
+                throw new Error(formatSimulationError(errData, res.status));
+            }
 
-            setComparisonResult(cmpData);
+            const data = await res.json();
+            setComparisonResult(data);
             setComparisonMode(true);
+            setOpenSections(prev => ({ ...prev, comparison: true, metrics: true }));
         } catch (err: any) {
-            setSimulationError(err.message || "Failed to compare scenarios.");
+            setSimulationError(err.message || "Failed to execute scenario comparison.");
         } finally {
             setIsSimulating(false);
         }
@@ -287,10 +289,11 @@ export default function SimulationPage() {
                         variant="outline"
                         className="text-[10px] font-mono border-sky-800/60 text-sky-300 bg-sky-950/40"
                     >
-                        v2.0 2D-Storage-Cell
+                        v2.1 2D-Storage-Cell
                     </Badge>
                 </div>
 
+                {/* Top Actions */}
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
@@ -315,6 +318,17 @@ export default function SimulationPage() {
                     </Button>
 
                     <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsCopilotOpen(true)}
+                        className="font-mono text-xs gap-1.5 h-8 border-cyan-800/80 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 shadow-sm cursor-pointer"
+                    >
+                        <Bot className="h-3.5 w-3.5 text-cyan-400" />
+                        AI Copilot
+                    </Button>
+
+                    <Button
+                        variant="outline"
                         size="sm"
                         disabled={!isRegionValid || isSimulating}
                         onClick={handleRunSimulation}
@@ -402,188 +416,83 @@ export default function SimulationPage() {
                                 </CardTitle>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span
-                                    className={`h-2 w-2 rounded-full ${isRegionValid ? "bg-emerald-400 animate-pulse" : "bg-amber-500"}`}
-                                />
-                                <span className="text-[10px] font-mono text-zinc-400 font-medium">
-                                    {isRegionValid ? "HOTSPOT ACTIVE" : "GATE LOCKED"}
-                                </span>
+                                <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse" />
+                                <span className="text-[10px] font-mono text-zinc-400 uppercase">2D Storage Cell</span>
                             </div>
                         </CardHeader>
 
-                        {/* Control Sections */}
-                        <CardContent className="p-0 divide-y divide-zinc-800/60">
-                            {/* Section 1: Mandatory Hotspot Selector */}
-                            <div>
+                        <CardContent className="p-3 space-y-3 max-h-[calc(100vh-16rem)] overflow-y-auto custom-scrollbar">
+                            {/* SECTION 1: Regional Focus & Hotspot Gate */}
+                            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 overflow-hidden">
                                 <button
                                     type="button"
                                     onClick={() => toggleSection("region")}
-                                    className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800/30 transition-colors text-left cursor-pointer"
+                                    className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900/90 hover:bg-zinc-850/80 text-left transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <MapPin className="h-3.5 w-3.5 text-rose-400" />
+                                        <MapPin className="h-3.5 w-3.5 text-sky-400" />
                                         <span className="text-xs font-mono font-medium text-zinc-200">
-                                            Hotspot Domain <span className="text-rose-400">*</span>
+                                            Hotspot Domain Focus
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-mono text-sky-400 bg-sky-950/60 border border-sky-850 px-1.5 py-0.5 rounded font-semibold uppercase">
-                                            {activePresetRegion?.name.split(" ")[0] || "Select"}
-                                        </span>
-                                        {openSections.region ? (
-                                            <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
-                                        ) : (
-                                            <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
-                                        )}
-                                    </div>
-                                </button>
-
-                                {openSections.region && (
-                                    <div className="px-3 py-2.5 bg-zinc-950/50 border-t border-zinc-800/60 space-y-2 font-mono">
-                                        <label className="text-[10px] text-zinc-400 block uppercase tracking-wider">
-                                            Select Flood Hotspot Region (Required):
-                                        </label>
-                                        <select
-                                            value={selectedRegionId}
-                                            onChange={e => setSelectedRegionId(e.target.value)}
-                                            className="w-full h-8 px-2.5 rounded-lg border border-zinc-800 bg-zinc-900 text-xs text-zinc-200 outline-none focus:border-sky-500 cursor-pointer font-mono"
-                                        >
-                                            <option value="" disabled>
-                                                -- Select Official Flood Hotspot --
-                                            </option>
-                                            {HOTSPOT_REGIONS.map(r => (
-                                                <option key={r.id} value={r.id}>
-                                                    {r.name} ({r.state}) [{r.code}]
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {activePresetRegion && (
-                                            <div className="text-[10px] text-zinc-400 pt-0.5 flex justify-between">
-                                                <span>Lat: {activePresetRegion.latitude.toFixed(2)}N</span>
-                                                <span>Lon: {activePresetRegion.longitude.toFixed(2)}E</span>
-                                                <span className="text-emerald-400 font-semibold">MERIT 90m Ready</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Section 2: Scenario Parameters */}
-                            <div>
-                                <button
-                                    type="button"
-                                    onClick={() => toggleSection("environmental")}
-                                    className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800/30 transition-colors text-left cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Sliders className="h-3.5 w-3.5 text-sky-400" />
-                                        <span className="text-xs font-mono font-medium text-zinc-200">
-                                            Scenario Drivers
-                                        </span>
-                                    </div>
-                                    {openSections.environmental ? (
+                                    {openSections.region ? (
                                         <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
                                     ) : (
                                         <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
                                     )}
                                 </button>
 
-                                {openSections.environmental && (
-                                    <div className="px-3 py-2.5 space-y-2.5 bg-zinc-950/50 border-t border-zinc-800/60 font-mono">
-                                        {/* Rainfall Intensity */}
+                                {openSections.region && (
+                                    <div className="p-3 space-y-2 border-t border-zinc-800/60 font-mono text-xs">
                                         <div className="space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                                <span className="text-zinc-400 flex items-center gap-1.5">
-                                                    <CloudRain className="h-3.5 w-3.5 text-blue-400" /> Rain Rate
-                                                </span>
-                                                <span className="font-bold text-sky-400">{rainfallIntensity} mm/h</span>
-                                            </div>
-                                            <input
-                                                type="range"
-                                                min="10"
-                                                max="250"
-                                                step="5"
-                                                value={rainfallIntensity}
-                                                onChange={e => setRainfallIntensity(parseFloat(e.target.value))}
-                                                className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800/80 rounded-full appearance-none"
-                                            />
+                                            <label className="text-[10px] text-zinc-400 uppercase font-semibold">
+                                                Selected Hotspot
+                                            </label>
+                                            <select
+                                                value={selectedRegionId}
+                                                onChange={e => setSelectedRegionId(e.target.value)}
+                                                className="w-full bg-zinc-950 border border-zinc-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                                            >
+                                                {HOTSPOT_REGIONS.map(region => (
+                                                    <option key={region.id} value={region.id}>
+                                                        {region.name} ({region.state})
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
 
-                                        {/* Rainfall Duration */}
-                                        <div className="space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                                <span className="text-zinc-400 flex items-center gap-1.5">
-                                                    <Clock className="h-3.5 w-3.5 text-purple-400" /> Duration
-                                                </span>
-                                                <span className="font-bold text-purple-400">{rainfallDuration}h</span>
+                                        {activePresetRegion && (
+                                            <div className="p-2 rounded bg-zinc-950/60 border border-zinc-800 text-[10px] text-zinc-400 space-y-1">
+                                                <div className="flex justify-between">
+                                                    <span>Center:</span>
+                                                    <span className="text-zinc-300">
+                                                        {activePresetRegion.latitude.toFixed(3)}°N,{" "}
+                                                        {activePresetRegion.longitude.toFixed(3)}°E
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Hydro Focus:</span>
+                                                    <span className="text-sky-400 capitalize">
+                                                        {activePresetRegion.id} Coastal & Riverine Cell
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <input
-                                                type="range"
-                                                min="1"
-                                                max="24"
-                                                step="1"
-                                                value={rainfallDuration}
-                                                onChange={e => setRainfallDuration(parseFloat(e.target.value))}
-                                                className="w-full accent-purple-500 cursor-pointer h-1.5 bg-zinc-800/80 rounded-full appearance-none"
-                                            />
-                                        </div>
-
-                                        {/* Soil Saturation Index (SCS CN) */}
-                                        <div className="space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                                <span className="text-zinc-400 flex items-center gap-1.5">
-                                                    <Droplets className="h-3.5 w-3.5 text-amber-400" /> Soil Saturation
-                                                </span>
-                                                <span className="font-bold text-amber-400">
-                                                    {(soilSaturation * 100).toFixed(0)}%
-                                                </span>
-                                            </div>
-                                            <input
-                                                type="range"
-                                                min="0.10"
-                                                max="0.95"
-                                                step="0.05"
-                                                value={soilSaturation}
-                                                onChange={e => setSoilSaturation(parseFloat(e.target.value))}
-                                                className="w-full accent-amber-500 cursor-pointer h-1.5 bg-zinc-800/80 rounded-full appearance-none"
-                                            />
-                                        </div>
-
-                                        {/* Coastal Storm Surge Stage */}
-                                        <div className="space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                                <span className="text-zinc-400 flex items-center gap-1.5">
-                                                    <Waves className="h-3.5 w-3.5 text-cyan-400" /> Coastal Surge Stage
-                                                </span>
-                                                <span className="font-bold text-cyan-400">
-                                                    +{coastalSurge.toFixed(1)}m
-                                                </span>
-                                            </div>
-                                            <input
-                                                type="range"
-                                                min="0.0"
-                                                max="5.0"
-                                                step="0.2"
-                                                value={coastalSurge}
-                                                onChange={e => setCoastalSurge(parseFloat(e.target.value))}
-                                                className="w-full accent-cyan-500 cursor-pointer h-1.5 bg-zinc-800/80 rounded-full appearance-none"
-                                            />
-                                        </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Section 3: Preset Scenario Families */}
-                            <div>
+                            {/* SECTION 2: Preset Scenario Families & Comparison */}
+                            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 overflow-hidden">
                                 <button
                                     type="button"
                                     onClick={() => toggleSection("presets")}
-                                    className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800/30 transition-colors text-left cursor-pointer"
+                                    className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900/90 hover:bg-zinc-850/80 text-left transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                                        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                                         <span className="text-xs font-mono font-medium text-zinc-200">
-                                            Preset Families
+                                            Preset Scenario Families
                                         </span>
                                     </div>
                                     {openSections.presets ? (
@@ -594,58 +503,284 @@ export default function SimulationPage() {
                                 </button>
 
                                 {openSections.presets && (
-                                    <div className="p-2.5 grid grid-cols-1 gap-2 bg-zinc-950/50 border-t border-zinc-800/60 font-mono">
-                                        {presetFamilies.map(p => (
-                                            <div
-                                                key={p.preset_id}
-                                                className="p-2 rounded-xl border border-zinc-800/70 bg-zinc-900/60 hover:border-zinc-700 text-left transition-all space-y-1"
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[11px] font-bold text-zinc-200 truncate">
-                                                        {p.title}
-                                                    </span>
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="text-[9px] px-1 py-0 border-zinc-700 text-zinc-400"
-                                                    >
-                                                        {p.category}
-                                                    </Badge>
-                                                </div>
-                                                <p className="text-[10px] text-zinc-400 leading-tight">
-                                                    {p.description}
-                                                </p>
-                                                <div className="flex items-center gap-2 pt-1">
-                                                    <button
-                                                        onClick={() => applyPreset(p)}
-                                                        className="px-2 py-0.5 rounded text-[10px] bg-sky-950 border border-sky-800/60 text-sky-300 hover:bg-sky-900 cursor-pointer"
-                                                    >
-                                                        Load Driver
-                                                    </button>
-                                                    {simulationResult && (
-                                                        <button
-                                                            onClick={() => handleCompareScenario(p)}
-                                                            className="px-2 py-0.5 rounded text-[10px] bg-purple-950 border border-purple-800/60 text-purple-300 hover:bg-purple-900 cursor-pointer flex items-center gap-1"
+                                    <div className="p-3 space-y-2 border-t border-zinc-800/60 font-mono text-xs">
+                                        {presetFamilies.length === 0 ? (
+                                            <div className="text-[11px] text-zinc-500 italic text-center py-2">
+                                                No preset families loaded for this domain.
+                                            </div>
+                                        ) : (
+                                            presetFamilies.map(family => (
+                                                <div
+                                                    key={family.family_name}
+                                                    className="p-2 rounded-lg bg-zinc-950/80 border border-zinc-800 space-y-2"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[11px] font-bold text-amber-300">
+                                                            {family.family_name}
+                                                        </span>
+                                                        <span className="text-[9px] text-zinc-500">
+                                                            {family.scenarios?.length || 0} scenarios
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 gap-1.5">
+                                                        {family.scenarios?.map((sc: any) => (
+                                                            <div
+                                                                key={sc.scenario_id}
+                                                                className="flex items-center justify-between p-1.5 rounded bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 text-[10px]"
+                                                            >
+                                                                <div className="truncate pr-2">
+                                                                    <div className="font-semibold text-zinc-200 truncate">
+                                                                        {sc.name}
+                                                                    </div>
+                                                                    <div className="text-zinc-500 text-[9px]">
+                                                                        Rain: {sc.rainfall_intensity_mm_per_hr}mm/h |
+                                                                        Surge: {sc.coastal_surge_peak_m}m
+                                                                    </div>
+                                                                </div>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="xs"
+                                                                    onClick={() => handleApplyPreset(sc)}
+                                                                    className="h-6 px-2 text-[9px] font-mono text-sky-400 hover:text-sky-300 hover:bg-sky-950/50 cursor-pointer"
+                                                                >
+                                                                    Apply
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Quick Compare Option if 2+ scenarios exist */}
+                                                    {family.scenarios?.length >= 2 && (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="xs"
+                                                            onClick={() =>
+                                                                handleRunComparison(
+                                                                    family.scenarios[0],
+                                                                    family.scenarios[1],
+                                                                )
+                                                            }
+                                                            className="w-full h-6 text-[9px] font-mono text-amber-400 border-amber-900/50 bg-amber-950/20 hover:bg-amber-950/40 gap-1 cursor-pointer"
                                                         >
-                                                            <ArrowRightLeft className="h-2.5 w-2.5" /> Compare Delta
-                                                        </button>
+                                                            <ArrowRightLeft className="h-3 w-3" />
+                                                            Compare {family.scenarios[0].name.split(":")[0]} vs{" "}
+                                                            {family.scenarios[1].name.split(":")[0]}
+                                                        </Button>
                                                     )}
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))
+                                        )}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Section 4: Hydro Telemetry & Mass Conservation */}
+                            {/* SECTION 3: Environmental & Hydrodynamic Parameters */}
+                            <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 overflow-hidden">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("environmental")}
+                                    className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900/90 hover:bg-zinc-850/80 text-left transition-colors cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Sliders className="h-3.5 w-3.5 text-blue-400" />
+                                        <span className="text-xs font-mono font-medium text-zinc-200">
+                                            Hydrodynamic Drivers
+                                        </span>
+                                    </div>
+                                    {openSections.environmental ? (
+                                        <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                                    ) : (
+                                        <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                                    )}
+                                </button>
+
+                                {openSections.environmental && (
+                                    <div className="p-3 space-y-3 border-t border-zinc-800/60 font-mono text-xs">
+                                        {/* Rainfall Intensity Slider */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[11px]">
+                                                <span className="text-zinc-400 flex items-center gap-1">
+                                                    <CloudRain className="h-3 w-3 text-sky-400" />
+                                                    Rainfall Intensity
+                                                </span>
+                                                <span className="text-sky-300 font-bold">
+                                                    {rainfallIntensity} mm/hr
+                                                </span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="250"
+                                                step="5"
+                                                value={rainfallIntensity}
+                                                onChange={e => setRainfallIntensity(Number(e.target.value))}
+                                                className="w-full accent-sky-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
+                                            />
+                                        </div>
+
+                                        {/* Rainfall Duration Slider */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[11px]">
+                                                <span className="text-zinc-400 flex items-center gap-1">
+                                                    <Clock className="h-3 w-3 text-sky-400" />
+                                                    Precipitation Duration
+                                                </span>
+                                                <span className="text-zinc-200 font-bold">{rainfallDuration} hrs</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="24"
+                                                step="1"
+                                                value={rainfallDuration}
+                                                onChange={e => setRainfallDuration(Number(e.target.value))}
+                                                className="w-full accent-sky-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
+                                            />
+                                        </div>
+
+                                        {/* Coastal Surge Peak Slider */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[11px]">
+                                                <span className="text-zinc-400 flex items-center gap-1">
+                                                    <Waves className="h-3 w-3 text-teal-400" />
+                                                    Coastal Surge Peak
+                                                </span>
+                                                <span className="text-teal-300 font-bold">{coastalSurge} m</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="6"
+                                                step="0.1"
+                                                value={coastalSurge}
+                                                onChange={e => setCoastalSurge(Number(e.target.value))}
+                                                className="w-full accent-teal-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
+                                            />
+                                        </div>
+
+                                        {/* Soil Saturation Slider */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[11px]">
+                                                <span className="text-zinc-400 flex items-center gap-1">
+                                                    <Droplets className="h-3 w-3 text-amber-400" />
+                                                    Soil Saturation
+                                                </span>
+                                                <span className="text-amber-300 font-bold">
+                                                    {Math.round(soilSaturation * 100)}%
+                                                </span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0.1"
+                                                max="1.0"
+                                                step="0.05"
+                                                value={soilSaturation}
+                                                onChange={e => setSoilSaturation(Number(e.target.value))}
+                                                className="w-full accent-amber-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
+                                            />
+                                        </div>
+
+                                        {/* Total Duration Slider */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[11px]">
+                                                <span className="text-zinc-400 flex items-center gap-1">
+                                                    <Clock className="h-3 w-3 text-zinc-400" />
+                                                    Simulation Horizon
+                                                </span>
+                                                <span className="text-zinc-300 font-bold">{totalDuration} hrs</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="48"
+                                                step="1"
+                                                value={totalDuration}
+                                                onChange={e => setTotalDuration(Number(e.target.value))}
+                                                className="w-full accent-zinc-400 cursor-pointer h-1.5 bg-zinc-800 rounded-lg appearance-none"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* SECTION 4: Comparative Analytics Result (When Comparison Active) */}
+                            {comparisonResult && (
+                                <div className="rounded-xl border border-amber-800/80 bg-amber-950/20 overflow-hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleSection("comparison")}
+                                        className="w-full flex items-center justify-between px-3 py-2 bg-amber-950/40 hover:bg-amber-950/60 text-left transition-colors cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <ArrowRightLeft className="h-3.5 w-3.5 text-amber-400" />
+                                            <span className="text-xs font-mono font-medium text-amber-200">
+                                                Comparative Delta Analytics
+                                            </span>
+                                        </div>
+                                        {openSections.comparison ? (
+                                            <ChevronUp className="h-3.5 w-3.5 text-amber-400" />
+                                        ) : (
+                                            <ChevronDown className="h-3.5 w-3.5 text-amber-500" />
+                                        )}
+                                    </button>
+
+                                    {openSections.comparison && (
+                                        <div className="p-3 space-y-2 font-mono text-xs border-t border-amber-900/50">
+                                            <div className="flex justify-between items-center text-zinc-300">
+                                                <span>Delta Inundated Area:</span>
+                                                <span
+                                                    className={`font-bold ${
+                                                        comparisonResult.delta_inundated_area_sq_km >= 0
+                                                            ? "text-rose-400"
+                                                            : "text-emerald-400"
+                                                    }`}
+                                                >
+                                                    {comparisonResult.delta_inundated_area_sq_km > 0 ? "+" : ""}
+                                                    {comparisonResult.delta_inundated_area_sq_km} km²
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-zinc-300">
+                                                <span>Delta Max Depth:</span>
+                                                <span
+                                                    className={`font-bold ${
+                                                        comparisonResult.delta_max_depth_m >= 0
+                                                            ? "text-rose-400"
+                                                            : "text-emerald-400"
+                                                    }`}
+                                                >
+                                                    {comparisonResult.delta_max_depth_m > 0 ? "+" : ""}
+                                                    {comparisonResult.delta_max_depth_m}m
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-zinc-300">
+                                                <span>Delta Pop. at Risk:</span>
+                                                <span
+                                                    className={`font-bold ${
+                                                        comparisonResult.delta_affected_population >= 0
+                                                            ? "text-rose-400"
+                                                            : "text-emerald-400"
+                                                    }`}
+                                                >
+                                                    {comparisonResult.delta_affected_population > 0 ? "+" : ""}
+                                                    {comparisonResult.delta_affected_population.toLocaleString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* SECTION 5: Real-time Telemetry & Mass Balance Results */}
                             {simulationResult && (
-                                <div>
+                                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 overflow-hidden">
                                     <button
                                         type="button"
                                         onClick={() => toggleSection("metrics")}
-                                        className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800/30 transition-colors text-left cursor-pointer"
+                                        className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900/90 hover:bg-zinc-850/80 text-left transition-colors cursor-pointer"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <Database className="h-3.5 w-3.5 text-cyan-400" />
+                                            <Database className="h-3.5 w-3.5 text-emerald-400" />
                                             <span className="text-xs font-mono font-medium text-zinc-200">
                                                 2D Hydro Telemetry
                                             </span>
@@ -691,9 +826,9 @@ export default function SimulationPage() {
                                             </div>
 
                                             {/* Disclaimers Notice */}
-                                            <div className="p-2 rounded border border-zinc-800 bg-zinc-900/60 text-[10px] text-zinc-400 space-y-1">
-                                                <div className="flex items-center gap-1 font-semibold text-zinc-300">
-                                                    <Info className="h-3 w-3 text-sky-400" /> Provenance Notice
+                                            <div className="p-2 rounded bg-zinc-900/90 border border-zinc-800 text-[9px] text-zinc-500 space-y-0.5">
+                                                <div className="flex items-center gap-1 text-zinc-400 font-semibold">
+                                                    <Info className="h-2.5 w-2.5" /> Model Notice
                                                 </div>
                                                 <p>{simulationResult.scenario_config.hypothetical_disclaimer}</p>
                                             </div>
@@ -746,6 +881,13 @@ export default function SimulationPage() {
                     </Card>
                 </div>
             </div>
+
+            {/* AI Copilot Drawer */}
+            <AiCopilotPanel
+                isOpen={isCopilotOpen}
+                onClose={() => setIsCopilotOpen(false)}
+                activeZoneId={selectedRegionId}
+            />
         </div>
     );
 }

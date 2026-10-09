@@ -8,15 +8,16 @@ class XAIEngine:
     """
 
     FACTOR_LABELS = {
-        "tide_level_m": "Astronomical & Surge High Tide",
-        "rainfall_rate_mm_h": "Torrential Rainfall Rate",
+        "tide_level_m": "Astronomical Surge & High Tide",
+        "rainfall_rate_mm_h": "Intense Precipitation Inflow",
         "rainfall_accum_6h_mm": "Antecedent 6-Hour Water Accumulation",
         "elevation_m": "Low Terrain Ground Elevation",
         "dist_to_coast_km": "Proximity to Open Coastline",
-        "dist_to_river_km": "Estuary & River Confluence Backflow",
+        "dist_to_river_km": "River Channel Overtopping & Backflow",
         "drainage_capacity_pct": "Stormwater Drainage Bottleneck",
         "soil_saturation_idx": "Ground Soil Moisture Saturation",
         "cyclone_wind_kmh": "Cyclonic Wind Surge Force",
+        "river_discharge_m3_s": "Upstream River Discharge Head",
     }
 
     @classmethod
@@ -39,25 +40,33 @@ class XAIEngine:
         drainage = features.get("drainage_capacity_pct", 50.0)
         saturation = features.get("soil_saturation_idx", 0.5)
         wind = features.get("cyclone_wind_kmh", 20.0)
+        discharge = features.get("river_discharge_m3_s", 350.0)
+
+        is_coastal = float(dist_coast) <= 25.0
 
         # Calculate raw risk factor contributions
-        tide_score = max(0.1, (tide / 3.5) * 35.0)
-        rain_score = max(0.1, (rain_rate / 100.0) * 30.0 + (rain_6h / 250.0) * 10.0)
-        elev_score = max(0.1, max(0.0, (4.0 - elev)) * 8.0)
-        drainage_score = max(0.1, (100.0 - drainage) * 0.15)
-        confluence_score = max(0.1, max(0.0, (2.0 - dist_river)) * 6.0 if tide > 2.0 else 0.5)
-        saturation_score = max(0.1, saturation * 12.0)
-        wind_score = max(0.1, (wind / 120.0) * 8.0)
+        tide_score = max(0.0, (tide / 3.5) * 35.0) if is_coastal else 0.0
+        rain_score = max(0.1, (rain_rate / 90.0) * 32.0 + (rain_6h / 200.0) * 12.0)
+        elev_score = max(0.1, max(0.0, (4.5 - elev)) * 9.0)
+        drainage_score = max(0.1, (100.0 - drainage) * 0.18)
+        confluence_score = max(0.1, max(0.0, (2.5 - dist_river)) * 8.0)
+        saturation_score = max(0.1, saturation * 15.0)
+        wind_score = max(0.0, (wind / 120.0) * 8.0) if is_coastal else 0.0
+        discharge_score = max(0.1, (discharge / 3000.0) * 28.0) if not is_coastal else max(0.0, (discharge / 3000.0) * 8.0)
 
         scores = {
-            "tide_level_m": tide_score,
             "rainfall_rate_mm_h": rain_score,
             "elevation_m": elev_score,
             "drainage_capacity_pct": drainage_score,
             "dist_to_river_km": confluence_score,
             "soil_saturation_idx": saturation_score,
-            "cyclone_wind_kmh": wind_score,
         }
+
+        if is_coastal:
+            scores["tide_level_m"] = tide_score
+            scores["cyclone_wind_kmh"] = wind_score
+        else:
+            scores["river_discharge_m3_s"] = discharge_score
 
         total_score = sum(scores.values()) or 1.0
         drivers: List[Dict[str, Any]] = []

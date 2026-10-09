@@ -2,6 +2,13 @@ export type ThreatLevel = "NO_DANGER" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export type RiskLevel = ThreatLevel;
 
+export interface ZoneOverrideItem {
+  zone_id: string;
+  rainfall_mm_per_hour?: number;
+  soil_saturation?: number;
+  drainage_blocked_pct?: number;
+}
+
 export interface SimulationInput {
   tide_level_meters: number;
   rainfall_mm_per_hour: number;
@@ -9,6 +16,47 @@ export interface SimulationInput {
   wind_speed_kmh?: number;
   cyclone_active?: boolean;
   soil_saturation?: number;
+  river_discharge_m3_s?: number;
+  region_id?: string;
+  zone_overrides?: ZoneOverrideItem[];
+}
+
+export interface TimelineHourStep {
+  hour: number;
+  tide_level_meters: number;
+  rainfall_mm_per_hour: number;
+  total_population_at_risk: number;
+  inundated_area_sq_km: number;
+  critical_zones_count: number;
+  overall_risk: ThreatLevel;
+  zone_depths: Record<string, number>;
+}
+
+export interface Timeline24hResponse {
+  simulation_id: string;
+  generated_at: string;
+  total_hours: number;
+  peak_hour: number;
+  peak_water_depth_m: number;
+  max_population_at_risk: number;
+  timeline_steps: TimelineHourStep[];
+}
+
+export interface WhatIfInput {
+  base_params: SimulationInput;
+  tide_delta_m?: number;
+  rain_delta_pct?: number;
+  drainage_clearance_pct?: number;
+}
+
+export interface WhatIfResponse {
+  scenario_summary: string;
+  base_threat_level: ThreatLevel;
+  new_threat_level: ThreatLevel;
+  avoided_or_added_inundation_sq_km: number;
+  avoided_or_added_population_at_risk: number;
+  base_response: SimulationResponse;
+  counterfactual_response: SimulationResponse;
 }
 
 export interface DriverItem {
@@ -38,6 +86,7 @@ export interface EnhancedZoneResult {
   zone_name: string;
   state: string;
   region: string;
+  zone_type?: string;
   elevation_meters: number;
   population: number;
   dist_to_coast_km: floatNumber;
