@@ -7,9 +7,13 @@ import { MapOverlayCard } from "./MapOverlayCard";
 export function MapLegend({
     onClose,
     elevationSafetyActive = false,
+    indiaBaselineActive = false,
+    indiaHotspotsActive = false,
 }: {
     onClose?: () => void;
     elevationSafetyActive?: boolean;
+    indiaBaselineActive?: boolean;
+    indiaHotspotsActive?: boolean;
 }) {
     const [isOpen, setIsOpen] = useState(true);
 
@@ -88,25 +92,68 @@ export function MapLegend({
                         {elevationSafetyActive && (
                             <div className="border-t border-zinc-850 pt-2">
                                 <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
-                                    Elevation Safety
+                                    Terrain Flood Susceptibility (MERIT Hydro)
                                 </span>
                                 <div className="space-y-1.5 text-[10px]">
                                     <div className="flex items-center gap-2">
                                         <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500/70 border border-emerald-300" />
-                                        <span className="text-zinc-300">Higher terrain</span>
+                                        <span className="text-zinc-300">Lower Terrain Susceptibility</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="h-2.5 w-2.5 rounded-xs bg-orange-500/70 border border-orange-300" />
-                                        <span className="text-zinc-300">Intermediate terrain</span>
+                                        <span className="text-zinc-300">Moderate Terrain Susceptibility</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="h-2.5 w-2.5 rounded-xs bg-red-500/70 border border-red-300" />
-                                        <span className="text-zinc-300">Lower terrain</span>
+                                        <span className="text-zinc-300">Higher Terrain Susceptibility</span>
                                     </div>
                                     <p className="pt-1 text-[9px] leading-relaxed text-zinc-500">
-                                        Relative to selected region. Elevation-only assessment, not guaranteed flood
-                                        safety.
+                                        Multi-criteria GIS model (HAND, UPA, slope, relative elev). Physical terrain assessment; does not predict live weather events.
                                     </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {indiaBaselineActive && (
+                            <div className="border-t border-zinc-850 pt-2">
+                                <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
+                                    Terrain Flood Susceptibility
+                                </span>
+                                <div className="space-y-1.5 text-[10px]">
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500/70 border border-emerald-300" />
+                                        <span className="text-zinc-300">Lower Susceptibility</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-amber-500/70 border border-amber-300" />
+                                        <span className="text-zinc-300">Moderate Susceptibility</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-red-500/70 border border-red-300" />
+                                        <span className="text-zinc-300">Higher Susceptibility</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {indiaHotspotsActive && (
+                            <div className="border-t border-zinc-850 pt-2">
+                                <span className="text-[10px] text-zinc-500 uppercase tracking-wider block mb-1">
+                                    India Flood Hotspots (IMERG)
+                                </span>
+                                <div className="space-y-1.5 text-[10px]">
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-red-500/80 border border-red-300" />
+                                        <span className="text-zinc-300">High Risk Hotspot (&gt;0.6)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-orange-500/80 border border-orange-300" />
+                                        <span className="text-zinc-300">Moderate Risk (0.3 - 0.6)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-xs bg-blue-500/70 border border-blue-300" />
+                                        <span className="text-zinc-300">Low Hotspot Score (&lt;0.3)</span>
+                                    </div>
                                 </div>
                             </div>
                         )}

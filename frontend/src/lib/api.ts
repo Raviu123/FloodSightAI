@@ -269,3 +269,140 @@ export async function fetchPriorityQueue(): Promise<PriorityQueueResponse> {
         ],
     };
 }
+
+import type { ElevationSafetyCollection } from "@/types";
+
+/**
+ * Fetch terrain elevation safety classification GeoJSON
+ */
+export async function fetchElevationSafety(
+    regionId: string = "mumbai",
+    options?: {
+        minimum_feature_width_m?: number;
+        minimum_hotspot_area_m2?: number;
+        danger_percentile?: number;
+        safe_percentile?: number;
+    }
+): Promise<ElevationSafetyCollection | null> {
+    try {
+        const params = new URLSearchParams({ region_id: regionId });
+        if (options?.minimum_feature_width_m) params.set("minimum_feature_width_m", options.minimum_feature_width_m.toString());
+        if (options?.minimum_hotspot_area_m2) params.set("minimum_hotspot_area_m2", options.minimum_hotspot_area_m2.toString());
+        if (options?.danger_percentile) params.set("danger_percentile", options.danger_percentile.toString());
+        if (options?.safe_percentile) params.set("safe_percentile", options.safe_percentile.toString());
+
+        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/elevation-safety?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Fallback
+    }
+    return null;
+}
+
+import type { IndiaBaselineCollection, IndiaHotspotCollection } from "@/types";
+
+/**
+ * Fetch HydroSHEDS 15s India-wide terrain flood susceptibility baseline GeoJSON
+ */
+export async function fetchIndiaBaseline(
+    gridResolutionDeg: number = 0.25,
+    minSusceptibility: number = 0.0,
+): Promise<IndiaBaselineCollection | null> {
+    try {
+        const params = new URLSearchParams({
+            grid_resolution_deg: gridResolutionDeg.toString(),
+            min_susceptibility: minSusceptibility.toString(),
+        });
+        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/india-baseline?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Network fallback
+    }
+    return null;
+}
+
+/**
+ * Fetch India-wide NASA IMERG rainfall-forced flood hotspots GeoJSON
+ */
+export async function fetchIndiaHotspots(
+    gridResolutionDeg: number = 0.25,
+    terrainWeight: number = 0.70,
+    rainfallWeight: number = 0.30,
+): Promise<IndiaHotspotCollection | null> {
+    try {
+        const params = new URLSearchParams({
+            grid_resolution_deg: gridResolutionDeg.toString(),
+            terrain_weight: terrainWeight.toString(),
+            rainfall_weight: rainfallWeight.toString(),
+        });
+        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/india-hotspots?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Network fallback
+    }
+    return null;
+}
+
+/**
+ * Fetch terrain susceptibility metadata, data sources, and tile URL
+ */
+export async function fetchTerrainSusceptibilityMetadata(region: string = "india"): Promise<any | null> {
+    try {
+        const params = new URLSearchParams({ region });
+        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/susceptibility?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Network fallback
+    }
+    return null;
+}
+
+/**
+ * Fetch 8-neighbor regional batch elevation safety collection (3x3 grid)
+ */
+export async function fetchElevationSafetyBatch(
+    regionId: string,
+    radius: number = 1,
+): Promise<any | null> {
+    try {
+        const params = new URLSearchParams({
+            region_id: regionId,
+            radius: radius.toString(),
+        });
+        const res = await fetch(`${API_BASE_URL}/api/v1/terrain/elevation-safety-batch?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    } catch (_) {
+        // Network fallback
+    }
+    return null;
+}

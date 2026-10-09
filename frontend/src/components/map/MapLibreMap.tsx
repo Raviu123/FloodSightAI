@@ -26,6 +26,8 @@ import { MapOverlayCard } from "./MapOverlayCard";
 import { MapQuickJumper } from "./MapQuickJumper";
 import { REAL_MAP_TILE_SOURCE, TRAFFIC_ATTRIBUTION, TRAFFIC_SOURCE_LAYER, TRAFFIC_TILE_URL } from "./map-data-sources";
 
+import { fetchIndiaBaseline, fetchIndiaHotspots } from "@/lib/api";
+
 const DEM_SOURCE_ID = "floodsight-dem";
 const HILLSHADE_SOURCE_ID = "floodsight-dem-hillshade";
 const HILLSHADE_LAYER_ID = "floodsight-hillshade";
@@ -41,6 +43,22 @@ const ELEVATION_SAFETY_LAYER_IDS = [
     "elevation-safety-neutral-fill",
     "elevation-safety-safe-fill",
     "elevation-safety-outline",
+] as const;
+
+const INDIA_BASELINE_SOURCE_ID = "india-baseline-source";
+const INDIA_BASELINE_LAYER_IDS = [
+    "india-baseline-safer-fill",
+    "india-baseline-neutral-fill",
+    "india-baseline-susceptible-fill",
+    "india-baseline-outline",
+] as const;
+
+const INDIA_HOTSPOTS_SOURCE_ID = "india-hotspots-source";
+const INDIA_HOTSPOTS_LAYER_IDS = [
+    "india-hotspots-low-fill",
+    "india-hotspots-mod-fill",
+    "india-hotspots-high-fill",
+    "india-hotspots-outline",
 ] as const;
 const EMPTY_FEATURE_COLLECTION: FeatureCollection = { type: "FeatureCollection", features: [] };
 const ELEVATION_CLASSIFICATIONS = new Set(["safe", "neutral", "danger"]);
@@ -129,16 +147,18 @@ export function MapLibreMap({
 
     // Layer toggles state
     const [layers, setLayers] = useState<MapLayerState>({
-        dangerZones: true,
-        floodCoverage: true,
+        dangerZones: false,
+        floodCoverage: false,
         lowLyingAreas: false,
         waterBodies: true,
         transport: true,
         traffic: false,
         facilities: true,
         evacuationRoutes: true,
-        floodInundation: true,
-        elevationSafety: false,
+        floodInundation: false,
+        elevationSafety: true,
+        indiaBaseline: false,
+        indiaHotspots: false,
         layerOpacity: 0.85,
     });
 
@@ -231,6 +251,9 @@ export function MapLibreMap({
         setVis("flood-inundation-layer-fill", lState.floodInundation);
         setVis("flood-inundation-layer-stroke", lState.floodInundation);
         ELEVATION_SAFETY_LAYER_IDS.forEach(layerId => setVis(layerId, lState.elevationSafety));
+        setVis("india-terrain-tile-layer", lState.indiaBaseline);
+        INDIA_BASELINE_LAYER_IDS.forEach(layerId => setVis(layerId, lState.indiaBaseline));
+        INDIA_HOTSPOTS_LAYER_IDS.forEach(layerId => setVis(layerId, lState.indiaHotspots));
     };
 
     const addAllLayers = useCallback(
@@ -401,7 +424,7 @@ export function MapLibreMap({
                         filter: ["==", ["get", "classification"], classification],
                         paint: {
                             "fill-color": color,
-                            "fill-opacity": 0.28,
+                            "fill-opacity": classification === "safe" ? 0.45 : classification === "danger" ? 0.5 : 0.42,
                         },
                     });
                 }
@@ -416,17 +439,134 @@ export function MapLibreMap({
                             "match",
                             ["get", "classification"],
                             "safe",
-                            "#4ade80",
+                            "#22c55e",
                             "neutral",
-                            "#fb923c",
-                            "#f87171",
+                            "#f97316",
+                            "#ef4444",
                         ],
-                        "line-width": 1.2,
-                        "line-opacity": 0.75,
+                        "line-width": 1.5,
+                        "line-opacity": 0.85,
                     },
                 });
             }
 
+            // India Terrain Safety Baseline (HydroSHEDS 15s)
+            if (!map.getSource(INDIA_BASELINE_SOURCE_ID)) {
+                map.addSource(INDIA_BASELINE_SOURCE_ID, {
+                    type: "geojson",
+                    data: EMPTY_FEATURE_COLLECTION,
+                });
+            }
+            for (const [classification, color] of [
+                ["safer", "#10b981"],
+                ["neutral", "#eab308"],
+                ["susceptible", "#ef4444"],
+            ] as const) {
+                const layerId = `india-baseline-${classification}-fill`;
+                if (!map.getLayer(layerId)) {
+                    map.addLayer({
+                        id: layerId,
+                        type: "fill",
+                        source: INDIA_BASELINE_SOURCE_ID,
+                        filter: ["==", ["get", "classification"], classification],
+                        paint: {
+                            "fill-color": color,
+                            "fill-opacity": 0.35,
+                        },
+                    });
+                }
+            }
+            if (!map.getLayer("india-baseline-outline")) {
+                map.addLayer({
+                    id: "india-baseline-outline",
+                    type: "line",
+                    source: INDIA_BASELINE_SOURCE_ID,
+                    paint: {
+                        "line-color": [
+                            "match",
+                            ["get", "classification"],
+                            "safer",
+                            "#34d399",
+                            "neutral",
+                            "#facc15",
+                            "#f87171",
+                        ],
+                        "line-width": 1.0,
+                        "line-opacity": 0.7,
+                    },
+                });
+            }
+
+            // India Flood Hotspots (IMERG Satellite Forcing)
+            if (!map.getSource(INDIA_HOTSPOTS_SOURCE_ID)) {
+                map.addSource(INDIA_HOTSPOTS_SOURCE_ID, {
+                    type: "geojson",
+                    data: EMPTY_FEATURE_COLLECTION,
+                });
+            }
+            for (const [riskLevel, color] of [
+                ["LOW", "#3b82f6"],
+                ["MODERATE", "#f97316"],
+                ["HIGH", "#ef4444"],
+            ] as const) {
+                const layerId = `india-hotspots-${riskLevel.toLowerCase()}-fill`;
+                if (!map.getLayer(layerId)) {
+                    map.addLayer({
+                        id: layerId,
+                        type: "fill",
+                        source: INDIA_HOTSPOTS_SOURCE_ID,
+                        filter: ["==", ["get", "risk_level"], riskLevel],
+                        paint: {
+                            "fill-color": color,
+                            "fill-opacity": riskLevel === "HIGH" ? 0.6 : riskLevel === "MODERATE" ? 0.45 : 0.3,
+                        },
+                    });
+                }
+            }
+            if (!map.getLayer("india-hotspots-outline")) {
+                map.addLayer({
+                    id: "india-hotspots-outline",
+                    type: "line",
+                    source: INDIA_HOTSPOTS_SOURCE_ID,
+                    paint: {
+                        "line-color": [
+                            "match",
+                            ["get", "risk_level"],
+                            "LOW",
+                            "#60a5fa",
+                            "MODERATE",
+                            "#fb923c",
+                            "#f87171",
+                        ],
+                        "line-width": 1.2,
+                        "line-opacity": 0.85,
+                    },
+                });
+            }
+
+            // India High-Resolution Web Mercator Terrain Susceptibility Tile Layer
+            if (!map.getSource("india-terrain-tile-source")) {
+                map.addSource("india-terrain-tile-source", {
+                    type: "raster",
+                    tiles: [`${ELEVATION_SAFETY_API_URL}/terrain/tiles/{z}/{x}/{y}.png`],
+                    tileSize: 256,
+                    minzoom: 0,
+                    maxzoom: 18,
+                    attribution: "HydroSHEDS 15s Hydro-Conditioned DEM / Terrarium AWS",
+                });
+            }
+            if (!map.getLayer("india-terrain-tile-layer")) {
+                map.addLayer({
+                    id: "india-terrain-tile-layer",
+                    type: "raster",
+                    source: "india-terrain-tile-source",
+                    layout: { visibility: layers.indiaBaseline ? "visible" : "none" },
+                    paint: {
+                        "raster-opacity": layers.layerOpacity,
+                        "raster-fade-duration": 200,
+                    },
+                });
+            }
             // 2. Dynamic Flood Inundation Simulation Layer
             if (!map.getSource("flood-inundation-source")) {
                 map.addSource("flood-inundation-source", {
@@ -672,6 +812,68 @@ export function MapLibreMap({
         popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(lngLat).setHTML(popupHtml).addTo(map);
     };
 
+    const openIndiaBaselinePopup = (
+        props: Record<string, unknown>,
+        lngLat: maplibregl.LngLatLike,
+        map: maplibregl.Map,
+    ) => {
+        if (popupRef.current) popupRef.current.remove();
+        const classification = String(props.classification || "neutral").toUpperCase();
+        const color = String(props.color || "#eab308");
+        const terrainScore = typeof props.terrain_score === "number" ? props.terrain_score.toFixed(2) : "N/A";
+        const flowAccRank = typeof props.flow_accumulation_rank === "number" ? props.flow_accumulation_rank.toFixed(2) : "N/A";
+        const elevation = typeof props.elevation_m === "number" ? `${props.elevation_m}m` : "N/A";
+
+        const popupHtml = `
+            <div class="p-3.5 space-y-2 text-zinc-100 min-w-[260px] font-mono">
+                <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
+                    <span class="font-bold text-xs text-emerald-400">HYDROSHEDS BASELINE</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded" style="color:${color};border:1px solid ${color}99">${classification}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] text-zinc-300">
+                    <div>Terrain Score: <b class="text-white">${terrainScore}</b></div>
+                    <div>Flow Accum: <b class="text-white">${flowAccRank}</b></div>
+                    <div>Elevation MSL: <b class="text-white">${elevation}</b></div>
+                    <div>Region: <b class="text-white">${props.region || "India"}</b></div>
+                </div>
+                <div class="border-t border-zinc-800 pt-1.5 text-[10px] leading-relaxed text-zinc-400 font-sans">
+                    HydroSHEDS 15s multi-criteria GIS flood susceptibility baseline map.
+                </div>
+            </div>`;
+        popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(lngLat).setHTML(popupHtml).addTo(map);
+    };
+
+    const openIndiaHotspotsPopup = (
+        props: Record<string, unknown>,
+        lngLat: maplibregl.LngLatLike,
+        map: maplibregl.Map,
+    ) => {
+        if (popupRef.current) popupRef.current.remove();
+        const riskLevel = String(props.risk_level || "MODERATE").toUpperCase();
+        const color = String(props.color || "#f97316");
+        const hotspotScore = typeof props.hotspot_score === "number" ? props.hotspot_score.toFixed(2) : "N/A";
+        const terrainScore = typeof props.terrain_score === "number" ? props.terrain_score.toFixed(2) : "N/A";
+        const rainfall = typeof props.rainfall_mm_month === "number" ? `${props.rainfall_mm_month} mm/mo` : "N/A";
+
+        const popupHtml = `
+            <div class="p-3.5 space-y-2 text-zinc-100 min-w-[260px] font-mono">
+                <div class="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1.5">
+                    <span class="font-bold text-xs text-amber-400">IMERG FLOOD HOTSPOT</span>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded" style="color:${color};border:1px solid ${color}99">${riskLevel} HAZARD</span>
+                </div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] text-zinc-300">
+                    <div>Hotspot Score: <b class="text-white">${hotspotScore}</b></div>
+                    <div>Precipitation: <b class="text-white">${rainfall}</b></div>
+                    <div>Terrain Score: <b class="text-white">${terrainScore}</b></div>
+                    <div>Hydro Baseline: <b class="text-white">Active</b></div>
+                </div>
+                <div class="border-t border-zinc-800 pt-1.5 text-[10px] leading-relaxed text-zinc-400 font-sans">
+                    HydroSHEDS terrain susceptibility baseline coupled with NASA GPM IMERG satellite rainfall forcing.
+                </div>
+            </div>`;
+        popupRef.current = new maplibregl.Popup({ offset: 12 }).setLngLat(lngLat).setHTML(popupHtml).addTo(map);
+    };
+
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
@@ -764,6 +966,16 @@ export function MapLibreMap({
             openElevationSafetyPopup(e.features[0].properties || {}, e.lngLat, map);
         });
 
+        map.on("click", "india-baseline-outline", e => {
+            if (!e.features || !e.features[0]) return;
+            openIndiaBaselinePopup(e.features[0].properties || {}, e.lngLat, map);
+        });
+
+        map.on("click", "india-hotspots-outline", e => {
+            if (!e.features || !e.features[0]) return;
+            openIndiaHotspotsPopup(e.features[0].properties || {}, e.lngLat, map);
+        });
+
         // Click handler for Critical Facilities
         map.on("click", "critical-facilities-layer-circle", e => {
             if (!e.features || !e.features[0]) return;
@@ -850,6 +1062,10 @@ export function MapLibreMap({
         map.on("mouseleave", "critical-facilities-layer-circle", resetPointer);
         map.on("mouseenter", "evacuation-routes-layer-line", setPointer);
         map.on("mouseleave", "evacuation-routes-layer-line", resetPointer);
+        map.on("mouseenter", "india-baseline-outline", setPointer);
+        map.on("mouseleave", "india-baseline-outline", resetPointer);
+        map.on("mouseenter", "india-hotspots-outline", setPointer);
+        map.on("mouseleave", "india-hotspots-outline", resetPointer);
 
         return () => {
             if (fsBtn) {
@@ -906,33 +1122,96 @@ export function MapLibreMap({
 
         if (!layers.elevationSafety) return () => controller.abort();
 
-        const params = new URLSearchParams({ region_id: activeRegionId });
-        fetch(`${ELEVATION_SAFETY_API_URL}/terrain/elevation-safety?${params}`, {
+        // The batch endpoint classifies one contiguous 3x3 terrain window with
+        // shared thresholds. Stitching cached per-region responses can leave
+        // seams, stale classifications, or no visible polygons at all.
+        const params = new URLSearchParams({
+            region_id: activeRegionId,
+            radius: "1",
+            minimum_feature_width_m: "20",
+            minimum_hotspot_area_m2: "400",
+            danger_percentile: "33",
+            safe_percentile: "67",
+        });
+
+        fetch(`${ELEVATION_SAFETY_API_URL}/terrain/elevation-safety-batch?${params}`, {
             signal: controller.signal,
+            cache: "no-store",
         })
-            .then(response => {
-                if (!response.ok) throw new Error(`Elevation analysis failed with ${response.status}`);
+            .then(async response => {
+                if (!response.ok) throw new Error(`Elevation batch request failed: ${response.status}`);
                 return response.json();
             })
-            .then(data => {
-                if (!controller.signal.aborted) {
+            .then(geojson => {
+                if (!controller.signal.aborted && isElevationSafetyFeatureCollection(geojson)) {
                     const nextSource = mapRef.current?.getSource(ELEVATION_SAFETY_SOURCE_ID) as
                         | maplibregl.GeoJSONSource
                         | undefined;
-                    if (!isElevationSafetyFeatureCollection(data)) {
-                        throw new Error("Elevation safety API returned invalid polygon GeoJSON");
-                    }
-                    nextSource?.setData(data);
+                    nextSource?.setData(geojson);
                 }
             })
             .catch(error => {
                 if (!controller.signal.aborted) {
-                    console.error("Unable to load elevation safety analysis.", error);
+                    console.error("Unable to load contiguous elevation safety regions.", error);
                 }
             });
 
         return () => controller.abort();
     }, [activeRegionId, layers.elevationSafety, mapLoaded, mapStyleVersion]);
+
+    useEffect(() => {
+        if (!mapRef.current || !mapLoaded) return;
+
+        const controller = new AbortController();
+        const source = mapRef.current.getSource(INDIA_BASELINE_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+        source?.setData(EMPTY_FEATURE_COLLECTION);
+
+        if (!layers.indiaBaseline) return () => controller.abort();
+
+        fetchIndiaBaseline(0.25, 0.0)
+            .then(data => {
+                if (!controller.signal.aborted && data) {
+                    const nextSource = mapRef.current?.getSource(INDIA_BASELINE_SOURCE_ID) as
+                        | maplibregl.GeoJSONSource
+                        | undefined;
+                    nextSource?.setData(data);
+                }
+            })
+            .catch(error => {
+                if (!controller.signal.aborted) {
+                    console.error("Unable to load India baseline terrain analysis.", error);
+                }
+            });
+
+        return () => controller.abort();
+    }, [layers.indiaBaseline, mapLoaded, mapStyleVersion]);
+
+    useEffect(() => {
+        if (!mapRef.current || !mapLoaded) return;
+
+        const controller = new AbortController();
+        const source = mapRef.current.getSource(INDIA_HOTSPOTS_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+        source?.setData(EMPTY_FEATURE_COLLECTION);
+
+        if (!layers.indiaHotspots) return () => controller.abort();
+
+        fetchIndiaHotspots(0.25, 0.70, 0.30)
+            .then(data => {
+                if (!controller.signal.aborted && data) {
+                    const nextSource = mapRef.current?.getSource(INDIA_HOTSPOTS_SOURCE_ID) as
+                        | maplibregl.GeoJSONSource
+                        | undefined;
+                    nextSource?.setData(data);
+                }
+            })
+            .catch(error => {
+                if (!controller.signal.aborted) {
+                    console.error("Unable to load India flood hotspots analysis.", error);
+                }
+            });
+
+        return () => controller.abort();
+    }, [layers.indiaHotspots, mapLoaded, mapStyleVersion]);
 
     const handleLayerToggle = (layerKey: keyof MapLayerState) => {
         const updated = { ...layers, [layerKey]: !layers[layerKey] };
@@ -973,6 +1252,7 @@ export function MapLibreMap({
 
     const handleSelectRegion = (preset: RegionPreset) => {
         setActiveRegionId(preset.id);
+        setLayers(current => ({ ...current, elevationSafety: true }));
         if (!mapRef.current) return;
 
         const cameraPreset = CAMERA_PRESETS[cameraMode];
@@ -1221,6 +1501,8 @@ export function MapLibreMap({
             {allOverlaysEnabled && visibleOverlays.legend && (
                 <MapLegend
                     elevationSafetyActive={layers.elevationSafety}
+                    indiaBaselineActive={layers.indiaBaseline}
+                    indiaHotspotsActive={layers.indiaHotspots}
                     onClose={() => setVisibleOverlays(current => ({ ...current, legend: false }))}
                 />
             )}

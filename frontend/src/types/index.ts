@@ -217,3 +217,92 @@ export interface QuickMetric {
   trend?: "up" | "down" | "neutral";
   status?: "normal" | "warning" | "danger";
 }
+
+// Elevation Safety & Terrain Types
+export interface ElevationSafetyProperties {
+  classification: "danger" | "neutral" | "safe";
+  relative_percentile: number;
+  relative_elevation_percentile: number;
+  elevation_min_m: number;
+  elevation_max_m: number;
+  elevation_mean_m: number;
+  area_m2: number;
+  area_km2: number;
+  color: string;
+}
+
+export interface ElevationSafetyFeature {
+  type: "Feature";
+  properties: ElevationSafetyProperties;
+  geometry: {
+    type: "Polygon";
+    coordinates: number[][][];
+  };
+}
+
+export interface ElevationSafetyCollection {
+  type: "FeatureCollection";
+  features: ElevationSafetyFeature[];
+  metadata: Record<string, any>;
+}
+
+export interface MapOverlaysState {
+  dem: boolean;
+  hillshade: boolean;
+  elevationSafety: boolean;
+  depthContours: boolean;
+  evacuationRoutes: boolean;
+  shelters: boolean;
+  drains: boolean;
+}
+
+// India-Wide Baseline & Hotspot Types
+export interface IndiaBaselineProperties {
+  classification: "safer" | "neutral" | "susceptible";
+  terrain_score: number;
+  flow_accumulation_rank: number;
+  elevation_m: number;
+  color: string;
+  region: string;
+}
+
+export interface IndiaBaselineFeature {
+  type: "Feature";
+  properties: IndiaBaselineProperties;
+  geometry: {
+    type: "Polygon";
+    coordinates: number[][][];
+  };
+}
+
+export interface IndiaBaselineCollection {
+  type: "FeatureCollection";
+  features: IndiaBaselineFeature[];
+  metadata: Record<string, any>;
+}
+
+export interface IndiaHotspotProperties {
+  classification: "high_risk" | "moderate_risk" | "low_risk";
+  hotspot_score: number;
+  terrain_susceptibility: number;
+  rainfall_score: number;
+  elevation_m: number;
+  rainfall_mm_hr: number;
+  color: string;
+  region: string;
+}
+
+export interface IndiaHotspotFeature {
+  type: "Feature";
+  properties: IndiaHotspotProperties;
+  geometry: {
+    type: "Polygon";
+    coordinates: number[][][];
+  };
+}
+
+export interface IndiaHotspotCollection {
+  type: "FeatureCollection";
+  features: IndiaHotspotFeature[];
+  metadata: Record<string, any>;
+}

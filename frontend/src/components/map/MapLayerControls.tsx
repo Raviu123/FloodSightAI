@@ -39,6 +39,8 @@ export interface MapLayerState {
     evacuationRoutes: boolean;
     floodInundation: boolean;
     elevationSafety: boolean;
+    indiaBaseline: boolean;
+    indiaHotspots: boolean;
     layerOpacity: number;
 }
 
@@ -129,6 +131,22 @@ export function MapLayerControls({
             description: "Relative terrain elevation for selected region",
             icon: Mountain,
             color: "text-emerald-400",
+            highlight: true,
+        },
+        {
+            key: "indiaBaseline" as const,
+            label: "India Terrain Baseline (HydroSHEDS)",
+            description: "Nationwide GIS multi-criteria flood susceptibility baseline",
+            icon: Globe2,
+            color: "text-emerald-400",
+            highlight: true,
+        },
+        {
+            key: "indiaHotspots" as const,
+            label: "India Flood Hotspots (IMERG)",
+            description: "Dynamic satellite precipitation forced flood risk hotspots",
+            icon: Radio,
+            color: "text-amber-400",
             highlight: true,
         },
         {
