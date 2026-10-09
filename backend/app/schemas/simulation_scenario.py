@@ -11,6 +11,9 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 
+import uuid
+
+
 class RainfallPattern(str, Enum):
     CONSTANT = "constant"
     TRIANGULAR_PEAK = "triangular_peak"
@@ -20,8 +23,8 @@ class RainfallPattern(str, Enum):
 
 class SimulationScenarioConfig(BaseModel):
     """Configuration definition for a flood simulation scenario."""
-    scenario_id: str = Field(..., min_length=2, max_length=64, description="Unique identifier for the scenario")
-    name: str = Field(..., min_length=2, max_length=128, description="Human-readable scenario title")
+    scenario_id: str = Field(default_factory=lambda: f"scen_{uuid.uuid4().hex[:8]}", min_length=2, max_length=64, description="Unique identifier for the scenario")
+    name: str = Field(default="Custom 2D Scenario Run", min_length=2, max_length=128, description="Human-readable scenario title")
     description: str = Field("", max_length=512, description="Summary of scenario conditions and assumptions")
     spatial_domain: str = Field("mumbai", description="Region ID (e.g. mumbai, patna, kochi, chennai)")
     
@@ -55,6 +58,29 @@ class SimulationScenarioConfig(BaseModel):
     )
 
     from pydantic import model_validator
+
+    @model_validator(mode="before")
+    @classmethod
+    def remap_legacy_field_names(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        d = dict(data)
+        if "rainfall_intensity_mm_per_hr" in d and "rainfall_intensity_mm_h" not in d:
+            d["rainfall_intensity_mm_h"] = d.pop("rainfall_intensity_mm_per_hr")
+        if "soil_saturation_ratio" in d and "soil_saturation_index" not in d:
+            d["soil_saturation_index"] = d.pop("soil_saturation_ratio")
+        if "coastal_surge_peak_m" in d and "coastal_surge_stage_m" not in d:
+            d["coastal_surge_stage_m"] = d.pop("coastal_surge_peak_m")
+        if "river_inflow_m3_per_sec" in d and "river_inflow_m3_s" not in d:
+            d["river_inflow_m3_s"] = d.pop("river_inflow_m3_per_sec")
+        if "time_step_seconds" in d and "time_step_minutes" not in d:
+            d["time_step_minutes"] = max(1.0, float(d.pop("time_step_seconds")) / 60.0)
+        if not d.get("scenario_id"):
+            domain = d.get("spatial_domain", "custom")
+            d["scenario_id"] = f"scen_{domain}_{uuid.uuid4().hex[:8]}"
+        if not d.get("name"):
+            d["name"] = f"Scenario {d.get('spatial_domain', 'Custom')}"
+        return d
 
     @model_validator(mode="after")
     def validate_durations(self) -> SimulationScenarioConfig:

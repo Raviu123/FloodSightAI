@@ -81,7 +81,13 @@ function formatSimulationError(payload: unknown, status: number): string {
         const messages = detail
             .map(item => {
                 if (typeof item === "string") return item;
-                if (item && typeof item === "object" && "msg" in item) return String(item.msg);
+                if (item && typeof item === "object") {
+                    const loc = Array.isArray(item.loc)
+                        ? item.loc.filter((x: any) => x !== "body").join(".")
+                        : "";
+                    const msg = item.msg || "Invalid value";
+                    return loc ? `${msg} (${loc})` : String(msg);
+                }
                 return JSON.stringify(item);
             })
             .filter(Boolean);
@@ -179,17 +185,16 @@ export default function SimulationPage() {
         setComparisonResult(null);
 
         const payload = {
+            scenario_id: `scen_${selectedRegionId}_${Date.now()}`,
             name: `Manual Run: ${activePresetRegion?.name ?? selectedRegionId}`,
             spatial_domain: selectedRegionId,
-            rainfall_intensity_mm_per_hr: rainfallIntensity,
+            rainfall_intensity_mm_h: rainfallIntensity,
             rainfall_duration_hours: rainfallDuration,
-            soil_saturation_ratio: soilSaturation,
-            coastal_surge_peak_m: coastalSurge,
-            river_inflow_m3_per_sec: riverInflow,
+            soil_saturation_index: soilSaturation,
+            coastal_surge_stage_m: coastalSurge,
+            river_inflow_m3_s: riverInflow,
             total_duration_hours: totalDuration,
-            apply_coastal_surge: coastalSurge > 0,
-            apply_river_inflow: riverInflow > 0,
-            time_step_seconds: 60,
+            time_step_minutes: 15,
         };
 
         try {
@@ -217,24 +222,33 @@ export default function SimulationPage() {
     };
 
     // Apply preset scenario configuration
-    const handleApplyPreset = (scenario: any) => {
-        if (scenario.rainfall_intensity_mm_per_hr !== undefined) {
-            setRainfallIntensity(scenario.rainfall_intensity_mm_per_hr);
+    const handleApplyPreset = (config: any) => {
+        if (!config) return;
+        if (config.rainfall_intensity_mm_h !== undefined) {
+            setRainfallIntensity(config.rainfall_intensity_mm_h);
+        } else if (config.rainfall_intensity_mm_per_hr !== undefined) {
+            setRainfallIntensity(config.rainfall_intensity_mm_per_hr);
         }
-        if (scenario.rainfall_duration_hours !== undefined) {
-            setRainfallDuration(scenario.rainfall_duration_hours);
+        if (config.rainfall_duration_hours !== undefined) {
+            setRainfallDuration(config.rainfall_duration_hours);
         }
-        if (scenario.soil_saturation_ratio !== undefined) {
-            setSoilSaturation(scenario.soil_saturation_ratio);
+        if (config.soil_saturation_index !== undefined) {
+            setSoilSaturation(config.soil_saturation_index);
+        } else if (config.soil_saturation_ratio !== undefined) {
+            setSoilSaturation(config.soil_saturation_ratio);
         }
-        if (scenario.coastal_surge_peak_m !== undefined) {
-            setCoastalSurge(scenario.coastal_surge_peak_m);
+        if (config.coastal_surge_stage_m !== undefined) {
+            setCoastalSurge(config.coastal_surge_stage_m);
+        } else if (config.coastal_surge_peak_m !== undefined) {
+            setCoastalSurge(config.coastal_surge_peak_m);
         }
-        if (scenario.river_inflow_m3_per_sec !== undefined) {
-            setRiverInflow(scenario.river_inflow_m3_per_sec);
+        if (config.river_inflow_m3_s !== undefined) {
+            setRiverInflow(config.river_inflow_m3_s);
+        } else if (config.river_inflow_m3_per_sec !== undefined) {
+            setRiverInflow(config.river_inflow_m3_per_sec);
         }
-        if (scenario.total_duration_hours !== undefined) {
-            setTotalDuration(scenario.total_duration_hours);
+        if (config.total_duration_hours !== undefined) {
+            setTotalDuration(config.total_duration_hours);
         }
     };
 
@@ -509,67 +523,77 @@ export default function SimulationPage() {
                                                 No preset families loaded for this domain.
                                             </div>
                                         ) : (
-                                            presetFamilies.map(family => (
-                                                <div
-                                                    key={family.family_name}
-                                                    className="p-2 rounded-lg bg-zinc-950/80 border border-zinc-800 space-y-2"
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[11px] font-bold text-amber-300">
-                                                            {family.family_name}
-                                                        </span>
-                                                        <span className="text-[9px] text-zinc-500">
-                                                            {family.scenarios?.length || 0} scenarios
-                                                        </span>
-                                                    </div>
+                                            <div className="space-y-2">
+                                                {presetFamilies.map((preset: any, idx: number) => {
+                                                    const cfg = preset.config || preset;
+                                                    const rain =
+                                                        cfg.rainfall_intensity_mm_h ??
+                                                        cfg.rainfall_intensity_mm_per_hr ??
+                                                        0;
+                                                    const surge =
+                                                        cfg.coastal_surge_stage_m ??
+                                                        cfg.coastal_surge_peak_m ??
+                                                        0;
+                                                    const sat = Math.round(
+                                                        (cfg.soil_saturation_index ??
+                                                            cfg.soil_saturation_ratio ??
+                                                            0.75) * 100,
+                                                    );
 
-                                                    <div className="grid grid-cols-1 gap-1.5">
-                                                        {family.scenarios?.map((sc: any) => (
-                                                            <div
-                                                                key={sc.scenario_id}
-                                                                className="flex items-center justify-between p-1.5 rounded bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 text-[10px]"
-                                                            >
-                                                                <div className="truncate pr-2">
-                                                                    <div className="font-semibold text-zinc-200 truncate">
-                                                                        {sc.name}
-                                                                    </div>
-                                                                    <div className="text-zinc-500 text-[9px]">
-                                                                        Rain: {sc.rainfall_intensity_mm_per_hr}mm/h |
-                                                                        Surge: {sc.coastal_surge_peak_m}m
-                                                                    </div>
-                                                                </div>
+                                                    return (
+                                                        <div
+                                                            key={preset.preset_id || preset.scenario_id || idx}
+                                                            className="p-2 rounded-lg bg-zinc-950/80 border border-zinc-800 space-y-1.5 hover:border-zinc-700 transition-colors"
+                                                        >
+                                                            <div className="flex items-center justify-between gap-1">
+                                                                <span className="text-[11px] font-bold text-amber-300 truncate">
+                                                                    {preset.title || preset.name || "Preset Scenario"}
+                                                                </span>
+                                                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 shrink-0">
+                                                                    {preset.category || "Scenario"}
+                                                                </span>
+                                                            </div>
+
+                                                            {preset.description && (
+                                                                <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
+                                                                    {preset.description}
+                                                                </p>
+                                                            )}
+
+                                                            <div className="flex items-center justify-between text-[9px] text-zinc-500 pt-1 border-t border-zinc-900">
+                                                                <span>
+                                                                    Rain: <b className="text-sky-400">{rain} mm/h</b> | Surge: <b className="text-teal-400">{surge}m</b> | Soil: <b className="text-amber-400">{sat}%</b>
+                                                                </span>
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="xs"
-                                                                    onClick={() => handleApplyPreset(sc)}
-                                                                    className="h-6 px-2 text-[9px] font-mono text-sky-400 hover:text-sky-300 hover:bg-sky-950/50 cursor-pointer"
+                                                                    onClick={() => handleApplyPreset(cfg)}
+                                                                    className="h-5 px-2 text-[9px] font-mono text-sky-400 hover:text-sky-300 hover:bg-sky-950/50 cursor-pointer"
                                                                 >
                                                                     Apply
                                                                 </Button>
                                                             </div>
-                                                        ))}
-                                                    </div>
+                                                        </div>
+                                                    );
+                                                })}
 
-                                                    {/* Quick Compare Option if 2+ scenarios exist */}
-                                                    {family.scenarios?.length >= 2 && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="xs"
-                                                            onClick={() =>
-                                                                handleRunComparison(
-                                                                    family.scenarios[0],
-                                                                    family.scenarios[1],
-                                                                )
-                                                            }
-                                                            className="w-full h-6 text-[9px] font-mono text-amber-400 border-amber-900/50 bg-amber-950/20 hover:bg-amber-950/40 gap-1 cursor-pointer"
-                                                        >
-                                                            <ArrowRightLeft className="h-3 w-3" />
-                                                            Compare {family.scenarios[0].name.split(":")[0]} vs{" "}
-                                                            {family.scenarios[1].name.split(":")[0]}
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            ))
+                                                {presetFamilies.length >= 2 && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="xs"
+                                                        onClick={() =>
+                                                            handleRunComparison(
+                                                                presetFamilies[0].config || presetFamilies[0],
+                                                                presetFamilies[1].config || presetFamilies[1],
+                                                            )
+                                                        }
+                                                        className="w-full h-7 text-[10px] font-mono text-amber-400 border-amber-900/50 bg-amber-950/20 hover:bg-amber-950/40 gap-1.5 cursor-pointer mt-2"
+                                                    >
+                                                        <ArrowRightLeft className="h-3 w-3" />
+                                                        Compare Baseline vs Extreme
+                                                    </Button>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 )}
