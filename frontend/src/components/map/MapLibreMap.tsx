@@ -821,7 +821,8 @@ export function MapLibreMap({
         const classification = String(props.classification || "neutral").toUpperCase();
         const color = String(props.color || "#eab308");
         const terrainScore = typeof props.terrain_score === "number" ? props.terrain_score.toFixed(2) : "N/A";
-        const flowAccRank = typeof props.flow_accumulation_rank === "number" ? props.flow_accumulation_rank.toFixed(2) : "N/A";
+        const flowAccRank =
+            typeof props.flow_accumulation_rank === "number" ? props.flow_accumulation_rank.toFixed(2) : "N/A";
         const elevation = typeof props.elevation_m === "number" ? `${props.elevation_m}m` : "N/A";
 
         const popupHtml = `
@@ -1195,7 +1196,7 @@ export function MapLibreMap({
 
         if (!layers.indiaHotspots) return () => controller.abort();
 
-        fetchIndiaHotspots(0.25, 0.70, 0.30)
+        fetchIndiaHotspots(0.25, 0.7, 0.3)
             .then(data => {
                 if (!controller.signal.aborted && data) {
                     const nextSource = mapRef.current?.getSource(INDIA_HOTSPOTS_SOURCE_ID) as
@@ -1335,7 +1336,11 @@ export function MapLibreMap({
                         className="text-zinc-400 hover:text-white cursor-pointer p-0.5"
                         title={consoleCollapsed ? "Expand Console" : "Collapse Console"}
                     >
-                        {consoleCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                        {consoleCollapsed ? (
+                            <ChevronDown className="h-3.5 w-3.5" />
+                        ) : (
+                            <ChevronUp className="h-3.5 w-3.5" />
+                        )}
                     </button>
                 </div>
 
@@ -1353,15 +1358,21 @@ export function MapLibreMap({
                                             ? "border-emerald-500/60 bg-emerald-950/80"
                                             : "border-zinc-700 bg-zinc-850"
                                     }`}
-                                    title={allOverlaysEnabled ? "Turn all map overlays OFF" : "Turn all map overlays ON"}
+                                    title={
+                                        allOverlaysEnabled ? "Turn all map overlays OFF" : "Turn all map overlays ON"
+                                    }
                                 >
                                     <span
                                         className={`pointer-events-none inline-block h-3 w-3 transform rounded-full shadow-md transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
-                                            allOverlaysEnabled ? "translate-x-3.5 bg-emerald-400" : "translate-x-0 bg-zinc-500"
+                                            allOverlaysEnabled
+                                                ? "translate-x-3.5 bg-emerald-400"
+                                                : "translate-x-0 bg-zinc-500"
                                         }`}
                                     />
                                 </button>
-                                <span className={`text-[9px] font-bold w-6 ${allOverlaysEnabled ? "text-emerald-400" : "text-zinc-500"}`}>
+                                <span
+                                    className={`text-[9px] font-bold w-6 ${allOverlaysEnabled ? "text-emerald-400" : "text-zinc-500"}`}
+                                >
                                     {allOverlaysEnabled ? "ON" : "OFF"}
                                 </span>
                             </div>
@@ -1402,7 +1413,9 @@ export function MapLibreMap({
                                             >
                                                 <span
                                                     className={`pointer-events-none inline-block h-3 w-3 transform rounded-full shadow-md transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
-                                                        isOn ? "translate-x-3.5 bg-emerald-400" : "translate-x-0 bg-zinc-500"
+                                                        isOn
+                                                            ? "translate-x-3.5 bg-emerald-400"
+                                                            : "translate-x-0 bg-zinc-500"
                                                     }`}
                                                 />
                                             </button>
