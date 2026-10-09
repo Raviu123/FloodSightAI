@@ -376,7 +376,7 @@ class HydroSimulationEngine:
         return ScenarioRunResult(
             run_id=run_id,
             scenario_config=config,
-            model_version="v2.0-2d-storage-cell-hydro",
+            model_version="v2.1-2d-storage-cell-hydro",
             executed_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             execution_duration_ms=round(exec_time_ms, 2),
             mass_balance_error_pct=round(mass_error_pct, 2),
@@ -397,7 +397,7 @@ class HydroSimulationEngine:
                     "scenario_id": config.scenario_id,
                     "scenario_name": config.name,
                     "spatial_domain": config.spatial_domain,
-                    "model_version": "v2.0-2d-storage-cell-hydro",
+                    "model_version": "v2.1-2d-storage-cell-hydro",
                     "inundated_area_sq_km": round(inundated_area_sq_km, 2),
                     "max_depth_m": round(max_depth_m, 2),
                     "hypothetical_disclaimer": config.hypothetical_disclaimer,

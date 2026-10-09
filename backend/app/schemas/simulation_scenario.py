@@ -91,7 +91,7 @@ class ScenarioRunResult(BaseModel):
     """Complete execution output record for a single scenario run."""
     run_id: str
     scenario_config: SimulationScenarioConfig
-    model_version: str = "v2.0-2d-storage-cell-hydro"
+    model_version: str = "v2.1-2d-storage-cell-hydro"
     executed_at: str
     execution_duration_ms: float
     

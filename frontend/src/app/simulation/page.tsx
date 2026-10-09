@@ -4,33 +4,29 @@ import { FloodMap } from "@/components/map/FloodMap";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { REGION_PRESETS, type RegionPreset } from "@/data/coastal-map-data";
+import { REGION_PRESETS } from "@/data/coastal-map-data";
+import { API_V1_URL } from "@/lib/api";
 import {
     AlertTriangle,
     ArrowRightLeft,
-    CheckCircle2,
     ChevronDown,
     ChevronUp,
     Clock,
     CloudRain,
     Database,
     Droplets,
-    FileSpreadsheet,
     Info,
-    Layers,
     Loader2,
     MapPin,
     Pause,
     Play,
     RotateCcw,
-    ShieldAlert,
     Sliders,
     SlidersHorizontal,
     Sparkles,
     Waves,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { API_V1_URL } from "@/lib/api";
 
 // Filter valid hotspots (excluding India nationwide entry)
 const HOTSPOT_REGIONS = REGION_PRESETS.filter(r => r.id !== "india");
@@ -52,6 +48,12 @@ interface ScenarioRunResultData {
     affected_population: number;
     zone_summaries: any[];
     geojson_output: any;
+    timeline: Array<{
+        time_minutes: number;
+        inundated_area_sq_km: number;
+        max_water_depth_m: number;
+        geojson_output: any;
+    }>;
 }
 
 interface ScenarioComparisonResultData {
@@ -66,10 +68,31 @@ interface ScenarioComparisonResultData {
     geojson_delta_output: any;
 }
 
+function formatSimulationError(payload: unknown, status: number): string {
+    if (!payload || typeof payload !== "object") {
+        return `Simulation failed with status ${status}`;
+    }
+
+    const detail = (payload as { detail?: unknown }).detail;
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail)) {
+        const messages = detail
+            .map(item => {
+                if (typeof item === "string") return item;
+                if (item && typeof item === "object" && "msg" in item) return String(item.msg);
+                return JSON.stringify(item);
+            })
+            .filter(Boolean);
+        if (messages.length) return messages.join("; ");
+    }
+    if (detail && typeof detail === "object") return JSON.stringify(detail);
+    return `Simulation failed with status ${status}`;
+}
+
 export default function SimulationPage() {
     // Hotspot Selection State (Mandatory Gate)
     const [selectedRegionId, setSelectedRegionId] = useState<string>("mumbai");
-    
+
     // Scenario Parameters State
     const [rainfallIntensity, setRainfallIntensity] = useState<number>(75);
     const [rainfallDuration, setRainfallDuration] = useState<number>(6);
@@ -83,10 +106,12 @@ export default function SimulationPage() {
     const [simulationResult, setSimulationResult] = useState<ScenarioRunResultData | null>(null);
     const [comparisonResult, setComparisonResult] = useState<ScenarioComparisonResultData | null>(null);
     const [simulationError, setSimulationError] = useState<string | null>(null);
-    
+
     // Preset Families State
     const [presetFamilies, setPresetFamilies] = useState<any[]>([]);
     const [comparisonMode, setComparisonMode] = useState<boolean>(false);
+    const [timelineIndex, setTimelineIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     // Collapsible Console Sections State
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -123,6 +148,21 @@ export default function SimulationPage() {
         }
     }, [selectedRegionId, isRegionValid, fetchPresetFamilies]);
 
+    useEffect(() => {
+        if (!isPlaying || !simulationResult?.timeline?.length) return;
+        const timer = window.setInterval(() => {
+            setTimelineIndex(current => {
+                const next = current + 1;
+                if (next >= simulationResult.timeline.length) {
+                    setIsPlaying(false);
+                    return 0;
+                }
+                return next;
+            });
+        }, 800);
+        return () => window.clearInterval(timer);
+    }, [isPlaying, simulationResult]);
+
     // Apply preset configuration
     const applyPreset = (preset: any) => {
         if (!preset?.config) return;
@@ -158,7 +198,8 @@ export default function SimulationPage() {
             river_inflow_m3_s: riverInflow,
             time_step_minutes: 15.0,
             total_duration_hours: totalDuration,
-            hypothetical_disclaimer: "Hypothetical 2D hydrodynamic simulation output for planning and sensitivity analysis.",
+            hypothetical_disclaimer:
+                "Hypothetical 2D hydrodynamic simulation output for planning and sensitivity analysis.",
         };
 
         try {
@@ -170,11 +211,13 @@ export default function SimulationPage() {
 
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({ detail: "Simulation request failed" }));
-                throw new Error(errData.detail || `Simulation failed with status ${res.status}`);
+                throw new Error(formatSimulationError(errData, res.status));
             }
 
             const data: ScenarioRunResultData = await res.json();
             setSimulationResult(data);
+            setTimelineIndex(0);
+            setIsPlaying(false);
         } catch (err: any) {
             console.error("Simulation error:", err);
             setSimulationError(err.message || "Failed to execute hydrodynamic simulation.");
@@ -240,7 +283,10 @@ export default function SimulationPage() {
                         <Waves className="h-5 w-5 text-sky-400" />
                         2D Hydrodynamic Flood Simulation Engine
                     </h1>
-                    <Badge variant="outline" className="text-[10px] font-mono border-sky-800/60 text-sky-300 bg-sky-950/40">
+                    <Badge
+                        variant="outline"
+                        className="text-[10px] font-mono border-sky-800/60 text-sky-300 bg-sky-950/40"
+                    >
                         v2.0 2D-Storage-Cell
                     </Badge>
                 </div>
@@ -259,6 +305,8 @@ export default function SimulationPage() {
                             setSimulationResult(null);
                             setComparisonResult(null);
                             setSimulationError(null);
+                            setTimelineIndex(0);
+                            setIsPlaying(false);
                         }}
                         className="font-mono text-xs gap-1.5 h-8 border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 cursor-pointer"
                     >
@@ -278,7 +326,11 @@ export default function SimulationPage() {
                                   : "bg-sky-600 hover:bg-sky-500 text-white"
                         }`}
                     >
-                        {isSimulating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+                        {isSimulating ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                            <Play className="h-3.5 w-3.5" />
+                        )}
                         {isSimulating ? "Simulating..." : "Run 2D Simulation"}
                     </Button>
                 </div>
@@ -290,7 +342,9 @@ export default function SimulationPage() {
                     <div className="flex items-center gap-2.5">
                         <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
                         <span>
-                            <strong>HOTSPOT REGION SELECTION REQUIRED:</strong> Select an official flood hotspot (e.g. Mumbai, Patna, Kochi, Kolkata) to initialize high-resolution terrain rasters before running simulation.
+                            <strong>HOTSPOT REGION SELECTION REQUIRED:</strong> Select an official flood hotspot (e.g.
+                            Mumbai, Patna, Kochi, Kolkata) to initialize high-resolution terrain rasters before running
+                            simulation.
                         </span>
                     </div>
                 </div>
@@ -324,8 +378,13 @@ export default function SimulationPage() {
                             rainfall={rainfallIntensity}
                             heightClassName="h-[calc(100vh-11.5rem)] min-h-[620px]"
                             activeRegionId={selectedRegionId}
-                            onRegionChange={rId => setSelectedRegionId(rId)}
-                            simulationGeoJson={comparisonMode && comparisonResult ? null : simulationResult?.geojson_output}
+                            onRegionChange={(rId: string) => setSelectedRegionId(rId)}
+                            simulationGeoJson={
+                                comparisonMode && comparisonResult
+                                    ? null
+                                    : (simulationResult?.timeline?.[timelineIndex]?.geojson_output ??
+                                      simulationResult?.geojson_output)
+                            }
                             comparisonGeoJson={comparisonMode ? comparisonResult?.geojson_delta_output : null}
                         />
                     </div>
@@ -343,7 +402,9 @@ export default function SimulationPage() {
                                 </CardTitle>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span className={`h-2 w-2 rounded-full ${isRegionValid ? "bg-emerald-400 animate-pulse" : "bg-amber-500"}`} />
+                                <span
+                                    className={`h-2 w-2 rounded-full ${isRegionValid ? "bg-emerald-400 animate-pulse" : "bg-amber-500"}`}
+                                />
                                 <span className="text-[10px] font-mono text-zinc-400 font-medium">
                                     {isRegionValid ? "HOTSPOT ACTIVE" : "GATE LOCKED"}
                                 </span>
@@ -369,7 +430,11 @@ export default function SimulationPage() {
                                         <span className="text-[10px] font-mono text-sky-400 bg-sky-950/60 border border-sky-850 px-1.5 py-0.5 rounded font-semibold uppercase">
                                             {activePresetRegion?.name.split(" ")[0] || "Select"}
                                         </span>
-                                        {openSections.region ? <ChevronUp className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+                                        {openSections.region ? (
+                                            <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                                        ) : (
+                                            <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                                        )}
                                     </div>
                                 </button>
 
@@ -383,7 +448,9 @@ export default function SimulationPage() {
                                             onChange={e => setSelectedRegionId(e.target.value)}
                                             className="w-full h-8 px-2.5 rounded-lg border border-zinc-800 bg-zinc-900 text-xs text-zinc-200 outline-none focus:border-sky-500 cursor-pointer font-mono"
                                         >
-                                            <option value="" disabled>-- Select Official Flood Hotspot --</option>
+                                            <option value="" disabled>
+                                                -- Select Official Flood Hotspot --
+                                            </option>
                                             {HOTSPOT_REGIONS.map(r => (
                                                 <option key={r.id} value={r.id}>
                                                     {r.name} ({r.state}) [{r.code}]
@@ -410,9 +477,15 @@ export default function SimulationPage() {
                                 >
                                     <div className="flex items-center gap-2">
                                         <Sliders className="h-3.5 w-3.5 text-sky-400" />
-                                        <span className="text-xs font-mono font-medium text-zinc-200">Scenario Drivers</span>
+                                        <span className="text-xs font-mono font-medium text-zinc-200">
+                                            Scenario Drivers
+                                        </span>
                                     </div>
-                                    {openSections.environmental ? <ChevronUp className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+                                    {openSections.environmental ? (
+                                        <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                                    ) : (
+                                        <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                                    )}
                                 </button>
 
                                 {openSections.environmental && (
@@ -461,7 +534,9 @@ export default function SimulationPage() {
                                                 <span className="text-zinc-400 flex items-center gap-1.5">
                                                     <Droplets className="h-3.5 w-3.5 text-amber-400" /> Soil Saturation
                                                 </span>
-                                                <span className="font-bold text-amber-400">{(soilSaturation * 100).toFixed(0)}%</span>
+                                                <span className="font-bold text-amber-400">
+                                                    {(soilSaturation * 100).toFixed(0)}%
+                                                </span>
                                             </div>
                                             <input
                                                 type="range"
@@ -480,7 +555,9 @@ export default function SimulationPage() {
                                                 <span className="text-zinc-400 flex items-center gap-1.5">
                                                     <Waves className="h-3.5 w-3.5 text-cyan-400" /> Coastal Surge Stage
                                                 </span>
-                                                <span className="font-bold text-cyan-400">+{coastalSurge.toFixed(1)}m</span>
+                                                <span className="font-bold text-cyan-400">
+                                                    +{coastalSurge.toFixed(1)}m
+                                                </span>
                                             </div>
                                             <input
                                                 type="range"
@@ -505,9 +582,15 @@ export default function SimulationPage() {
                                 >
                                     <div className="flex items-center gap-2">
                                         <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                                        <span className="text-xs font-mono font-medium text-zinc-200">Preset Families</span>
+                                        <span className="text-xs font-mono font-medium text-zinc-200">
+                                            Preset Families
+                                        </span>
                                     </div>
-                                    {openSections.presets ? <ChevronUp className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+                                    {openSections.presets ? (
+                                        <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                                    ) : (
+                                        <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                                    )}
                                 </button>
 
                                 {openSections.presets && (
@@ -518,12 +601,19 @@ export default function SimulationPage() {
                                                 className="p-2 rounded-xl border border-zinc-800/70 bg-zinc-900/60 hover:border-zinc-700 text-left transition-all space-y-1"
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-[11px] font-bold text-zinc-200 truncate">{p.title}</span>
-                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 border-zinc-700 text-zinc-400">
+                                                    <span className="text-[11px] font-bold text-zinc-200 truncate">
+                                                        {p.title}
+                                                    </span>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-[9px] px-1 py-0 border-zinc-700 text-zinc-400"
+                                                    >
                                                         {p.category}
                                                     </Badge>
                                                 </div>
-                                                <p className="text-[10px] text-zinc-400 leading-tight">{p.description}</p>
+                                                <p className="text-[10px] text-zinc-400 leading-tight">
+                                                    {p.description}
+                                                </p>
                                                 <div className="flex items-center gap-2 pt-1">
                                                     <button
                                                         onClick={() => applyPreset(p)}
@@ -556,32 +646,48 @@ export default function SimulationPage() {
                                     >
                                         <div className="flex items-center gap-2">
                                             <Database className="h-3.5 w-3.5 text-cyan-400" />
-                                            <span className="text-xs font-mono font-medium text-zinc-200">2D Hydro Telemetry</span>
+                                            <span className="text-xs font-mono font-medium text-zinc-200">
+                                                2D Hydro Telemetry
+                                            </span>
                                         </div>
-                                        {openSections.metrics ? <ChevronUp className="h-3.5 w-3.5 text-zinc-400" /> : <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />}
+                                        {openSections.metrics ? (
+                                            <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                                        ) : (
+                                            <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                                        )}
                                     </button>
 
                                     {openSections.metrics && (
                                         <div className="px-3 py-2.5 space-y-2 bg-zinc-950/50 border-t border-zinc-800/60 font-mono text-xs">
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>Mass Conservation Error:</span>
-                                                <span className="font-bold text-emerald-400">{simulationResult.mass_balance_error_pct}%</span>
+                                                <span className="font-bold text-emerald-400">
+                                                    {simulationResult.mass_balance_error_pct}%
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>Inundated Area:</span>
-                                                <span className="font-bold text-white">{simulationResult.inundated_area_sq_km} km²</span>
+                                                <span className="font-bold text-white">
+                                                    {simulationResult.inundated_area_sq_km} km²
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>Max Water Depth:</span>
-                                                <span className="font-bold text-sky-400">{simulationResult.max_water_depth_m}m</span>
+                                                <span className="font-bold text-sky-400">
+                                                    {simulationResult.max_water_depth_m}m
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>Population at Risk:</span>
-                                                <span className="font-bold text-amber-400">{simulationResult.affected_population.toLocaleString()}</span>
+                                                <span className="font-bold text-amber-400">
+                                                    {simulationResult.affected_population.toLocaleString()}
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center text-zinc-400">
                                                 <span>Execution Latency:</span>
-                                                <span className="font-bold text-zinc-300">{simulationResult.execution_duration_ms} ms</span>
+                                                <span className="font-bold text-zinc-300">
+                                                    {simulationResult.execution_duration_ms} ms
+                                                </span>
                                             </div>
 
                                             {/* Disclaimers Notice */}
@@ -591,6 +697,47 @@ export default function SimulationPage() {
                                                 </div>
                                                 <p>{simulationResult.scenario_config.hypothetical_disclaimer}</p>
                                             </div>
+
+                                            {simulationResult.timeline?.length > 0 && (
+                                                <div className="border-t border-zinc-800 pt-2 space-y-2">
+                                                    <div className="flex items-center justify-between text-zinc-400">
+                                                        <span>Simulation Playback</span>
+                                                        <span className="text-sky-400">
+                                                            {Math.round(
+                                                                simulationResult.timeline[timelineIndex]
+                                                                    ?.time_minutes ?? 0,
+                                                            )}{" "}
+                                                            min
+                                                        </span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max={simulationResult.timeline.length - 1}
+                                                        step="1"
+                                                        value={timelineIndex}
+                                                        onChange={event => {
+                                                            setIsPlaying(false);
+                                                            setTimelineIndex(Number(event.target.value));
+                                                        }}
+                                                        className="w-full accent-sky-500 cursor-pointer h-1.5 bg-zinc-800/80 rounded-full appearance-none"
+                                                        aria-label="Simulation time"
+                                                    />
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setIsPlaying(value => !value)}
+                                                        className="h-7 w-full gap-1.5 text-[10px] border-zinc-700 bg-zinc-900 text-zinc-200"
+                                                    >
+                                                        {isPlaying ? (
+                                                            <Pause className="h-3 w-3" />
+                                                        ) : (
+                                                            <Play className="h-3 w-3" />
+                                                        )}
+                                                        {isPlaying ? "Pause" : "Play timeline"}
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
